@@ -14,7 +14,7 @@ public class WireGuardServer : Server
     /// <summary>
     ///     本地地址
     /// </summary>
-    public string LocalAddresses { get; set; } = "172.16.0.2";
+    public string LocalAddresses { get; set; } = "172.16.0.2/32";
 
     /// <summary>
     ///     节点公钥
@@ -35,4 +35,28 @@ public class WireGuardServer : Server
     ///     MTU
     /// </summary>
     public int MTU { get; set; } = 1420;
+
+    public string Reserved { get; set; } = "0,0,0";
+
+    public enum EDomainStrategy
+    {
+        ForceIPv6v4,
+        ForceIPv6,
+        ForceIPv4v6,
+        ForceIPv4,
+        ForceIP
+    }
+
+    public string DomainStrategy { get; set; } = EDomainStrategy.ForceIP.ToString();
+
+    public List<string> GetDomainStrategyList()
+    {
+        return Enum.GetValues<EDomainStrategy>().OfType<EDomainStrategy>().Select(x => x.ToString()).ToList();
+    }
+
+    public int KeepAlive { get; set; } = 25;
+
+    public string AllowIPs { get; set; } = "0.0.0.0/0,127.0.0.1/32";
+
+    public int Workers { get; set; } = 2;
 }

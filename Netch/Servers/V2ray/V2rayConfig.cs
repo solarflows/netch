@@ -42,11 +42,11 @@ public class OutboundConfiguration
 
     public string version { get; set; }
 
-    public string address { get; set; }
+    public object address { get; set; }
 
     public string user { get; set; }
 
-    public ushort port { get; set; }
+    public int port { get; set; }
 
     public string password { get; set; }
 
@@ -58,17 +58,28 @@ public class OutboundConfiguration
 
     public string[] pluginArgs { get; set; }
 
-    public string[] localAddresses { get; set; }
 
-    public string peerPublicKey { get; set; }
-
-    public string publicKey { get; set; }
-
-    public string privateKey { get; set; }
-
-    public string preSharedKey { get; set; }
-
+    #region wireguard
+    public string secretKey { get; set; }
+    
+    public class WgPeers
+    {
+        public string endpoint { get; set; }
+        public string publicKey { get; set; }
+        public string preShareKey { get; set; }
+        public int keepAlive { get; set; }
+        public string[] allowedIPs { get; set; }
+    }
+    public List<WgPeers> peers { get; set; }
+    public int[] reserved { get; set; }
+    public string domainStrategy { get; set; }
     public int mtu { get; set; }
+    public int workers { get; set; }
+
+    #endregion
+    
+    public string privateKey { get; set; }
+    public string publicKey { get; set; }
 }
 
 public class VnextItem
