@@ -29,14 +29,18 @@ public static unsafe class RouteHelper
         if (inet == AddressFamily.InterNetwork)
         {
             addr.Address.Ipv4.sin_family = (ushort)ADDRESS_FAMILY.AF_INET;
+#if (WINDOWS8_1_OR_GREATER)
             if (inet_pton((int)inet, address, &addr.Address.Ipv4.sin_addr) == 0)
                 return false;
+#endif
         }
         else if (inet == AddressFamily.InterNetworkV6)
         {
             addr.Address.Ipv6.sin6_family = (ushort)ADDRESS_FAMILY.AF_INET6;
+#if (WINDOWS8_1_OR_GREATER)
             if (inet_pton((int)inet, address, &addr.Address.Ipv6.sin6_addr) == 0)
                 return false;
+#endif
         }
         else
         {

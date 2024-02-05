@@ -69,6 +69,13 @@ public class TrojanUtil : IServerUtil
                     data.Host = peer;
             }
 
+            var mode = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("obfs"));
+            if (mode != null)
+            {
+                data.Mode = mode;
+                data.ServiceName = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("serviceName"));
+            }
+
             text = regmatch.Groups["data"].Value;
         }
 

@@ -24,6 +24,16 @@ public class TrojanServer : Server
     public string? Host { get; set; }
 
     /// <summary>
+    ///     模式
+    /// </summary>
+    public string? Mode { get; set; }
+
+    /// <summary>
+    ///     GRPC Service Name
+    /// </summary>
+    public string? ServiceName { get; set; }
+
+    /// <summary>
     ///     TLS 底层传输安全
     /// </summary>
     public string TLSSecureType

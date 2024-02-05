@@ -1,5 +1,6 @@
 ﻿using Netch.Models;
 using Netch.Utils;
+using System.ServiceProcess;
 
 #pragma warning disable VSTHRD200
 
@@ -84,7 +85,7 @@ public static class V2rayConfigUtils
                             new User
                             {
                                 id = getUUID(vless.UserID),
-                                flow = vless.TLSSecureType == "xtls" ? "xtls-rprx-direct" : "",
+                                 flow = vless.TLSSecureType == "xtls" ? "xtls-rprx-direct" : "",
                                 encryption = vless.EncryptMethod
                             }
                         }
@@ -217,9 +218,19 @@ public static class V2rayConfigUtils
 
                 outbound.streamSettings = new StreamSettings
                 {
-                    network = "tcp",
+                    network = trojan.Mode?.Equals("grpc") == true ? "grpc" : "tcp",
                     security = trojan.TLSSecureType
                 };
+
+                if (trojan.Mode?.Equals("grpc") == true)
+                {
+                    outbound.streamSettings.grpcSettings = new GrpcSettings
+                    {
+                        serviceName = trojan.ServiceName,
+                        multiMode = true // 这是一个 实验性 选项，可能不会被长期保留，也不保证跨版本兼容。此模式在 测试环境中 能够带来约 20% 的性能提升，实际效果因传输速率不同而不同。
+                    };
+                }
+
                 if (trojan.TLSSecureType != "none")
                 {
                     var tlsSettings = new TlsSettings
