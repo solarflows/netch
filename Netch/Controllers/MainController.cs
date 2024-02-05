@@ -48,12 +48,12 @@ public static class MainController
             if (modePort != null)
                 TryReleaseTcpPort((ushort)modePort, portName);
 
-            if (Server is Socks5Server socks5 && (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth)))
-            {
-                Socks5Server = socks5;
-            }
-            else
-            {
+            // if (Server is Socks5Server socks5 && (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth)))
+            // {
+            //     Socks5Server = socks5;
+            // }
+            // else
+            // {
                 // Start Server Controller to get a local socks5 server
                 Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
 
@@ -65,7 +65,7 @@ public static class MainController
 
                 StatusPortInfoText.Socks5Port = Socks5Server.Port;
                 StatusPortInfoText.UpdateShareLan();
-            }
+            // }
 
             // Start Mode Controller
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
