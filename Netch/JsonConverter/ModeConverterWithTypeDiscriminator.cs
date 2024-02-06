@@ -29,7 +29,7 @@ public class ModeConverterWithTypeDiscriminator : JsonConverter<Mode>
             ModeType.ProcessMode => typeof(Redirector),
             ModeType.TunMode => typeof(TunMode),
             ModeType.ShareMode => typeof(ShareMode),
-            _ => throw new ArgumentOutOfRangeException()
+            _ => throw new ArgumentOutOfRangeException(nameof(modeTypeEnum), "Invalid ModeType value.")
         };
 
         return (Mode?)jsonElement.Deserialize(modeType, options);

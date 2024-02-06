@@ -1,40 +1,52 @@
 ﻿using Netch.Models;
 using Netch.Utils;
-using System.ServiceProcess;
-using static Netch.Servers.OutboundConfiguration;
-
-#pragma warning disable VSTHRD200
 
 namespace Netch.Servers;
 
-public static class V2rayConfigUtils
+public static class CoreConfig
 {
-    public static async Task<V2rayConfig> GenerateClientConfigAsync(Server server)
+    public static async Task<Configuration> GenerateClientConfigAsync(Server server)
     {
-        var v2rayConfig = new V2rayConfig
+        var localPort = Global.Settings.Socks5LocalPort;
+        var localAddress = Global.Settings.LocalAddress;
+
+        var Config = new Configuration
         {
-            inbounds = new object[]
-            {
-                new
-                {
-                    port = Global.Settings.Socks5LocalPort,
-                    protocol = "socks",
-                    listen = Global.Settings.LocalAddress,
-                    settings = new
-                    {
-                        auth = "noauth",
-                        udp = true
-                    }
-                }
-            }
+            inbounds = GetInbounds(server, localPort, localAddress).ToArray(),
+            outbounds = new[] { await OutboundAsync(server) }
         };
 
-        v2rayConfig.outbounds = new[] { await outbound(server) };
-
-        return v2rayConfig;
+        return Config;
     }
 
-    private static async Task<Outbound> outbound(Server server)
+    private static IEnumerable<object> GetInbounds(Server server, int localPort, string localAddress)
+    {
+        var inboundSettings = new { udp = true, auth = "noauth"/*, allowTransparent = false */ };
+        var sniffingSettings = (Global.Settings.V2RayConfig.Sniffing/* && server.Sniffing   */) ? new { enabled = true, routeOnly = false, destOverride = new object[] { "http", "tls" } } : null;
+
+        yield return new
+        {
+            port = localPort,
+            protocol = "socks",
+            listen = localAddress,
+            settings = inboundSettings,
+            sniffing = (Global.Settings.V2RayConfig.Sniffing/* && server.Sniffing   */ && server is VisionServer vision && vision.TLSSecureType == "reality") ? new { enabled = true, routeOnly = true, destOverride = new object[] { "http", "tls", "quic" } } : sniffingSettings
+        };
+
+        if (Global.Settings.V2RayConfig.AllowHttp/* && server.AllowHttp */)
+        {
+            yield return new
+            {
+                protocol = "http",
+                port = localPort + 1,
+                listen = localAddress,
+                settings = inboundSettings,
+                sniffing = sniffingSettings
+            };
+        }
+    }
+
+    private static async Task<Outbound> OutboundAsync(Server server)
     {
         var outbound = new Outbound
         {
@@ -53,23 +65,67 @@ public static class V2rayConfigUtils
                     {
                         address = await server.AutoResolveHostnameAsync(),
                         port = server.Port,
-                        users = socks.Auth()
-                            ? new[]
+                        users = socks.Auth() ? new[]
+                        {
+                            new
                             {
-                                new
-                                {
-                                    user = socks.Username,
-                                    pass = socks.Password,
-                                    level = 1
-                                }
+                                user = socks.Username,
+                                pass = socks.Password,
+                                level = 1
                             }
-                            : null
+                        } : null
                     }
                 };
                 outbound.settings.version = socks.Version;
 
-                outbound.mux.enabled = false;
-                outbound.mux.concurrency = -1;
+                outbound.mux = null; 
+//              outbound.mux.enabled = false;
+//              outbound.mux.concurrency = -1;
+
+                break;
+            }
+            case VisionServer vision:
+            {
+                outbound.protocol = "vless";
+                outbound.settings.vnext = new[]
+                {
+                    new VnextItem
+                    {
+                        address = await server.AutoResolveHostnameAsync(),
+                        port = server.Port,
+                        users = new[]
+                        {
+                            new User
+                            {
+                                id = GetUUID(vision.UserID),
+                                encryption = vision.EncryptMethod,
+                                flow = vision.Flow.ValueOrDefault()
+                            }
+                        }
+                    }
+                };
+
+                if (vision.PacketEncoding != "none")
+                {
+                    outbound.settings.packetEncoding = Global.Settings.V2RayConfig.XrayFullCone ? vision.PacketEncoding : "none";
+                }
+
+                outbound.streamSettings = BoundStreamSettings(vision);
+
+                if (vision.UseMux != true)
+                {
+                    outbound.mux = null;
+                }
+                else
+                {
+                    outbound.mux = new Mux
+                    {
+                        enabled = vision.UseMux ?? Global.Settings.V2RayConfig.UseMux,
+                        concurrency = vision.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1,
+                        packetEncoding = (vision.PacketEncoding != "none") ? (Global.Settings.V2RayConfig.XrayFullCone ? vision.PacketEncoding : "none") : null
+                    };
+                }
+
                 break;
             }
             case VLESSServer vless:
@@ -85,28 +141,40 @@ public static class V2rayConfigUtils
                         {
                             new User
                             {
-                                id = getUUID(vless.UserID),
-                                flow = vless.FlowControl, //vless.TLSSecureType == "xtls" ? "xtls-rprx-direct" : "",
-                                encryption = vless.EncryptMethod
+                                id = GetUUID(vless.UserID),
+                                encryption = vless.EncryptMethod,
+                                flow = vless.TLSSecureType == "xtls" ? "xtls-rprx-direct" : ""
                             }
                         }
                     }
                 };
 
-                outbound.settings.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vless.PacketEncoding : "none";
-                outbound.mux.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vless.PacketEncoding : "none";
-
-                outbound.streamSettings = boundStreamSettings(vless);
-
-                if (vless.TLSSecureType == "xtls")
+                if (vless.PacketEncoding != "none")
                 {
-                    outbound.mux.enabled = false;
-                    outbound.mux.concurrency = -1;
+                    outbound.settings.packetEncoding = Global.Settings.V2RayConfig.XrayFullCone ? vless.PacketEncoding : "none";
+                }
+
+                outbound.streamSettings = BoundStreamSettings(vless);
+
+                if (vless.UseMux != true)
+                {
+                    outbound.mux = null;
                 }
                 else
                 {
-                    outbound.mux.enabled = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux;
-                    outbound.mux.concurrency = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
+                    if (vless.TLSSecureType != "tls")
+                    {
+                        outbound.mux = null;
+                    }
+                    else
+                    {
+                        outbound.mux = new Mux
+                        {
+                            enabled = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux,
+                            concurrency = vless.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1,
+                            packetEncoding = (vless.PacketEncoding != "none") ? (Global.Settings.V2RayConfig.XrayFullCone ? vless.PacketEncoding : "none") : null
+                        };
+                    }
                 }
 
                 break;
@@ -118,6 +186,7 @@ public static class V2rayConfigUtils
                 {
                     vmess.EncryptMethod = "zero";
                 }
+
                 outbound.settings.vnext = new[]
                 {
                     new VnextItem
@@ -128,7 +197,7 @@ public static class V2rayConfigUtils
                         {
                             new User
                             {
-                                id = getUUID(vmess.UserID),
+                                id = GetUUID(vmess.UserID),
                                 alterId = vmess.AlterID,
                                 security = vmess.EncryptMethod
                             }
@@ -136,16 +205,31 @@ public static class V2rayConfigUtils
                     }
                 };
 
-                outbound.settings.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vmess.PacketEncoding : "none";
-                outbound.mux.packetEncoding = Global.Settings.V2RayConfig.XrayCone ? vmess.PacketEncoding : "none";
+                if (vmess.PacketEncoding != "none")
+                {
+                    outbound.settings.packetEncoding = Global.Settings.V2RayConfig.XrayFullCone ? vmess.PacketEncoding : "none";
+                }
 
-                outbound.streamSettings = boundStreamSettings(vmess);
+                outbound.streamSettings = BoundStreamSettings(vmess);
 
-                outbound.mux.enabled = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux;
-                outbound.mux.concurrency = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1;
+                if (vmess.UseMux != true)
+                {
+                    outbound.mux = null;
+                }
+                else
+                {
+                    outbound.mux = new Mux
+                    {
+                        enabled = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux,
+                        concurrency = vmess.UseMux ?? Global.Settings.V2RayConfig.UseMux ? 8 : -1,
+                        packetEncoding = (vmess.PacketEncoding != "none") ? (Global.Settings.V2RayConfig.XrayFullCone ? vmess.PacketEncoding : "none") : null
+                    };
+                }
+
                 break;
             }
             case ShadowsocksServer ss:
+            {
                 outbound.protocol = "shadowsocks";
                 outbound.settings.servers = new[]
                 {
@@ -157,6 +241,7 @@ public static class V2rayConfigUtils
                         password = ss.Password
                     }
                 };
+
                 outbound.settings.plugin = ss.Plugin ?? "";
                 outbound.settings.pluginOpts = ss.PluginOption ?? "";
                 
@@ -170,8 +255,11 @@ public static class V2rayConfigUtils
                         }
                     };
                 }
+
                 break;
-             case ShadowsocksRServer ssr:
+            }
+            case ShadowsocksRServer ssr:
+            {
                 outbound.protocol = "shadowsocks";
                 outbound.settings.servers = new[]
                 {
@@ -183,6 +271,7 @@ public static class V2rayConfigUtils
                         password = ssr.Password,
                     }
                 };
+
                 outbound.settings.plugin = "shadowsocksr";
                 outbound.settings.pluginArgs = new string[]
                 {
@@ -202,8 +291,11 @@ public static class V2rayConfigUtils
                         }
                     };
                 }
+
                 break;
-             case TrojanServer trojan:
+            }
+            case TrojanServer trojan:
+            { 
                 outbound.protocol = "trojan";
                 outbound.settings.servers = new[]
                 {
@@ -219,18 +311,9 @@ public static class V2rayConfigUtils
 
                 outbound.streamSettings = new StreamSettings
                 {
-                    network = trojan.Mode?.Equals("grpc") == true ? "grpc" : "tcp",
+                    network = "tcp",
                     security = trojan.TLSSecureType
                 };
-
-                if (trojan.Mode?.Equals("grpc") == true)
-                {
-                    outbound.streamSettings.grpcSettings = new GrpcSettings
-                    {
-                        serviceName = trojan.ServiceName,
-                        multiMode = true // 这是一个 实验性 选项，可能不会被长期保留，也不保证跨版本兼容。此模式在 测试环境中 能够带来约 20% 的性能提升，实际效果因传输速率不同而不同。
-                    };
-                }
 
                 if (trojan.TLSSecureType != "none")
                 {
@@ -258,21 +341,19 @@ public static class V2rayConfigUtils
                         tcpFastOpen = true
                     };
                 }
+
                 break;
+            }
             case WireGuardServer wg:
+            {
                 outbound.protocol = "wireguard";
+                outbound.settings.address = await server.AutoResolveHostnameAsync();
+                outbound.settings.port = server.Port;
+                outbound.settings.localAddresses = wg.LocalAddresses.SplitOrDefault();
+                outbound.settings.peerPublicKey = wg.PeerPublicKey;
+                outbound.settings.privateKey = wg.PrivateKey;
+                outbound.settings.preSharedKey = wg.PreSharedKey;
                 outbound.settings.mtu = wg.MTU;
-                var wgPeers = new WgPeers();
-                wgPeers.endpoint = await server.AutoResolveHostnameAsync() + ":" + server.Port;
-                wgPeers.publicKey = wg.PeerPublicKey;
-                wgPeers.preShareKey = wg.PreSharedKey;
-                wgPeers.keepAlive = wg.KeepAlive;
-                wgPeers.allowedIPs = wg.AllowIPs.Split(",");
-                outbound.settings.peers = new List<WgPeers> { wgPeers };
-                outbound.settings.address =  wg.LocalAddresses.SplitOrDefault();
-                outbound.settings.secretKey = wg.PrivateKey;
-                outbound.settings.reserved = wg.Reserved.Split(",").Select(x=>int.Parse(x)).ToArray();
-                outbound.settings.workers = wg.Workers;
 
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
                 {
@@ -284,9 +365,12 @@ public static class V2rayConfigUtils
                         }
                     };
                 }
+
                 break;
+            }
 
             case SSHServer ssh:
+            {
                 outbound.protocol = "ssh";
                 outbound.settings.address = await server.AutoResolveHostnameAsync();
                 outbound.settings.port = server.Port;
@@ -305,13 +389,15 @@ public static class V2rayConfigUtils
                         }
                     };
                 }
+
                 break;
+            }
         }
 
         return outbound;
     }
 
-    private static StreamSettings boundStreamSettings(VMessServer server)
+    private static StreamSettings BoundStreamSettings(VMessServer server)
     {
         // https://xtls.github.io/config/transports
 
@@ -325,9 +411,21 @@ public static class V2rayConfigUtils
         {
             var tlsSettings = new TlsSettings
             {
-                allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
+                fingerprint = Global.Settings.V2RayConfig.Fingerprint,
                 serverName = server.ServerName.ValueOrDefault() ?? server.Host.SplitOrDefault()?[0]
             };
+
+            if (server.TLSSecureType == "tls")
+            {
+                tlsSettings.allowInsecure = Global.Settings.V2RayConfig.AllowInsecure;
+                tlsSettings.alpn = server.Alpn.SplitOrDefault() ?? Global.Settings.V2RayConfig.Alpn[2]?.Split(',').Select(s => s.Trim()).ToArray();
+            }
+            else if (server is VisionServer vision && server.TLSSecureType == "reality")
+            {
+                tlsSettings.publicKey = vision.PublicKey.ValueOrDefault();
+                tlsSettings.spiderX = vision.SpiderX.ValueOrDefault();
+                tlsSettings.shortId = vision.ShortId.ValueOrDefault();
+            }
 
             switch (server.TLSSecureType)
             {
@@ -337,6 +435,9 @@ public static class V2rayConfigUtils
                 case "xtls":
                     streamSettings.xtlsSettings = tlsSettings;
                     break;
+                case "reality":
+                    streamSettings.realitySettings = tlsSettings;
+                    break;
             }
         }
 
@@ -344,26 +445,30 @@ public static class V2rayConfigUtils
         {
             case "tcp":
 
-                streamSettings.tcpSettings = new TcpSettings
+                if (server is not VisionServer)
                 {
-                    header = new
+                    streamSettings.tcpSettings = new TcpSettings
                     {
-                        type = server.FakeType,
-                        request = server.FakeType switch
+                        header = new
                         {
-                            "none" => null,
-                            "http" => new
+                            type = server.FakeType,
+                            request = server.FakeType switch
                             {
-                                path = server.Path.SplitOrDefault(),
-                                headers = new
+                                "none" => null,
+                                "http" => new
                                 {
-                                    Host = server.Host.SplitOrDefault()
-                                }
-                            },
-                            _ => throw new MessageException($"Invalid tcp type {server.FakeType}")
+                                    path = server.Path.SplitOrDefault(),
+                                    headers = new
+                                    {
+                                        Host = server.Host.SplitOrDefault()
+                                    }
+                                },
+                                _ => throw new MessageException($"Invalid tcp type {server.FakeType}")
+                            }
                         }
-                    }
-                };
+                    };
+
+                }
 
                 break;
             case "ws":
@@ -443,10 +548,8 @@ public static class V2rayConfigUtils
         return streamSettings;
     }
 
-    public static string getUUID(string uuid)
+    public static string GetUUID(string uuid)
     {
-        if (uuid is null)
-            return "";
         if (uuid.Length == 36 || uuid.Length == 32)
         {
             return uuid;

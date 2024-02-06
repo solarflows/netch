@@ -13,14 +13,14 @@ public static class UpdateChecker
     public const string Repo = @"Netch";
 
     public const string Name = @"Netch";
-    public const string Copyright = @"Copyright © 2019 - 2022";
+    public const string Copyright = @"Copyright © 2019 - 2024";
 
     public const string AssemblyVersion = @"0.0.1";
     private const string Suffix = @"";
 
     public static readonly string Version = $"{AssemblyVersion}{(string.IsNullOrEmpty(Suffix) ? "" : $"-{Suffix}")}";
 
-    public static Release LatestRelease = null!;
+    internal static Release LatestRelease = null!;
 
     public static string LatestVersionNumber => LatestRelease.tag_name;
 

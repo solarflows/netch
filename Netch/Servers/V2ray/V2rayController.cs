@@ -18,7 +18,7 @@ public class V2rayController : Guard, IServerController
 
     protected override IEnumerable<string> FailedKeywords => new[] { "config file not readable", "failed to" };
 
-    public override string Name => "xray";
+    public override string Name => "system.core";
 
     public ushort? Socks5LocalPort { get; set; }
 
@@ -28,10 +28,10 @@ public class V2rayController : Guard, IServerController
     {
         await using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write, FileShare.Read))
         {
-            await JsonSerializer.SerializeAsync(fileStream, await V2rayConfigUtils.GenerateClientConfigAsync(s), Global.NewCustomJsonSerializerOptions());
+            await JsonSerializer.SerializeAsync(fileStream, await CoreConfig.GenerateClientConfigAsync(s), Global.NewCustomJsonSerializerOptions());
         }
 
-        await StartGuardAsync("-c ..\\data\\last.json");
+        await StartGuardAsync("run -c ..\\data\\last.json");
         return new Socks5Server(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
     }
 }

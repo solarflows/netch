@@ -45,13 +45,13 @@ public class TrojanUtil : IServerUtil
         var data = new TrojanServer();
 
         text = text.Replace("/?", "?");
-        if (text.Contains("#"))
+        if (text.Contains('#'))
         {
             data.Remark = HttpUtility.UrlDecode(text.Split('#')[1]);
             text = text.Split('#')[0];
         }
 
-        if (text.Contains("?"))
+        if (text.Contains('?'))
         {
             var reg = new Regex(@"^(?<data>.+?)\?(.+)$");
             var regmatch = reg.Match(text);
@@ -67,13 +67,6 @@ public class TrojanUtil : IServerUtil
                 peer = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("sni"));
                 if (peer != null)
                     data.Host = peer;
-            }
-
-            var mode = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("obfs"));
-            if (mode != null)
-            {
-                data.Mode = mode;
-                data.ServiceName = HttpUtility.UrlDecode(HttpUtility.ParseQueryString(new Uri(text).Query).Get("serviceName"));
             }
 
             text = regmatch.Groups["data"].Value;

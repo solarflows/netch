@@ -31,7 +31,7 @@ public static class PortHelper
     internal static IEnumerable<Process> GetProcessByUsedTcpPort(ushort port, AddressFamily inet = AddressFamily.InterNetwork)
     {
         if (port == 0)
-            throw new ArgumentOutOfRangeException();
+            throw new ArgumentOutOfRangeException(nameof(port), "Port cannot be 0");
 
         switch (inet)
         {
