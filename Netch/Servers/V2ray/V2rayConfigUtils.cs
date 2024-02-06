@@ -1,6 +1,7 @@
 ﻿using Netch.Models;
 using Netch.Utils;
 using System.ServiceProcess;
+using static Netch.Servers.OutboundConfiguration;
 
 #pragma warning disable VSTHRD200
 
@@ -260,13 +261,18 @@ public static class V2rayConfigUtils
                 break;
             case WireGuardServer wg:
                 outbound.protocol = "wireguard";
-                outbound.settings.address = await server.AutoResolveHostnameAsync();
-                outbound.settings.port = server.Port;
-                outbound.settings.localAddresses = wg.LocalAddresses.SplitOrDefault();
-                outbound.settings.peerPublicKey = wg.PeerPublicKey;
-                outbound.settings.privateKey = wg.PrivateKey;
-                outbound.settings.preSharedKey = wg.PreSharedKey;
                 outbound.settings.mtu = wg.MTU;
+                var wgPeers = new WgPeers();
+                wgPeers.endpoint = await server.AutoResolveHostnameAsync() + ":" + server.Port;
+                wgPeers.publicKey = wg.PeerPublicKey;
+                wgPeers.preShareKey = wg.PreSharedKey;
+                wgPeers.keepAlive = wg.KeepAlive;
+                wgPeers.allowedIPs = wg.AllowIPs.Split(",");
+                outbound.settings.peers = new List<WgPeers> { wgPeers };
+                outbound.settings.address =  wg.LocalAddresses.SplitOrDefault();
+                outbound.settings.secretKey = wg.PrivateKey;
+                outbound.settings.reserved = wg.Reserved.Split(",").Select(x=>int.Parse(x)).ToArray();
+                outbound.settings.workers = wg.Workers;
 
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
                 {
@@ -439,6 +445,8 @@ public static class V2rayConfigUtils
 
     public static string getUUID(string uuid)
     {
+        if (uuid is null)
+            return "";
         if (uuid.Length == 36 || uuid.Length == 32)
         {
             return uuid;
