@@ -1,4 +1,4 @@
-Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+﻿Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 git clone https://github.com/xtls/xray-core -b 'v1.8.7' src
 if ( -Not $? ) {

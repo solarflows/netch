@@ -1,4 +1,4 @@
-using System.Text.Json;
+ï»¿using System.Text.Json;
 using System.Text.Json.Serialization;
 using Netch.JsonConverter;
 using Netch.Models.Modes;
@@ -36,10 +36,10 @@ public static class ModeHelper
     {
         using var fs = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
 
-        // ÏÈÉùÃ÷±äÁ¿£¬ÔÙ½øĞĞ¸³Öµ
+        // å…ˆå£°æ˜å˜é‡ï¼Œå†è¿›è¡Œèµ‹å€¼
         var mode = JsonSerializer.Deserialize<Mode>(fs, JsonSerializerOptions);
 
-        // ¼ì²éÊÇ·ñÎªnull£¬Èç¹ûÊÇ£¬ÔòÅ×³öÒì³£
+        // æ£€æŸ¥æ˜¯å¦ä¸ºnullï¼Œå¦‚æœæ˜¯ï¼Œåˆ™æŠ›å‡ºå¼‚å¸¸
         if (mode == null)
         {
             throw new ArgumentNullException(nameof(mode), "Deserialization result is null.");

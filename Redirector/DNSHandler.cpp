@@ -1,4 +1,4 @@
-#include "DNSHandler.h"
+﻿#include "DNSHandler.h"
 
 #include "SocksHelper.h"
 

@@ -1,4 +1,4 @@
-# Netch
+﻿# Netch
 Prebuilt binaries for Netch version 1
 
 ## aiodns

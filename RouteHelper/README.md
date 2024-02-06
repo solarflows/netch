@@ -1,4 +1,4 @@
-# RouteHelper
+﻿# RouteHelper
 ```cpp
 ULONG ConvertLuidToIndex(ULONG64 id);
 void WaitForUnicastIP();

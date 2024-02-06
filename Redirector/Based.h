@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef BASED_H
 #define BASED_H
 #include <stdio.h>

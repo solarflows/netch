@@ -1,4 +1,4 @@
-#include "Utils.h"
+﻿#include "Utils.h"
 
 string ws2s(wstring str)
 {

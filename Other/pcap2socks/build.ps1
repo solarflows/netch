@@ -1,4 +1,4 @@
-Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+﻿Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 try {
     Invoke-WebRequest `

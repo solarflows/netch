@@ -1,4 +1,4 @@
-#include "WaitGroup.h"
+﻿#include "WaitGroup.h"
 
 void WaitGroup::Add(int size)
 {

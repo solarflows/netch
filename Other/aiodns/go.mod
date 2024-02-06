@@ -1,4 +1,4 @@
-module aiodns
+﻿module aiodns
 
 go 1.17
 

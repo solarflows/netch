@@ -1,4 +1,4 @@
-namespace Netch.Servers;
+﻿namespace Netch.Servers;
 
 public class VLESSServer : VMessServer
 {

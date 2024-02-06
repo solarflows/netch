@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef WAITGROUP_H
 #define WAITGROUP_H
 #include "Based.h"

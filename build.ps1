@@ -1,4 +1,4 @@
-param (
+﻿param (
 	[Parameter()]
 	[ValidateSet('Debug', 'Release')]
 	[string]

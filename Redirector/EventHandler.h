@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef EVENTHANDLER_H
 #define EVENTHANDLER_H
 #include "Based.h"

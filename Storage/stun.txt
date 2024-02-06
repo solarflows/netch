@@ -1,4 +1,4 @@
-stun.qq.com
+﻿stun.qq.com
 stun.bige0.com
 stun.miwifi.com
 stun.syncthing.net

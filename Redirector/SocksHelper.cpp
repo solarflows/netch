@@ -1,4 +1,4 @@
-#include "SocksHelper.h"
+﻿#include "SocksHelper.h"
 
 #include "Utils.h"
 

@@ -1,4 +1,4 @@
-#include "Based.h"
+﻿#include "Based.h"
 
 bool filterLoopback = false;
 bool filterIntranet = false;

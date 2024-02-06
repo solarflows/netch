@@ -1,4 +1,4 @@
-using System.Net.Sockets;
+ï»¿using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using Windows.Win32.Foundation;
 using Windows.Win32.Networking.WinSock;
@@ -29,18 +29,18 @@ public static unsafe class RouteHelper
         if (inet == AddressFamily.InterNetwork)
         {
             addr.Address.Ipv4.sin_family = (ushort)ADDRESS_FAMILY.AF_INET;
-            #pragma warning disable CA1416 // ÑéÖ¤Æ½Ì¨¼æÈİĞÔ
+            #pragma warning disable CA1416 // éªŒè¯å¹³å°å…¼å®¹æ€§
             if (inet_pton((int)inet, address, &addr.Address.Ipv4.sin_addr) == 0)
                 return false;
-            #pragma warning restore CA1416 // ÑéÖ¤Æ½Ì¨¼æÈİĞÔ
+            #pragma warning restore CA1416 // éªŒè¯å¹³å°å…¼å®¹æ€§
         }
         else if (inet == AddressFamily.InterNetworkV6)
         {
             addr.Address.Ipv6.sin6_family = (ushort)ADDRESS_FAMILY.AF_INET6;
-            #pragma warning disable CA1416 // ÑéÖ¤Æ½Ì¨¼æÈİĞÔ
+            #pragma warning disable CA1416 // éªŒè¯å¹³å°å…¼å®¹æ€§
             if (inet_pton((int)inet, address, &addr.Address.Ipv6.sin6_addr) == 0)
                 return false;
-            #pragma warning restore CA1416 // ÑéÖ¤Æ½Ì¨¼æÈİĞÔ
+            #pragma warning restore CA1416 // éªŒè¯å¹³å°å…¼å®¹æ€§
         }
         else
         {

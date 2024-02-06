@@ -1,4 +1,4 @@
-using System.Net;
+ï»¿using System.Net;
 using Netch.Properties;
 using Netch.Utils;
 
@@ -71,14 +71,14 @@ public partial class SettingForm : BindingForm
             Global.Settings.STUN_Server + ":" + Global.Settings.STUN_Server_Port,
             stuns);
 
-        // »ñÈ¡ÉÏ´ÎÑ¡ÔñµÄ BILU Server
+        // è·å–ä¸Šæ¬¡é€‰æ‹©çš„ BILU Server
         var lastSelected = Global.Settings.BILU_Server;
-        // °ó¶¨ ComboBox£¬Ê¹ÓÃ BILU_ServerComboBox ¿Ø¼ş¡¢BiluServer.Bilu_Items ×Öµä¡¢
-        // ÉÏ´ÎÑ¡ÔñµÄÖµ£¨Èç¹ûÎª¿Õ£¬ÔòÊ¹ÓÃ¿Õ×Ö·û´®£©¡¢BiluServer.NamesAndUrls µÄ¼ü×÷Îª¿ÉÑ¡Ïî
+        // ç»‘å®š ComboBoxï¼Œä½¿ç”¨ BILU_ServerComboBox æ§ä»¶ã€BiluServer.Bilu_Items å­—å…¸ã€
+        // ä¸Šæ¬¡é€‰æ‹©çš„å€¼ï¼ˆå¦‚æœä¸ºç©ºï¼Œåˆ™ä½¿ç”¨ç©ºå­—ç¬¦ä¸²ï¼‰ã€BiluServer.NamesAndUrls çš„é”®ä½œä¸ºå¯é€‰é¡¹
         BindComboBox(BILU_ServerComboBox,
-            // ÑéÖ¤ÊÇ·ñ´æÔÚÓÚ×ÖµäµÄ¼ü¼¯ºÏÖĞ
+            // éªŒè¯æ˜¯å¦å­˜åœ¨äºå­—å…¸çš„é”®é›†åˆä¸­
             s => BiluServer.NamesAndUrls.ContainsKey(s),
-            // ±£´æÑ¡ÔñµÄÏîµ½È«¾ÖÉèÖÃ
+            // ä¿å­˜é€‰æ‹©çš„é¡¹åˆ°å…¨å±€è®¾ç½®
             o =>
             {
                 if (o is string displayName)
@@ -86,12 +86,12 @@ public partial class SettingForm : BindingForm
                     Global.Settings.BILU_Server = displayName;
                 }
             },
-            // Ìá¹© ComboBox µÄ³õÊ¼Öµ£¬Ê¹ÓÃÉÏ´ÎÑ¡ÔñµÄÖµ£¨Èç¹ûÎª¿Õ£¬ÔòÊ¹ÓÃ¿Õ×Ö·û´®£©
+            // æä¾› ComboBox çš„åˆå§‹å€¼ï¼Œä½¿ç”¨ä¸Šæ¬¡é€‰æ‹©çš„å€¼ï¼ˆå¦‚æœä¸ºç©ºï¼Œåˆ™ä½¿ç”¨ç©ºå­—ç¬¦ä¸²ï¼‰
             lastSelected ?? string.Empty,
-            // Ìá¹© ComboBox µÄÖµÁĞ±í£¬Ê¹ÓÃ BiluServer.NamesAndUrls µÄ¼ü
+            // æä¾› ComboBox çš„å€¼åˆ—è¡¨ï¼Œä½¿ç”¨ BiluServer.NamesAndUrls çš„é”®
             BiluServer.NamesAndUrls.Keys.Cast<object>().ToArray()
         );
-        // ÉèÖÃ ComboBox Ñ¡ÖĞÏîÎªÉÏ´ÎÑ¡µÄ BILU Server
+        // è®¾ç½® ComboBox é€‰ä¸­é¡¹ä¸ºä¸Šæ¬¡é€‰çš„ BILU Server
         BILU_ServerComboBox.SelectedItem = lastSelected;
 
         BindListComboBox(LanguageComboBox, o => Global.Settings.Language = o.ToString(), i18N.GetTranslateList(), Global.Settings.Language);

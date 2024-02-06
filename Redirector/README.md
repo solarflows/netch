@@ -1,4 +1,4 @@
-# Redirector
+﻿# Redirector
 ```c++
 typedef enum _AIO_TYPE {
 	AIO_FILTERLOOPBACK,

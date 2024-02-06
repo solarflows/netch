@@ -1,4 +1,4 @@
-//
+﻿//
 // 	NetFilterSDK 
 // 	Copyright (C) Vitaly Sidorov
 //	All rights reserved.

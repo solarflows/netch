@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef UTILS_H
 #define UTILS_H
 #include "Based.h"

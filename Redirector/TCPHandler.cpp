@@ -1,4 +1,4 @@
-#include "TCPHandler.h"
+﻿#include "TCPHandler.h"
 
 SOCKET tcpSocket = INVALID_SOCKET;
 USHORT tcpListen = 0;

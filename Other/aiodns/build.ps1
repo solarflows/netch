@@ -1,4 +1,4 @@
-Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+﻿Set-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 $Env:CGO_ENABLED='1'
 $Env:GOROOT_FINAL='/usr'

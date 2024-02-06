@@ -1,4 +1,4 @@
-using System.ComponentModel;
+锘縰sing System.ComponentModel;
 using System.Diagnostics;
 using System.Net;
 using System.Net.NetworkInformation;
@@ -274,13 +274,13 @@ public static class Utils
 
 public class BiluServer
 {
-    // 将字段设置为只读
+    // 灏嗗瓧娈佃缃负鍙
     public static readonly Dictionary<string, string> NamesAndUrls = new()
     {
         { "Clang.CN", "https://ispip.clang.cn/all_cn.txt" },
         { "Clang.CN.CIDR", "https://ispip.clang.cn/all_cn_cidr.txt" },
         { "china-operator-ip", "https://fastly.jsdelivr.net/gh/gaoyifan/china-operator-ip@ip-lists/china.txt" },
-        // 如果需要，可以添加更多的显示名称和URL
+        // 濡傛灉闇�瑕侊紝鍙互娣诲姞鏇村鐨勬樉绀哄悕绉板拰URL
     };
 }
 

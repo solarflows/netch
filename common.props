@@ -1,4 +1,4 @@
-<Project>
+﻿<Project>
     <PropertyGroup>
         <TargetFramework>net6.0-windows</TargetFramework>
         <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>

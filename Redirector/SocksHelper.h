@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef SOCKSHELPER_H
 #define SOCKSHELPER_H
 #include "Based.h"

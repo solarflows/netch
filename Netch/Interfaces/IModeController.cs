@@ -1,4 +1,4 @@
-using Netch.Models.Modes;
+﻿using Netch.Models.Modes;
 using Netch.Servers;
 
 namespace Netch.Interfaces;

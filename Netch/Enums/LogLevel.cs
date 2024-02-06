@@ -1,4 +1,4 @@
-namespace Netch.Enums;
+﻿namespace Netch.Enums;
 
 public enum LogLevel
 {

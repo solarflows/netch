@@ -1,4 +1,4 @@
-Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
+﻿Push-Location (Split-Path $MyInvocation.MyCommand.Path -Parent)
 
 rm -Force go.*
 go mod init aiodns

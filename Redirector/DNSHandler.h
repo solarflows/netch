@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #ifndef DNSHANDLER_H
 #define DNSHANDLER_H
 #include "Based.h"
