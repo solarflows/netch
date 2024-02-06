@@ -17,7 +17,7 @@
     <NoWarn>VSTHRD100</NoWarn>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisMode>Default</AnalysisMode>
-    <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+    <CodeAnalysisTreatWarningsAsErrors>false</CodeAnalysisTreatWarningsAsErrors>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <TargetFramework>net6.0-windows</TargetFramework>
   </PropertyGroup>
@@ -81,9 +81,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Update="Forms\SyncGlobalCheckBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Update="Forms\SyncGlobalCheckBox.cs" />
   </ItemGroup>
 
   <ItemGroup>
