@@ -42,11 +42,11 @@ public class OutboundConfiguration
 
     public string version { get; set; }
 
-    public string address { get; set; }
+    public object address { get; set; }
 
     public string user { get; set; }
 
-    public ushort port { get; set; }
+    public int port { get; set; }
 
     public string password { get; set; }
 
