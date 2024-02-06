@@ -2,6 +2,11 @@
 
 public class V2rayConfig
 {
+    /// <summary>
+    ///     使用Xray核心
+    /// </summary>
+    public bool XrayCore { get; set; } = true;
+
     public bool AllowInsecure { get; set; } = false;
 
     public KcpConfig KcpConfig { get; set; } = new();

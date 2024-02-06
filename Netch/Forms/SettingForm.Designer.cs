@@ -95,6 +95,7 @@ namespace Netch.Forms
             this.writeBufferSizeLabel = new System.Windows.Forms.Label();
             this.writeBufferSizeTextBox = new System.Windows.Forms.TextBox();
             this.congestionCheckBox = new System.Windows.Forms.CheckBox();
+            this.xrayCoreCheckBox = new System.Windows.Forms.CheckBox();
             this.OtherTabPage = new System.Windows.Forms.TabPage();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
@@ -593,6 +594,7 @@ namespace Netch.Forms
             this.v2rayTabPage.Controls.Add(this.UseMuxCheckBox);
             this.v2rayTabPage.Controls.Add(this.TCPFastOpenBox);
             this.v2rayTabPage.Controls.Add(this.KCPGroupBox);
+            this.v2rayTabPage.Controls.Add(this.xrayCoreCheckBox);
             this.v2rayTabPage.Location = new System.Drawing.Point(4, 29);
             this.v2rayTabPage.Name = "v2rayTabPage";
             this.v2rayTabPage.Padding = new System.Windows.Forms.Padding(3);
@@ -633,12 +635,21 @@ namespace Netch.Forms
             // TCPFastOpenBox
             // 
             this.TCPFastOpenBox.AutoSize = true;
-            this.TCPFastOpenBox.Location = new System.Drawing.Point(300, 42);
+            this.TCPFastOpenBox.Location = new System.Drawing.Point(330, 42);
             this.TCPFastOpenBox.Name = "TCPFastOpenBox";
             this.TCPFastOpenBox.Size = new System.Drawing.Size(131, 21);
             this.TCPFastOpenBox.TabIndex = 3;
             this.TCPFastOpenBox.Text = "TCP FastOpen";
             this.TCPFastOpenBox.UseVisualStyleBackColor = true;
+            // 
+            //
+            this.xrayCoreCheckBox.AutoSize = true;
+            this.xrayCoreCheckBox.Location = new System.Drawing.Point(250, 42);
+            this.xrayCoreCheckBox.Name = "xrayCoreCheckBox";
+            this.xrayCoreCheckBox.Size = new System.Drawing.Size(91, 21);
+            this.xrayCoreCheckBox.TabIndex = 12;
+            this.xrayCoreCheckBox.Text = "Use XrayCore";
+            this.xrayCoreCheckBox.UseVisualStyleBackColor = true;
             // 
             // KCPGroupBox
             // 
@@ -773,7 +784,6 @@ namespace Netch.Forms
             this.congestionCheckBox.TabIndex = 12;
             this.congestionCheckBox.Text = "congestion";
             this.congestionCheckBox.UseVisualStyleBackColor = true;
-            // 
             // OtherTabPage
             // 
             this.OtherTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
@@ -1074,6 +1084,7 @@ namespace Netch.Forms
         private System.Windows.Forms.TextBox ProfileCountTextBox;
         private System.Windows.Forms.GroupBox KCPGroupBox;
         private System.Windows.Forms.CheckBox congestionCheckBox;
+        private System.Windows.Forms.CheckBox xrayCoreCheckBox;
         private System.Windows.Forms.CheckBox TLSAllowInsecureCheckBox;
         private System.Windows.Forms.CheckBox TCPFastOpenBox;
         private System.Windows.Forms.Label mtuLabel;

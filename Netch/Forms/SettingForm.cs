@@ -149,7 +149,8 @@ public partial class SettingForm : BindingForm
             Global.Settings.V2RayConfig.KcpConfig.writeBufferSize);
 
         BindCheckBox(congestionCheckBox, b => Global.Settings.V2RayConfig.KcpConfig.congestion = b, Global.Settings.V2RayConfig.KcpConfig.congestion);
-
+        
+        BindCheckBox(xrayCoreCheckBox, b => Global.Settings.V2RayConfig.XrayCore = b, Global.Settings.V2RayConfig.XrayCore);
         #endregion
 
         #region Others

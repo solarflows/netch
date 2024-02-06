@@ -85,7 +85,7 @@ public static class V2rayConfigUtils
                             new User
                             {
                                 id = getUUID(vless.UserID),
-                                 flow = vless.TLSSecureType == "xtls" ? "xtls-rprx-direct" : "",
+                                flow = vless.FlowControl, //vless.TLSSecureType == "xtls" ? "xtls-rprx-direct" : "",
                                 encryption = vless.EncryptMethod
                             }
                         }

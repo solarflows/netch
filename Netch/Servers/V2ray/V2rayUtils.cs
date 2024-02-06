@@ -24,6 +24,11 @@ public static class V2rayUtils
             server.TransferProtocol = parameter.Get("type") ?? "tcp";
             server.PacketEncoding = parameter.Get("packetEncoding") ?? "xudp";
             server.EncryptMethod = parameter.Get("encryption") ?? scheme switch { "vless" => "none", _ => "auto" };
+            var vlessServer = server as VLESSServer;
+            if (vlessServer != null)
+            {
+                vlessServer.FlowControl = parameter.Get("flow") ?? "none";
+            }
             switch (server.TransferProtocol)
             {
                 case "tcp":

@@ -18,6 +18,7 @@ public class VLESSServer : VMessServer
     ///     伪装类型
     /// </summary>
     public override string FakeType { get; set; } = VLESSGlobal.FakeTypes[0];
+    public string FlowControl { get; set; } = VLESSGlobal.FlowControl[0];
 }
 
 public class VLESSGlobal
@@ -27,6 +28,17 @@ public class VLESSGlobal
         "none",
         "tls",
         "xtls"
+    };
+
+    public static readonly List<string> FlowControl = new()
+    {
+        "",
+        "xtls-rprx-vision",
+        "xtls-rprx-direct",
+        "xtls-rprx-origin",
+        "xtls-rprx-vision-443",
+        "xtls-rprx-direct-443",
+        "xtls-rprx-origin-443",
     };
 
     public static List<string> FakeTypes => VMessGlobal.FakeTypes;
