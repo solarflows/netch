@@ -20,7 +20,7 @@ internal class VisionForm : ServerForm
 
         CreateComboBox("TransferProtocol",
             "Transfer Protocol",
-            VisionGlobal.TransferProtocols.ToList(), // ��Collection<string>ת��ΪList<string>
+            VisionGlobal.TransferProtocols.ToList(), // ½«Collection<string>×ª»»ÎªList<string>
             s => server.TransferProtocol = s,
             server.TransferProtocol);
 /*

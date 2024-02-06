@@ -149,7 +149,7 @@ public partial class MainForm : Form
         Utils.Utils.ComponentIterator(NotifyMenu, TranslateText);
 
         UsedBandwidthLabel.Text = $"{i18N.Translate("Used", ": ")}0 KB";
-//      State = State; // Consider removing this line if it's not necessary
+        State = State; // Consider removing this line if it's not necessary
         VersionLabel.Text = UpdateChecker.Version;
     }
 
@@ -1653,5 +1653,6 @@ public partial class MainForm : Form
 
     #endregion
 
+    #endregion
     #endregion
 }
