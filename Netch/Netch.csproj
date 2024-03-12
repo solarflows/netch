@@ -14,12 +14,14 @@
     <ApplicationIcon>Resources\Netch.ico</ApplicationIcon>
     <IsPackable>false</IsPackable>
     <!-- event handler async void Warning -->
-    <NoWarn>VSTHRD100</NoWarn>
+    <NoWarn>VSTHRD100;1701;1702;CA1416;</NoWarn>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <AnalysisMode>Default</AnalysisMode>
     <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net6.0-windows7.0</TargetFramework>
+    <BaseOutputPath>netch</BaseOutputPath>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -84,12 +86,21 @@
     <Compile Update="Forms\SyncGlobalCheckBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="Properties\Settings.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
     <None Remove="NativeMethods.txt" />
     <None Update="NOTICE.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
 
@@ -98,5 +109,4 @@
       <_FilesToBundle Remove="$(PkgMicrosoft_Diagnostics_Tracing_TraceEvent)\build\native\x86\**" />
     </ItemGroup>
   </Target>
-
 </Project>

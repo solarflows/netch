@@ -53,6 +53,7 @@ public partial class MainForm : Form
         {
             var fullName = serversUtil.FullName;
             var control = new ToolStripMenuItem
+            
             {
                 Name = $"Add{fullName}ServerToolStripMenuItem",
                 Size = new Size(259, 22),
@@ -92,7 +93,7 @@ public partial class MainForm : Form
 
         // 检查订阅更新
         if (Global.Settings.UpdateServersWhenOpened)
-            UpdateServersFromSubscriptionAsync().Forget();
+            UpdateServersFromSubscriptionAsync(false).Forget();
 
         // 打开软件时启动加速，产生开始按钮点击事件
         if (Global.Settings.StartWhenOpened)
@@ -278,10 +279,10 @@ public partial class MainForm : Form
 
     private async void UpdateServersFromSubscriptionLinksToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        await UpdateServersFromSubscriptionAsync();
+        await UpdateServersFromSubscriptionAsync(false);
     }
 
-    private async Task UpdateServersFromSubscriptionAsync()
+    private async Task UpdateServersFromSubscriptionAsync(bool? blProxy)
     {
         void DisableItems(bool v)
         {
@@ -299,7 +300,7 @@ public partial class MainForm : Form
 
         try
         {
-            await SubscriptionUtil.UpdateServersAsync();
+            await SubscriptionUtil.UpdateServersAsync(blProxy);
 
             LoadServers();
             await Configuration.SaveAsync();
@@ -314,6 +315,11 @@ public partial class MainForm : Form
         {
             DisableItems(true);
         }
+    }
+
+    private async void updateServersOnProxyToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        await UpdateServersFromSubscriptionAsync(true);
     }
 
     #endregion
@@ -981,7 +987,7 @@ public partial class MainForm : Form
 
                 // 启动需要禁用的控件
                 ServerToolStripMenuItem.Enabled = ModeToolStripMenuItem.Enabled =
-                    SubscriptionToolStripMenuItem.Enabled = UninstallServiceToolStripMenuItem.Enabled = enabled;
+                    ManageSubscriptionsToolStripMenuItem.Enabled = UninstallServiceToolStripMenuItem.Enabled = enabled;
             }
 
             _state = value;
@@ -1439,40 +1445,40 @@ public partial class MainForm : Form
         switch (cbx.Items[e.Index])
         {
             case Server item:
-            {
-                // 计算延迟底色
-                var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
+                {
+                    // 计算延迟底色
+                    var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
 
-                // 绘制延迟底色
-                e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
+                    // 绘制延迟底色
+                    e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
-                // 绘制延迟字符串
-                TextRenderer.DrawText(e.Graphics,
-                    item.Delay.ToString(),
-                    cbx.Font,
-                    new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
-                    Color.Black,
-                    TextFormatFlags.Left);
+                    // 绘制延迟字符串
+                    TextRenderer.DrawText(e.Graphics,
+                        item.Delay.ToString(),
+                        cbx.Font,
+                        new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                        Color.Black,
+                        TextFormatFlags.Left);
 
-                break;
-            }
+                    break;
+                }
             case Mode item:
-            {
-                /*
-                // 绘制 模式Box 底色
-                e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
+                {
+                    /*
+                    // 绘制 模式Box 底色
+                    e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
 
-                // 绘制 模式行数 字符串
-                TextRenderer.DrawText(e.Graphics,
-                    item.Content.Count.ToString(),
-                    cbx.Font,
-                    new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
-                    Color.Black,
-                    TextFormatFlags.Left);
-                    */
+                    // 绘制 模式行数 字符串
+                    TextRenderer.DrawText(e.Graphics,
+                        item.Content.Count.ToString(),
+                        cbx.Font,
+                        new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                        Color.Black,
+                        TextFormatFlags.Left);
+                        */
 
-                break;
-            }
+                    break;
+                }
         }
     }
 

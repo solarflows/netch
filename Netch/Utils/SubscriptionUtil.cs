@@ -7,12 +7,12 @@ public static class SubscriptionUtil
 {
     private static readonly object ServerLock = new();
 
-    public static Task UpdateServersAsync(string? proxyServer = default)
+    public static Task UpdateServersAsync(bool? blProxy = false)
     {
-        return Task.WhenAll(Global.Settings.Subscription.Select(item => UpdateServerCoreAsync(item, proxyServer)));
+        return Task.WhenAll(Global.Settings.Subscription.Select(item => UpdateServerCoreAsync(item, blProxy)));
     }
 
-    private static async Task UpdateServerCoreAsync(Subscription item, string? proxyServer)
+    private static async Task UpdateServerCoreAsync(Subscription item, bool? blProxy)
     {
         try
         {
@@ -24,8 +24,9 @@ public static class SubscriptionUtil
             if (!string.IsNullOrEmpty(item.UserAgent))
                 request.UserAgent = item.UserAgent;
 
-            if (!string.IsNullOrEmpty(proxyServer))
-                request.Proxy = new WebProxy(proxyServer);
+            // Ìí¼Óproxy
+            if (blProxy ?? true)
+                request.Proxy = new WebProxy(Global.Settings.LocalAddress, Global.Settings.Socks5LocalPort);
 
             List<Server> servers;
 
