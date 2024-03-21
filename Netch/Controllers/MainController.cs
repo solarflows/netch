@@ -6,6 +6,7 @@ using Netch.Models.Modes;
 using Netch.Servers;
 using Netch.Services;
 using Netch.Utils;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Netch.Controllers;
 
@@ -56,8 +57,14 @@ public static class MainController
             {
                 // Start Server Controller to get a local socks5 server
                 Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
+                if (Server.Type == "Hysteria2")
+                {
+                    ServerController = new HysteriaController();
+                } else
+                {
+                    ServerController = new V2rayController();
+                }
 
-                ServerController = new V2rayController();
                 Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
                 TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");

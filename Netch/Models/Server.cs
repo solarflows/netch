@@ -56,9 +56,9 @@ public abstract class Server : ICloneable
     {
         var remark = string.IsNullOrWhiteSpace(Remark) ? $"{Hostname}:{Port}" : Remark;
 
-        var shortName = ServerHelper.GetUtilByTypeName(Type).ShortName;
+        //var shortName = ServerHelper.GetUtilByTypeName(Type).ShortName;
 
-        return $"[{shortName}][{Group}] {remark}";
+        return $"[{Type}][{Group}] {remark}";
     }
 
     public abstract string MaskedData();

@@ -143,6 +143,8 @@ public class Setting
 
     public V2rayConfig V2RayConfig { get; set; } = new();
 
+    public HysteriaConfig HysteriaConfig { get; set; } = new();
+
     public bool NoSupportDialog { get; set; } = false;
 
     #region Migration

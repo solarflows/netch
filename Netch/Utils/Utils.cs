@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using MaxMind.GeoIP2;
 using Microsoft.Win32.TaskScheduler;
 using Task = System.Threading.Tasks.Task;
@@ -269,5 +270,19 @@ public static class Utils
                 f.Activate();
             }
         }
+    }
+
+    public static bool IsMatch(string expression, string str)
+    {
+        Regex reg = new Regex(expression);
+        if (string.IsNullOrEmpty(str))
+            return false;
+        return reg.IsMatch(str);
+    }
+
+    public static bool IsDomain(string str)
+    {
+        string pattern = @"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$";
+        return IsMatch(pattern, str);
     }
 }
