@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using Netch.Models;
 
@@ -35,7 +36,7 @@ public static class SubscriptionUtil
                 servers = ShareLink.ParseText(result);
             else
                 throw new Exception($"{item.Remark} Response Status Code: {code}");
-
+            
             foreach (var server in servers)
                 server.Group = item.Remark;
 
