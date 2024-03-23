@@ -102,6 +102,46 @@ public abstract class Server : ICloneable
             return Delay = -4;
         }
     }
+
+    /// <summary>
+    ///     Hysteria 测试延迟
+    /// </summary>
+    /// <returns>延迟</returns>
+    public async Task<int> PingHyAsync()
+    {
+        try
+        {
+            var destination = await DnsUtils.LookupAsync(Hostname);
+            if (destination == null)
+                return Delay = -2;
+
+            var list = new Task<int>[3];
+            for (var i = 0; i < 3; i++)
+            {
+                Task<int> PingCoreAsync()
+                {
+                    try
+                    {
+                        return Global.Settings.ServerUDPing ? Utils.Utils.UDPingAsync(destination, Port) : Utils.Utils.ICMPingAsync(destination);
+                    }
+                    catch (Exception)
+                    {
+                        return Task.FromResult(-4);
+                    }
+                }
+
+                list[i] = PingCoreAsync();
+            }
+
+            var resTask = await Task.WhenAny(list[0], list[1], list[2]);
+
+            return Delay = await resTask;
+        }
+        catch (Exception)
+        {
+            return Delay = -4;
+        }
+    }
 }
 
 public static class ServerExtension

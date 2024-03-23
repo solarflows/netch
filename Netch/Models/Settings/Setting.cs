@@ -97,6 +97,11 @@ public class Setting
     public bool ServerTCPing { get; set; } = true;
 
     /// <summary>
+    ///     服务器测试方式 false.ICMPing true.UDPing
+    /// </summary>
+    public bool ServerUDPing { get; set; } = false;
+
+    /// <summary>
     ///     Socks5 本地端口
     /// </summary>
     public ushort Socks5LocalPort { get; set; } = 2801;

@@ -30,6 +30,27 @@ public static class Utils
         }
     }
 
+    public static async Task<int> UDPingAsync(IPAddress ip, int port, int timeout = 1000, CancellationToken ct = default)
+    {
+        using var client = new UdpClient(ip.AddressFamily);
+
+        var stopwatch = Stopwatch.StartNew();
+
+        var task = client.SendAsync(new byte[] { 0 }, 1, new IPEndPoint(ip, port));
+
+        var resTask = await Task.WhenAny(task, Task.Delay(timeout, ct));
+
+        stopwatch.Stop();
+        if (resTask == task && client.Available > 0)
+        {
+            var t = Convert.ToInt32(stopwatch.Elapsed.TotalMilliseconds);
+            Console.WriteLine(string.Format("Utils, UDPingAsync {0}", t));
+            return t;
+        }
+        Console.WriteLine(string.Format("Utils, UDPingAsync {0}", timeout));
+        return timeout;
+    }
+
     public static async Task<int> TCPingAsync(IPAddress ip, int port, int timeout = 1000, CancellationToken ct = default)
     {
         using var client = new TcpClient(ip.AddressFamily);

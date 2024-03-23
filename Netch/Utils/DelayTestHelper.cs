@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.Threading;
 using Netch.Models;
+using Netch.Servers;
 using Timer = System.Timers.Timer;
 
 namespace Netch.Utils;
@@ -56,7 +57,14 @@ public static class DelayTestHelper
             {
                 using (await PoolLock.EnterAsync())
                 {
-                    await s.PingAsync();
+                    if (s.GetType() == typeof(Hysteria2Server))
+                    {
+                        await s.PingHyAsync();
+                    }
+                    else
+                    {
+                        await s.PingAsync();
+                    }
                 }
             });
 
