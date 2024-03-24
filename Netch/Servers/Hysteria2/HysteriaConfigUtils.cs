@@ -162,6 +162,14 @@ public static class HysteriaConfigUtils
                 },
                 new
                 {
+                    domain_suffix = new object[]
+                    {
+                        ".superego"
+                    },
+                    outbound = "direct"
+                },
+                new
+                {
                     ip_is_private = true,
                     outbound = "direct"
                 },
@@ -209,6 +217,17 @@ public static class HysteriaConfigUtils
             auto_detect_interface = true,
             final = "proxy"
         };
+
+        if (Global.Settings.TUNTAP.BypassIPs.Count != 0)
+        {
+            routes.rules.Add(
+                new
+                {
+                    ip_cidr = Global.Settings.TUNTAP.BypassIPs,
+                    outbound = "direct"
+                }
+            );
+        }
 
         return routes;
     }
