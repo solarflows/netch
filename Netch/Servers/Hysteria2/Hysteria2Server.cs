@@ -1,9 +1,12 @@
 ﻿using Netch.Models;
+using Netch.Utils;
 
 namespace Netch.Servers;
 
 public class Hysteria2Server : Server
 {
+    public new int Delay { get; private set; } = -1;
+
     public override string Type { get; } = "Hysteria2";
 
     public override string MaskedData()
@@ -28,6 +31,43 @@ public class Hysteria2Server : Server
     public string? OBFSParam { get; set; }
 
     public string? SNI { get; set; } = string.Empty;
+
+    public  async new Task<int> PingAsync()
+    {
+        Console.WriteLine(string.Format("Hysteria2Server, PingAsync"));
+        try
+        {
+            var destination = await DnsUtils.LookupAsync(Hostname);
+            if (destination == null)
+                return Delay = -2;
+
+            var list = new Task<int>[3];
+            for (var i = 0; i < 3; i++)
+            {
+                Task<int> PingCoreAsync()
+                {
+                    try
+                    {
+                        return Global.Settings.ServerTCPing ? Utils.Utils.TCPingAsync(destination, Port) : Utils.Utils.ICMPingAsync(destination);
+                    }
+                    catch (Exception)
+                    {
+                        return Task.FromResult(-4);
+                    }
+                }
+
+                list[i] = PingCoreAsync();
+            }
+
+            var resTask = await Task.WhenAny(list[0], list[1], list[2]);
+
+            return Delay = await resTask;
+        }
+        catch (Exception)
+        {
+            return Delay = -4;
+        }
+    }
 
 }
 

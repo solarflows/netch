@@ -1,81 +1,58 @@
 ﻿#nullable disable
+// ReSharper disable InconsistentNaming
+
 namespace Netch.Servers;
 
-public class HysteriaConfig
+public struct HysteriaConfig
 {
-    /// <summary>
-    ///     监听地址
-    /// </summary>
-    public string local_addr { get; set; } = "127.0.0.1";
+    public object[] inbounds { get; set; }
 
-    /// <summary>
-    ///     监听端口
-    /// </summary>
-    public int local_port { get; set; } = 2801;
+    public HyOutbound[] outbounds { get; set; }
 
-    /// <summary>
-    ///     日志级别
-    /// </summary>
-    public int log_level { get; set; } = 1;
+    public DNS_Item[] dns { get; set; }
+}
 
-    /// <summary>
-    ///     密码
-    /// </summary>
-    public List<string> password { get; set; }
-
-    /// <summary>
-    ///     远端地址
-    /// </summary>
-    public string remote_addr { get; set; }
-
-    /// <summary>
-    ///     远端端口
-    /// </summary>
-    public int remote_port { get; set; }
-
-    /// <summary>
-    ///     启动类型
-    /// </summary>
-    public string run_type { get; set; } = "client";
+public class HyOutbound
+{
+    public string type { get; set; }
 
     public string server { get; set; }
 
-    public string auth { get; set; }
+    public int server_port { get; set; }
+
+    public string password { get; set; }
+
+    public int up_mbps { get; set; }
+
+    public int down_mbps { get; set; }
 
     public TLS_Item tls { get; set; }
 
     public OBFS_Item obfs { get; set; }
-
-    public SOCKS5_Item socks5 { get; set; }
-
-    public HTTP_Item http { get; set; }
-
 }
-
 
 public class TLS_Item
 {
-    public string sni { get; set; }
+    public bool enabled { get; set; }
+
+    public string server_name { get; set; }
+
     public bool insecure { get; set; }
 }
 
 public class OBFS_Item
 {
     public string type { get; set; }
-    public Salamander_Item salamander { get; set; }
-}
 
-public class Salamander_Item
-{
     public string password { get; set; }
 }
 
-public class SOCKS5_Item
+public class DNS_Item
 {
-    public string listen { get; set; }
+    public List<Rule_Item> rules { get; set; }
 }
 
-public class HTTP_Item
+public class Rule_Item
 {
-    public string listen { get; set; }
+
 }

@@ -7,15 +7,20 @@ public struct SingboxConfig
 {
     public object[] inbounds { get; set; }
 
-    public SB_Outbound[] outbounds { get; set; }
+    public object outbounds { get; set; }
 
     public SB_DNS dns { get; set; }
+
     public SB_ROUTE route { get; set; }
+
+    public Object experimental { get; set; }
 }
 
 public class SB_Outbound
 {
     public string type { get; set; }
+
+    public string tag { get; set; }
 
     public string server { get; set; }
 
@@ -30,6 +35,11 @@ public class SB_Outbound
     public SB_TLS tls { get; set; }
 
     public SB_OBFS obfs { get; set; }
+}
+
+public class SB_Experimental
+{
+
 }
 
 public class SB_TLS
@@ -56,19 +66,18 @@ public class SB_DNS_Rule
 
 public class SB_DNS
 {
-    //public List<SB_Rule> rules { get; set; }
-    public object[] servers { get; set; }
+    public List<object> servers { get; set; }
 
-    public SB_DNS_Rule[] rules { get; set; }
+    public List<object> rules { get; set; }
 }
 
 public class SB_ROUTE
 {
-    public SB_ROUTE_Rule[] rules { get; set; }
-}
+    public List<object> rules { get; set; }
 
-public class SB_ROUTE_Rule
-{
-    public object[] geosite { get; set; }
-    public object[] rule_set { get; set; }
+    public List<object> rule_set { get; set; }
+
+    public bool auto_detect_interface { get; set; }
+
+    public string final { get; set; }
 }

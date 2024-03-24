@@ -11,15 +11,15 @@ namespace Netch.Servers;
 
 public class HysteriaController : Guard, IServerController
 {
-    public HysteriaController() : base("hysteria.exe")
+    public HysteriaController() : base("sing-box.exe")
     {
     }
 
-    protected override IEnumerable<string> StartedKeywords => new[] { "HTTP proxy server listening", "no update available" };
+    protected override IEnumerable<string> StartedKeywords => new[] { "started" };
 
-    protected override IEnumerable<string> FailedKeywords => new[] { "failed to read client config", "failed to initialize client", "failed to" };
+    protected override IEnumerable<string> FailedKeywords => new[] { "config file not readable", "failed to" };
 
-    public override string Name => "Hysteria";
+    public override string Name => "Hysteria (SagerNet)";
 
     public ushort? Socks5LocalPort { get; set; }
 
@@ -28,53 +28,13 @@ public class HysteriaController : Guard, IServerController
     public virtual async Task<Socks5Server> StartAsync(Server s)
     {
         var server = (Hysteria2Server)s;
-     
-        var hysteriaConfig = new HysteriaConfig
-        {
-            server = await server.AutoResolveHostnameAsync() + ":" + server.Port.ToString(),
-            auth = server.Password,
-            tls = new TLS_Item
-            {
-                sni = server.SNI,
-                insecure = true
-            },
-            obfs = new OBFS_Item
-            {
-                type = "salamander",
-                salamander = new Salamander_Item
-                {
-                    password = server.OBFSParam
-                }
-            },
-            //socks5 = new SOCKS5_Item
-            //{
-            //    listen = this.LocalAddress() + ";" + this.Socks5LocalPort().ToString()
-            //},
-            http = new HTTP_Item
-            {
-                listen = this.LocalAddress() + ':' + (this.Socks5LocalPort() + 1).ToString()
-            }
-
-        };
-
-        if (server.OBFS != "None" && server.OBFS.Length != 0)
-        {
-            hysteriaConfig.obfs = new OBFS_Item
-            {
-                type = "salamander",
-                salamander = new Salamander_Item
-                {
-                    password = server.OBFSParam
-                }
-            };
-        }
 
         await using (var fileStream = new FileStream(Constants.TempConfig, FileMode.Create, FileAccess.Write, FileShare.Read))
         {
-            await JsonSerializer.SerializeAsync(fileStream, hysteriaConfig, Global.NewCustomJsonSerializerOptions());
+            await JsonSerializer.SerializeAsync(fileStream, await HysteriaConfigUtils.GenerateClientConfigAsync(server), Global.NewCustomJsonSerializerOptions());
         }
 
-        await StartGuardAsync("client -c ..\\data\\last.json -l debug");
+        await StartGuardAsync("run -c ..\\data\\last.json");
 
         return new Socks5Server(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
     }
