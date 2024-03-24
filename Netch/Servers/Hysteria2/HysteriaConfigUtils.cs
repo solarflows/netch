@@ -18,14 +18,13 @@ public static class HysteriaConfigUtils
             {
                 new
                 {
-                    type = "mixed",
+                    type = "socks",
                     tag = "mixed-in",
                     listen = Global.Settings.LocalAddress,
                     listen_port = Global.Settings.Socks5LocalPort,
                     tcp_fast_open = true,
                     udp_fragment = true,
-                    sniff = true,
-                    set_system_proxy = true
+                    sniff = true
                 }
             }
         };
@@ -162,14 +161,6 @@ public static class HysteriaConfigUtils
                 },
                 new
                 {
-                    domain_suffix = new object[]
-                    {
-                        ".superego"
-                    },
-                    outbound = "direct"
-                },
-                new
-                {
                     ip_is_private = true,
                     outbound = "direct"
                 },
@@ -231,5 +222,4 @@ public static class HysteriaConfigUtils
 
         return routes;
     }
-
 }
