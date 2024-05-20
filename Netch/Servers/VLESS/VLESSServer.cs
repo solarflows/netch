@@ -10,6 +10,11 @@ public class VLESSServer : VMessServer
     public override string EncryptMethod { get; set; } = "none";
 
     /// <summary>
+    ///     流控
+    /// </summary>
+    public string Flow { get; set; } = VLESSGlobal.Flows[0];
+
+    /// <summary>
     ///     传输协议
     /// </summary>
     public override string TransferProtocol { get; set; } = VLESSGlobal.TransferProtocols[0];
@@ -22,6 +27,13 @@ public class VLESSServer : VMessServer
 
 public class VLESSGlobal
 {
+    public static readonly List<string> Flows = new()
+    {
+        "none",
+        "xtls-rprx-vision",
+        "xtls-rprx-vision-udp443"
+    };
+
     public static readonly List<string> TLSSecure = new()
     {
         "none",

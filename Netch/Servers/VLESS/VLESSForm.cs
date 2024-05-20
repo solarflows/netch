@@ -27,6 +27,11 @@ internal class VLESSForm : ServerForm
             VMessGlobal.PacketEncodings,
             s => server.PacketEncoding = s,
             server.PacketEncoding);
+        CreateComboBox("Flow",
+            "Flow",
+            VLESSGlobal.Flows,
+            s => server.Flow = s,
+            server.Flow);
 
         CreateComboBox("FakeType", "Fake Type", VLESSGlobal.FakeTypes, s => server.FakeType = s, server.FakeType);
         CreateTextBox("Host", "Host", s => true, s => server.Host = s, server.Host);
