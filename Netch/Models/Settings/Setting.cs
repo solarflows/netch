@@ -148,9 +148,13 @@ public class Setting
 
     public V2rayConfig V2RayConfig { get; set; } = new();
 
+    public XrayConfig XrayConfig { get; set; } = new();
+
     public HysteriaConfig HysteriaConfig { get; set; } = new();
 
     public bool NoSupportDialog { get; set; } = false;
+
+    public CoreConfig Core { get; set; } = new();
 
     #region Migration
 

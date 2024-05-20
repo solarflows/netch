@@ -186,6 +186,61 @@ public partial class SettingForm : BindingForm
             Global.Settings.AioDNS.ListenPort);
 
         #endregion
+
+        #region Core
+
+        VMESSComboBox.SelectedIndex = VMESSComboBox.Items.IndexOf("V2ray");
+
+        VLESSComboBox.SelectedIndex = VLESSComboBox.Items.IndexOf("Xray");
+
+        TrojanComboBox.SelectedIndex = TrojanComboBox.Items.IndexOf("Trojan");
+
+        Hysteria2ComboBox.SelectedIndex = Hysteria2ComboBox.Items.IndexOf("Hysteria");
+
+        SOCKSComboBox.SelectedIndex = SOCKSComboBox.Items.IndexOf("v2ray");
+
+        SSComboBox.SelectedIndex = SSComboBox.Items.IndexOf("SS");
+
+        SSRComboBox.SelectedIndex = SSRComboBox.Items.IndexOf("SSR");
+
+        SSHComboBox.SelectedIndex = SSHComboBox.Items.IndexOf("SingBox");
+
+        WGComboBox.SelectedIndex = WGComboBox.Items.IndexOf("SingBox");
+
+        BindTextBox(V2rayTextBox, s => true, s => Global.Settings.Core.V2rayBin = s, Global.Settings.Core.V2rayBin);
+
+        BindTextBox(SingBoxTextBox, s => true, s => Global.Settings.Core.SingBoxBin = s, Global.Settings.Core.SingBoxBin);
+
+        BindTextBox(XrayTextBox, s => true, s => Global.Settings.Core.XrayBin = s, Global.Settings.Core.XrayBin);
+
+        BindTextBox(TrojanTextBox, s => true, s => Global.Settings.Core.TrojanBin = s, Global.Settings.Core.TrojanBin);
+
+        BindTextBox(HysteriaTextBox, s => true, s => Global.Settings.Core.HysteriaBin = s, Global.Settings.Core.HysteriaBin);
+
+        BindTextBox(SSTextBox, s => true, s => Global.Settings.Core.SSBin = s, Global.Settings.Core.SSBin);
+
+        BindTextBox(SSRTextBox, s => true, s => Global.Settings.Core.SSRBin = s, Global.Settings.Core.SSRBin);
+
+        BindComboBox(VMESSComboBox, s => true, s => Global.Settings.Core.VMESSCore = s, Global.Settings.Core.VMESSCore);
+
+        BindComboBox(VLESSComboBox, s => true, s => Global.Settings.Core.VLESSCore = s, Global.Settings.Core.VLESSCore);
+
+        BindComboBox(TrojanComboBox, s => true, s => Global.Settings.Core.TrojanCore = s, Global.Settings.Core.TrojanCore);
+
+        BindComboBox(Hysteria2ComboBox, s => true, s => Global.Settings.Core.Hysteria2Core = s, Global.Settings.Core.Hysteria2Core);
+
+        BindComboBox(SOCKSComboBox, s => true, s => Global.Settings.Core.SOCKSCore = s, Global.Settings.Core.SOCKSCore);
+
+        BindComboBox(SSComboBox, s => true, s => Global.Settings.Core.SSCore = s, Global.Settings.Core.SSCore);
+
+        BindComboBox(SSRComboBox, s => true, s => Global.Settings.Core.SSRCore = s, Global.Settings.Core.SSRCore);
+
+        BindComboBox(SSHComboBox, s => true, s => Global.Settings.Core.SSHCore = s, Global.Settings.Core.SSHCore);
+
+        BindComboBox(WGComboBox, s => true, s => Global.Settings.Core.WGCore = s, Global.Settings.Core.WGCore);
+
+        #endregion
+
     }
 
     private void SettingForm_Load(object sender, EventArgs e)
@@ -282,5 +337,55 @@ public partial class SettingForm : BindingForm
         await Configuration.SaveAsync();
         MessageBoxX.Show(i18N.Translate("Saved"));
         Close();
+    }
+
+    private void ChinaDNSTextBox_TextChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void VLESSComboBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void VMESSComboBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void TrojanComboBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void WGComboBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void SSRComboBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void SSComboBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void SOCKSComboBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void SSHComboBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    private void Hysteria2ComboBox_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
     }
 }

@@ -57,10 +57,113 @@ public static class MainController
             {
                 // Start Server Controller to get a local socks5 server
                 Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
-                if (Server.Type == "Hysteria2")
+                if (Server.Type == "Socks5")
                 {
-                    ServerController = new HysteriaController();
-                } else
+                    ServerController = new Socks5Controller();
+                }
+                else if (Server.Type == "SS")
+                {
+                    if (Global.Settings.Core.SSCore == "SS")
+                    {
+                        ServerController = new XrayController();
+                    } 
+                    else if (Global.Settings.Core.SSCore == "SingBox")
+                    {
+                        ServerController = new SingBoxController();
+                    }
+                    else
+                    {
+                        ServerController = new V2rayController();
+                    }
+                }
+                else if (Server.Type == "SSR")
+                {
+                    if (Global.Settings.Core.SSRCore == "SSR")
+                    {
+                        ServerController = new XrayController();
+                    }
+                    else if (Global.Settings.Core.SSRCore == "SingBox")
+                    {
+                        ServerController = new SingBoxController();
+                    }
+                    else
+                    {
+                        ServerController = new V2rayController();
+                    }
+                }
+                if (Server.Type == "VLESS")
+                {
+                    if (Global.Settings.Core.VLESSCore == "Xray")
+                    {
+                        ServerController = new XrayController();
+                    }
+                    else if (Global.Settings.Core.VLESSCore == "SingBox")
+                    {
+                        ServerController = new SingBoxController();
+                    }
+                    else
+                    {
+                        ServerController = new V2rayController();
+                    }
+                }
+                else if (Server.Type == "Hysteria2")
+                {
+                    if (Global.Settings.Core.Hysteria2Core == "Hysteria")
+                    {
+                        ServerController = new HysteriaController();
+                    }
+                    else if (Global.Settings.Core.Hysteria2Core == "SingBox")
+                    {
+                        ServerController = new SingBoxController();
+                    }
+                    else
+                    {
+                        ServerController = new V2rayController();
+                    }
+                }
+                else if (Server.Type == "Trojan")
+                {
+                    if (Global.Settings.Core.TrojanCore == "Trojan")
+                    {
+                        ServerController = new TrojanController();
+                    }
+                    else if (Global.Settings.Core.TrojanCore == "SingBox")
+                    {
+                        ServerController = new SingBoxController();
+                    }
+                    else if (Global.Settings.Core.TrojanCore == "V2ray")
+                    {
+                        ServerController = new V2rayController();
+                    }
+                    else if (Global.Settings.Core.TrojanCore == "Xray")
+                    {
+                        ServerController = new XrayController();
+                    }
+                    else
+                    {
+                        ServerController = new V2rayController();
+                    }
+                }
+                else if (Server.Type == "VMess")
+                {
+                    if (Global.Settings.Core.VMESSCore == "V2ray")
+                    {
+                        ServerController = new V2rayController();
+                    }
+                    else if (Global.Settings.Core.VMESSCore == "Xray")
+                    {
+                        ServerController = new XrayController();
+                    }
+                    else if (Global.Settings.Core.VMESSCore == "SingBox")
+                    {
+                        ServerController = new SingBoxController();
+                    }
+                    else
+                    {
+                        ServerController = new V2rayController();
+                    }
+                }
+                else
                 {
                     ServerController = new V2rayController();
                 }
