@@ -78,7 +78,9 @@ public static class ShareLink
             var scheme = GetUriScheme(text);
             var util = ServerHelper.GetUtilByUriScheme(scheme);
             if (util != null)
+            {
                 list.AddRange(util.ParseUri(text));
+            }
             else
                 Log.Warning("\"{Scheme}\" scheme share link not supported", scheme);
         }
