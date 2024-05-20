@@ -287,14 +287,14 @@ public static class SingBoxConfigUtils
                     },
                     outbound = "direct"
                 },
-                new
+                /*new
                 {
                     domain_suffix = new object[]
                     {
                        
                     },
                     outbound = "direct"
-                },
+                },*/
                 new
                 {
                     ip_is_private = true,
