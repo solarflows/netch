@@ -202,6 +202,7 @@ public static class V2rayConfigUtils
                 }
                 break;
              case TrojanServer trojan:
+                outbound.tag = "proxy";
                 outbound.protocol = "trojan";
                 outbound.settings.servers = new[]
                 {
@@ -210,8 +211,7 @@ public static class V2rayConfigUtils
                         address = await server.AutoResolveHostnameAsync(),
                         port = server.Port,
                         method = "",
-                        password = trojan.Password,
-                        flow = trojan.TLSSecureType == "xtls" ? "xtls-rprx-direct" : ""
+                        password = trojan.Password
                     }
                 };
 
@@ -225,7 +225,7 @@ public static class V2rayConfigUtils
                     var tlsSettings = new TlsSettings
                     {
                         allowInsecure = Global.Settings.V2RayConfig.AllowInsecure,
-                        serverName = trojan.Host ?? ""
+                        serverName = trojan.Hostname
                     };
 
                     switch (trojan.TLSSecureType)

@@ -1,6 +1,8 @@
 ﻿#nullable disable
 // ReSharper disable InconsistentNaming
 
+using System.Text.Json.Serialization;
+
 namespace Netch.Servers;
 
 public struct V2rayConfig
@@ -25,6 +27,8 @@ public class User
 
 public class Outbound
 {
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+    public string tag { get; set; }
     public string protocol { get; set; }
 
     public OutboundConfiguration settings { get; set; }
