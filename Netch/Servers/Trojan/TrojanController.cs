@@ -13,9 +13,9 @@ public class TrojanController : Guard, IServerController
     {
     }
 
-    protected override IEnumerable<string> StartedKeywords => new[] { "listening" };
+    protected override IEnumerable<string> StartedKeywords => new[] { "started" };
 
-    protected override IEnumerable<string> FailedKeywords => new[] { "exiting" };
+    protected override IEnumerable<string> FailedKeywords => new[] { "exiting", "stoped" };
 
     public override string Name => "Trojan";
 
@@ -47,7 +47,7 @@ public class TrojanController : Guard, IServerController
             await JsonSerializer.SerializeAsync(fileStream, trojanConfig, Global.NewCustomJsonSerializerOptions());
         }
 
-        await StartGuardAsync("-config ..\\data\\last.json");
+        await StartGuardAsync("--config ..\\data\\last.json");
         return new Socks5Server(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), server.Hostname);
     }
 }

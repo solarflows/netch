@@ -36,7 +36,7 @@ public class TrojanConfig
     /// <summary>
     ///     启动类型
     /// </summary>
-    public string run_type { get; set; } = "client";
+    public string run_type { get; set; } = "client";  // client | forward | nat | server
 
     public TrojanSSL ssl { get; set; } = new();
 
