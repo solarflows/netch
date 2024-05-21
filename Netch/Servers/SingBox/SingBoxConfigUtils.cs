@@ -258,9 +258,9 @@ public static class SingBoxConfigUtils
     }
 
     // sing-box 1.8.0以上
-    private static async Task<SB_ROUTE> routes(Server server)
+    private static async Task<SB_Route> routes(Server server)
     {
-        var routes = new SB_ROUTE
+        var routes = new SB_Route
         {
             rules = new List<object>()
             {

@@ -15,7 +15,7 @@ public struct SingboxConfig
 
     public SB_DNS dns { get; set; }
 
-    public SB_ROUTE route { get; set; }
+    public SB_Route route { get; set; }
 
     public Object experimental { get; set; }
 }
@@ -140,7 +140,7 @@ public class SB_DNS
     public List<object> rules { get; set; }
 }
 
-public class SB_ROUTE
+public class SB_Route
 {
     public List<object> rules { get; set; }
 
