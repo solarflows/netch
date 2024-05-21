@@ -3,21 +3,20 @@ using System.Text.Json;
 using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
-using Netch.Utils;
 
 namespace Netch.Servers;
 
 public class HysteriaController : Guard, IServerController
 {
-    public HysteriaController() : base("sing-box.exe")
+    public HysteriaController() : base(Global.Settings.Core.HysteriaBin)
     {
     }
 
-    protected override IEnumerable<string> StartedKeywords => new[] { "started" };
+    protected override IEnumerable<string> StartedKeywords => new[] { "SOCKS5 server listening", "update available" };
 
-    protected override IEnumerable<string> FailedKeywords => new[] { "config file not readable", "failed to" };
+    protected override IEnumerable<string> FailedKeywords => new[] { "failed to" };
 
-    public override string Name => "Hysteria (SagerNet)";
+    public override string Name => "Hysteria";
 
     public ushort? Socks5LocalPort { get; set; }
 
@@ -32,7 +31,7 @@ public class HysteriaController : Guard, IServerController
             await JsonSerializer.SerializeAsync(fileStream, await HysteriaConfigUtils.GenerateClientConfigAsync(server), Global.NewCustomJsonSerializerOptions());
         }
 
-        await StartGuardAsync("run -c ..\\data\\last.json");
+        await StartGuardAsync("client -c ..\\data\\last.json");
 
         return new Socks5Server(IPAddress.Loopback.ToString(), this.Socks5LocalPort(), s.Hostname);
     }

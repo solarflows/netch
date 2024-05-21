@@ -1,90 +1,45 @@
 ﻿using Netch.Models;
 using Netch.Utils;
-using System;
-using System.Formats.Asn1;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-
-#pragma warning disable VSTHRD200
 
 namespace Netch.Servers;
 
 public static class HysteriaConfigUtils
 {
-    public static async Task<SingboxConfig> GenerateClientConfigAsync(Hysteria2Server server)
+    public static async Task<HysteriaConfig> GenerateClientConfigAsync(Hysteria2Server server)
     {
-        var hysteriaConfig = new SingboxConfig
+        var hysteriaConfig = new HysteriaConfig
         {
-            inbounds = new object[]
-            {
-                new
-                {
-                    type = "socks",
-                    tag = "mixed-in",
-                    listen = Global.Settings.LocalAddress,
-                    listen_port = Global.Settings.Socks5LocalPort,
-                    tcp_fast_open = true,
-                    udp_fragment = true,
-                    sniff = true
-                }
-            }
+            server = await server.AutoResolveHostnameAsync() + ":" + server.Port,
+            auth = server.Password
+
+        };
+        hysteriaConfig.socks5 = new
+        {
+            listen = Global.Settings.LocalAddress + ":" + Global.Settings.Socks5LocalPort
         };
 
-        hysteriaConfig.outbounds = await outbound(server);
-        hysteriaConfig.dns = await dnss(server);
-        hysteriaConfig.route = await routes(server);
-        hysteriaConfig.experimental = new
+        if(server.OBFSParam.Length > 0 )
         {
-            cache_file = new
+            hysteriaConfig.obfs = new OBFS_Item
             {
-                enabled = true,
-            }
+                type = "salamander",
+                salamander = new
+                {
+                    password = server.OBFSParam
+                }
+            };
+        }
+
+        hysteriaConfig.tls = new TLS_Item
+        {
+            sni = server.ServerName == "" ? server.Hostname : server.ServerName,
+            insecure = true
         };
+
         return hysteriaConfig;
     }
 
-    private static async Task<object> outbound(Hysteria2Server server)
-    {
-        var outbound = new List<object>()
-        {
-            new SB_Outbound
-            {
-                type = "hysteria2",
-                tag = "proxy",
-                server = await server.AutoResolveHostnameAsync(),
-                server_port = server.Port,
-                password = server.Password,
-                obfs = new SB_OBFS
-                {
-                    type = "salamander",
-                    password = server.OBFSParam
-                },
-                tls = new SB_TLS
-                {
-                    enabled = true,
-                    server_name = server.SNI,
-                    insecure = true
-                }
-            },
-            new
-            {
-                type = "direct",
-                tag = "direct"
-            },
-            new
-            {
-                type = "block",
-                tag = "block"
-            },
-            new
-            {
-                type = "dns",
-                tag = "dns-out"
-            }
-        };
-        return outbound;
-    }
-
-    // sing-box 1.8.0以上
+    
     private static async Task<SB_DNS> dnss(Hysteria2Server server)
     {
         var dnss = new SB_DNS
@@ -129,10 +84,10 @@ public static class HysteriaConfigUtils
         return dnss;
     }
 
-    // sing-box 1.8.0以上
-    private static async Task<SB_ROUTE> routes(Hysteria2Server server)
+    
+    private static async Task<SB_Route> routes(Hysteria2Server server)
     {
-        var routes = new SB_ROUTE
+        var routes = new SB_Route
         {
             rules = new List<object>()
             {
@@ -156,6 +111,14 @@ public static class HysteriaConfigUtils
                     domain_suffix = new object[]
                     {
                         ".cn"
+                    },
+                    outbound = "direct"
+                },
+                new
+                {
+                    domain_suffix = new object[]
+                    {
+                        ".superego"
                     },
                     outbound = "direct"
                 },
