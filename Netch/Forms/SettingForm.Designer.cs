@@ -633,7 +633,7 @@ namespace Netch.Forms
             v2rayTabPage.Padding = new Padding(3);
             v2rayTabPage.Size = new Size(461, 321);
             v2rayTabPage.TabIndex = 3;
-            v2rayTabPage.Text = "V2Ray";
+            v2rayTabPage.Text = "V2/XRay";
             // 
             // XrayConeCheckBox
             // 
