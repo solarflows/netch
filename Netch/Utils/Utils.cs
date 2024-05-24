@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -305,5 +306,26 @@ public static class Utils
     {
         string pattern = @"^[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$";
         return IsMatch(pattern, str);
+    }
+
+    public static void dir (string dirPath, bool isChild=false)
+    {
+        // 所有文件
+        var dir = new DirectoryInfo(dirPath);
+        foreach (FileInfo f in dir.GetFiles())
+        {
+            Console.WriteLine(f.Name);
+        }
+
+        //所有目录
+        foreach (DirectoryInfo d in dir.GetDirectories())
+        {
+            Console.WriteLine(d.Name);
+        }
+
+        if (isChild)
+        {
+
+        }
     }
 }
