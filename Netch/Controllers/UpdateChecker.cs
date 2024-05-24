@@ -498,7 +498,7 @@ public static class CoreUpdate
         return false;
     }
 
-    public static async void CheckUpgradeAsync(string core)
+    public static async Task<bool> CheckUpgradeAsync(string core)
     {
         string downloadDirectory = Path.Combine(Global.NetchDir, "data");
         var result = "";
@@ -521,49 +521,71 @@ public static class CoreUpdate
                     match = regex.Match(result);
                     if (!match.Success)
                     {
-                        return ;
+                        return false;
                     }
                     oldVersion = match.Groups[1].Value;
                     Console.WriteLine(oldVersion);
-
+                    Console.WriteLine(newVersion);
+                    if (newVersion.Substring(0, 1) == "v" || newVersion.Substring(0, 1) == "V")
+                    {
+                        newVersion = newVersion.Substring(1);
+                    }
+                        
                     if (oldVersion == newVersion)
                     {
-                        return ;
+                        Log.Information("V2ray have no new version");
+                        return false;
                     }
                 }
 
                 if (newVersion.Length > 0)
                 {
+                    Log.Information("A newer version of the V2ray was found");
                     var url = string.Format("{0}/releases/download/{1}/v2ray-windows-64.zip", V2rayRepo, newVersion);
                     Console.WriteLine(url);
                     var updateFileFullName = Path.Combine(downloadDirectory, "v2ray-windows-64.zip");
-                    DownloadFile(updateFileFullName, url);
-
-                    HttpClient client = new HttpClient();
-
-                    // Download the zip file
-                    byte[] zipBytes = await client.GetByteArrayAsync(url);
+                    // DownloadFile(updateFileFullName, url);
 
                     var tmpPath = Path.Combine(downloadDirectory, "tmp");
-                    /*if (File.Exists(tmpPath))
-                    {
-                        File.Delete(tmpPath);
-                    }*/
                     if (Directory.Exists(tmpPath))
                     {
                         Directory.Delete(tmpPath, true);
                     }
-                    ZipFile.ExtractToDirectory(updateFileFullName, tmpPath);
-                    File.Move(Path.Combine(tmpPath, "v2ray.exe"), Path.Combine(Global.NetchDir, "bin", Global.Settings.Core.V2rayBin), true);
-                    if (File.Exists(updateFileFullName))
+
+                    try
                     {
-                        File.Delete(updateFileFullName);
+                        HttpClient client = new HttpClient();
+
+                        // Download the zip file
+                        byte[] zipBytes = await client.GetByteArrayAsync(url);
+                        // Extract the zip file
+                        string zipFilePath = Path.Combine(downloadDirectory, "v2ray-windows-64.zip");
+                        File.WriteAllBytes(zipFilePath, zipBytes);
+
+                        ZipFile.ExtractToDirectory(updateFileFullName, tmpPath);
+                        File.Move(Path.Combine(tmpPath, "v2ray.exe"), Path.Combine(Global.NetchDir, "bin", Global.Settings.Core.V2rayBin), true);
+                        if (File.Exists(updateFileFullName))
+                        {
+                            File.Delete(updateFileFullName);
+                        }
+                        if (Directory.Exists(tmpPath))
+                        {
+                            Directory.Delete(tmpPath, true);
+                        }
+
+                        Log.Information("V2ray new software download finish");
+                        return true;
                     }
-                    if (Directory.Exists(tmpPath))
+                    catch (Exception ex)
                     {
-                        Directory.Delete(tmpPath, true);
+                        Log.Error(ex, "V2ray new software download failed");
+                        return false;
                     }
-                    return ;
+                    
+                }
+                else
+                {
+                    Log.Error("Get V2ray new version error");
                 }
 
                 break;
@@ -577,40 +599,68 @@ public static class CoreUpdate
                     match = regex.Match(result);
                     if (!match.Success)
                     {
-                        return ;
+                        return false;
                     }
                     oldVersion = match.Groups[1].Value;
                     Console.WriteLine(oldVersion);
+                    Console.WriteLine(newVersion);
+                    if (newVersion.Substring(0, 1) == "v" || newVersion.Substring(0, 1) == "V")
+                    {
+                        newVersion = newVersion.Substring(1);
+                    }
 
                     if (oldVersion == newVersion)
                     {
-                        return ;
+                        Log.Information("Xray have no new version");
+                        return false;
                     }
                 }
 
                 if (newVersion.Length > 0)
                 {
+                    Log.Information("A newer version of the Xray was found");
                     var url = string.Format("{0}/releases/download/{1}/Xray-windows-64.zip", XrayRepo, newVersion);
                     Console.WriteLine(url);
                     var updateFileFullName = Path.Combine(downloadDirectory, "Xray-windows-64.zip");
-                    DownloadFile(updateFileFullName, url);
+                    // DownloadFile(updateFileFullName, url);
 
                     var tmpPath = Path.Combine(downloadDirectory, "tmp");
                     if (Directory.Exists(tmpPath))
                     {
                         Directory.Delete(tmpPath, true);
                     }
-                    ZipFile.ExtractToDirectory(updateFileFullName, tmpPath);
-                    File.Move(Path.Combine(tmpPath, "xray.exe"), Path.Combine(Global.NetchDir, "bin", Global.Settings.Core.XrayBin), true);
-                    if (File.Exists(updateFileFullName))
+
+                    try
                     {
-                        File.Delete(updateFileFullName);
+                        HttpClient client = new HttpClient();
+                        byte[] zipBytes = await client.GetByteArrayAsync(url);
+                        string zipFilePath = Path.Combine(downloadDirectory, "Xray-windows-64.zip");
+                        File.WriteAllBytes(zipFilePath, zipBytes);
+
+                        ZipFile.ExtractToDirectory(updateFileFullName, tmpPath);
+                        File.Move(Path.Combine(tmpPath, "xray.exe"), Path.Combine(Global.NetchDir, "bin", Global.Settings.Core.XrayBin), true);
+                        if (File.Exists(updateFileFullName))
+                        {
+                            File.Delete(updateFileFullName);
+                        }
+                        if (Directory.Exists(tmpPath))
+                        {
+                            Directory.Delete(tmpPath, true);
+                        }
+
+                        Log.Information("Xray new software download finish");
+                        return true;
                     }
-                    if (Directory.Exists(tmpPath))
+                    catch (Exception ex)
                     {
-                        Directory.Delete(tmpPath, true);
+                        Log.Error(ex, "Xray new software download failed");
+                        return false;
                     }
-                    return ;
+                    
+                }
+                else
+                {
+                    Log.Error("Get Xray new version error");
                 }
 
                 break;
@@ -624,30 +674,61 @@ public static class CoreUpdate
                     match = regex.Match(result);
                     if (!match.Success)
                     {
-                        return ;
+                        return false;
                     }
                     oldVersion = match.Groups[1].Value;
                     Console.WriteLine(oldVersion);
+                    Console.WriteLine(newVersion);
+                    if (newVersion.Contains("/"))
+                    {
+                        string[] tmp = newVersion.Split("/");
+                        newVersion = tmp[1];
+                    }
+
+                    if (newVersion.Substring(0, 1) == "v" || newVersion.Substring(0, 1) == "V")
+                    {
+                        newVersion = newVersion.Substring(1);
+                    }
 
                     if (oldVersion == newVersion)
                     {
-                        return ;
+                        Log.Information("Hysteria have no new version");
+                        return false;
                     }
                 }
 
                 if (newVersion.Length > 0)
                 {
+                    Log.Information("A newer version of the Hysteria was found");
                     var url = string.Format("{0}/releases/download/{1}/hysteria-windows-amd64.exe", HysteriaRepo, newVersion);
                     Console.WriteLine(url);
                     var updateFileFullName = Path.Combine(downloadDirectory, "hysteria-windows-amd64.exe");
-                    DownloadFile(updateFileFullName, url);
+                    // DownloadFile(updateFileFullName, url);
 
-                    File.Move(Path.Combine(downloadDirectory, "hysteria-windows-amd64.exe"), Path.Combine(Global.NetchDir, "bin", Global.Settings.Core.HysteriaBin), true);
-                    if (File.Exists(updateFileFullName))
+                    try
                     {
-                        File.Delete(updateFileFullName);
+                        HttpClient client = new HttpClient();
+                        byte[] fileBytes = await client.GetByteArrayAsync(url);
+                        File.WriteAllBytes(updateFileFullName, fileBytes);
+
+                        File.Move(Path.Combine(downloadDirectory, "hysteria-windows-amd64.exe"), Path.Combine(Global.NetchDir, "bin", Global.Settings.Core.HysteriaBin), true);
+                        if (File.Exists(updateFileFullName))
+                        {
+                            File.Delete(updateFileFullName);
+                        }
+
+                        Log.Information("Hysteria new software download finish");
+                        return true;
                     }
-                    return ;
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex, "Hysteria new software download failed");
+                        return false;
+                    }
+                }
+                else
+                {
+                    Log.Error("Get Hysteria new version error");
                 }
 
                 break;
@@ -656,47 +737,75 @@ public static class CoreUpdate
                 if (File.Exists(Path.Combine(Global.NetchDir, "bin", Global.Settings.Core.SingBoxBin)))
                 {
                     result = RunCmd("sing-box version");
-                    pattern = @"version (\d+\.\d+\.\d+-\w+\.\d+)";
+                    pattern = @"version (\d+\.\d+\.\d+)";
                     regex = new Regex(pattern);
                     match = regex.Match(result);
                     if (!match.Success)
                     {
-                        return ;
+                        return false;
                     }
                     oldVersion = match.Groups[1].Value;
                     Console.WriteLine(oldVersion);
+                    Console.WriteLine(newVersion);
+                    if (newVersion.Substring(0, 1) == "v" || newVersion.Substring(0, 1) == "V")
+                    {
+                        newVersion = newVersion.Substring(1);
+                    }
 
                     if (oldVersion == newVersion)
                     {
-                        return ;
+                        Log.Information("SingBox have no new version");
+                        return false;
                     }
                 }
 
                 if (newVersion.Length > 0)
                 {
+                    Log.Information("A newer version of the SingBox was found");
                     string singboxFileName = string.Format("sing-box-{0}-windows-amd64.zip", newVersion.Substring(1));
                     string singboxFileName1 = string.Format("sing-box-{0}-windows-amd64", newVersion.Substring(1));
                     var url = string.Format("{0}/releases/download/{1}/{2}", SingBoxRepo, newVersion, singboxFileName);
                     Console.WriteLine(url);
                     var updateFileFullName = Path.Combine(downloadDirectory, singboxFileName);
-                    DownloadFile(updateFileFullName, url);
+                    // DownloadFile(updateFileFullName, url);
 
                     var tmpPath = Path.Combine(downloadDirectory, "tmp");
                     if (Directory.Exists(tmpPath))
                     {
                         Directory.Delete(tmpPath, true);
                     }
-                    ZipFile.ExtractToDirectory(updateFileFullName, tmpPath);
-                    File.Move(Path.Combine(tmpPath, singboxFileName1, "sing-box.exe"), Path.Combine(Global.NetchDir, "bin", Global.Settings.Core.SingBoxBin), true);
-                    if (File.Exists(updateFileFullName))
+
+                    try
                     {
-                        File.Delete(updateFileFullName);
+                        HttpClient client = new HttpClient();
+                        byte[] zipBytes = await client.GetByteArrayAsync(url);
+                        string zipFilePath = Path.Combine(downloadDirectory, singboxFileName);
+                        File.WriteAllBytes(zipFilePath, zipBytes);
+
+                        ZipFile.ExtractToDirectory(updateFileFullName, tmpPath);
+                        File.Move(Path.Combine(tmpPath, singboxFileName1, "sing-box.exe"), Path.Combine(Global.NetchDir, "bin", Global.Settings.Core.SingBoxBin), true);
+                        if (File.Exists(updateFileFullName))
+                        {
+                            File.Delete(updateFileFullName);
+                        }
+                        if (Directory.Exists(tmpPath))
+                        {
+                            Directory.Delete(tmpPath, true);
+                        }
+
+                        Log.Information("SingBox new software download finish");
+                        return true;
                     }
-                    if (Directory.Exists(tmpPath))
+                    catch (Exception ex)
                     {
-                        Directory.Delete(tmpPath, true);
+                        Log.Error(ex, "SingBox new software download failed");
+                        return false;
                     }
-                    return ;
+                    
+                }
+                else
+                {
+                    Log.Error("Get SingBox new version error");
                 }
 
                 break;
@@ -710,22 +819,34 @@ public static class CoreUpdate
                     match = regex.Match(result);
                     if (!match.Success)
                     {
-                        return ;
+                        return false;
                     }
                     oldVersion = match.Groups[1].Value;
                     Console.WriteLine(oldVersion);
+                    Console.WriteLine(newVersion);
+                    if (newVersion.Substring(0, 1) == "v" || newVersion.Substring(0, 1) == "V")
+                    {
+                        newVersion = newVersion.Substring(1);
+                    }
 
                     if (oldVersion == newVersion)
                     {
-                        return ;
+                        Log.Information("Trojan have no new version");
+                        return false;
                     }
                 }
 
                 if (newVersion.Length > 0)
                 {
-                    var url = string.Format("{0}/releases/download/{1}/{}.zip", V2rayRepo, newVersion);
+                    Log.Information("A newer version of the Trojan was found");
+                    var url = string.Format("{0}/releases/download/{1}/{}.zip", TrojanRepo, newVersion);
                     var updateFileFullName = Path.Combine(downloadDirectory, Global.Settings.Core.TrojanBin);
-                    return ;
+                    return true;
+                }
+                else
+                {
+                    Log.Error("Get Trojan new version error");
+                    return false;
                 }
 
                 break;
@@ -734,36 +855,40 @@ public static class CoreUpdate
                 break;
         }
 
-        return ;
+        return false;
     }
 
     public static async Task CheckAsync()
     {
+        Log.Information("upgrade core starting");
 
         if (V2rayRepo.Length > 0)
         {
-            await CheckUpgrade("v2ray");
+            await CheckUpgradeAsync("v2ray");
         }
 
         if (XrayRepo.Length > 0)
         {
-            await CheckUpgrade("xray");
+            await CheckUpgradeAsync("xray");
         }
 
         if (SingBoxRepo.Length > 0)
         {
-            await CheckUpgrade("singbox");
+            await CheckUpgradeAsync("singbox");
         }
 
         if (HysteriaRepo.Length > 0)
         {
-            await CheckUpgrade("hysteria");
+            await CheckUpgradeAsync("hysteria");
         }
 
         if (TrojanRepo.Length > 0)
         {
-            await CheckUpgrade("trojan");
+            await CheckUpgradeAsync("trojan");
         }
+
+        Log.Information("upgrade core finish");
+        //MessageBox.Show(i18N.Translate("Upgrade Core Finish"));
 
     }
 }

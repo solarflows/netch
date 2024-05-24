@@ -95,6 +95,9 @@
 
   <ItemGroup>
     <None Remove="NativeMethods.txt" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>D:\Tools\C# DLL\netstandard2.0\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <None Update="NOTICE.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
