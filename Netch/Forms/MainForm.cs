@@ -53,7 +53,7 @@ public partial class MainForm : Form
         {
             var fullName = serversUtil.FullName;
             var control = new ToolStripMenuItem
-            
+
             {
                 Name = $"Add{fullName}ServerToolStripMenuItem",
                 Size = new Size(259, 22),
@@ -348,6 +348,18 @@ public partial class MainForm : Form
         {
             UpdateChecker.NewVersionNotFound -= OnNewVersionNotFound;
             UpdateChecker.NewVersionFoundFailed -= OnNewVersionFoundFailed;
+        }
+    }
+
+    private async void updateForCoreToolStripMenuItem_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            await CoreUpdate.CheckAsync();
+        }
+        finally
+        {
+            NotifyTip(i18N.Translate("Check for update failed"), info: false);
         }
     }
 
@@ -1485,4 +1497,5 @@ public partial class MainForm : Form
     #endregion
 
     #endregion
+
 }

@@ -48,6 +48,7 @@
             RemoveNetchFirewallRulesToolStripMenuItem = new ToolStripMenuItem();
             HelpToolStripMenuItem = new ToolStripMenuItem();
             CheckForUpdateToolStripMenuItem = new ToolStripMenuItem();
+            updateForCoreToolStripMenuItem = new ToolStripMenuItem();
             FAQToolStripMenuItem = new ToolStripMenuItem();
             ForceExitToolStripMenuItem = new ToolStripMenuItem();
             AboutToolStripButton = new ToolStripButton();
@@ -235,7 +236,7 @@
             // 
             // HelpToolStripMenuItem
             // 
-            HelpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { CheckForUpdateToolStripMenuItem, FAQToolStripMenuItem });
+            HelpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { CheckForUpdateToolStripMenuItem, updateForCoreToolStripMenuItem, FAQToolStripMenuItem });
             HelpToolStripMenuItem.Margin = new Padding(0, 0, 0, 1);
             HelpToolStripMenuItem.Name = "HelpToolStripMenuItem";
             HelpToolStripMenuItem.Size = new Size(47, 21);
@@ -244,14 +245,21 @@
             // CheckForUpdateToolStripMenuItem
             // 
             CheckForUpdateToolStripMenuItem.Name = "CheckForUpdateToolStripMenuItem";
-            CheckForUpdateToolStripMenuItem.Size = new Size(177, 22);
+            CheckForUpdateToolStripMenuItem.Size = new Size(178, 22);
             CheckForUpdateToolStripMenuItem.Text = "Check for update";
             CheckForUpdateToolStripMenuItem.Click += CheckForUpdatesToolStripMenuItem_Click;
+            // 
+            // updateForCoreToolStripMenuItem
+            // 
+            updateForCoreToolStripMenuItem.Name = "updateForCoreToolStripMenuItem";
+            updateForCoreToolStripMenuItem.Size = new Size(178, 22);
+            updateForCoreToolStripMenuItem.Text = "Update for Cores";
+            updateForCoreToolStripMenuItem.Click += updateForCoreToolStripMenuItem_Click;
             // 
             // FAQToolStripMenuItem
             // 
             FAQToolStripMenuItem.Name = "FAQToolStripMenuItem";
-            FAQToolStripMenuItem.Size = new Size(177, 22);
+            FAQToolStripMenuItem.Size = new Size(178, 22);
             FAQToolStripMenuItem.Text = "FAQ";
             FAQToolStripMenuItem.Click += fAQToolStripMenuItem_Click;
             // 
@@ -790,5 +798,6 @@
         private System.Windows.Forms.ToolStripStatusLabel HttpStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem ReloadModesToolStripMenuItem;
         private ToolStripMenuItem updateServersOnProxyToolStripMenuItem;
+        private ToolStripMenuItem updateForCoreToolStripMenuItem;
     }
 }
