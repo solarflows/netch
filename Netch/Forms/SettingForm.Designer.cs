@@ -1303,7 +1303,7 @@ namespace Netch.Forms
             V2rayTextBox.Name = "V2rayTextBox";
             V2rayTextBox.Size = new Size(121, 23);
             V2rayTextBox.TabIndex = 4;
-            V2rayTextBox.Text = "v2ray-sn.exe";
+            V2rayTextBox.Text = "v2ray.exe";
             V2rayTextBox.TextAlign = HorizontalAlignment.Center;
             // 
             // label3
