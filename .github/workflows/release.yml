@@ -35,6 +35,13 @@ jobs:
           path: |
             .\Netch\bin
 
+      - name: Cache Other
+        uses: actions/cache@v4
+        with:
+          key: Netch-${{ runner.os }}-Other-${{ env.SOURCE_OTHER_SHA256 }}
+          path: |
+            .\Other\release
+
       - name: Cache Redirector
         uses: actions/cache@v4
         with:
