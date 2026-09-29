@@ -54,11 +54,12 @@ public static class DnsService
         await Task.CompletedTask;
     }
 
-    public static Task StopAsync()
+    public static async Task StopAsync()
     {
         try
         {
-            _cts?.Cancel();
+            if (_cts != null)
+                await _cts.CancelAsync();
             _listener?.Close();
             _listener?.Dispose();
         }
@@ -71,8 +72,6 @@ public static class DnsService
             _listener = null;
             _cts = null;
         }
-
-        return Task.CompletedTask;
     }
 
     private static void LoadChinaDomainRules()

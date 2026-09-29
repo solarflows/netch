@@ -156,18 +156,18 @@ public static class ThemeService
                     pb.BackColor = dark ? DarkCard : Color.Transparent;
                     break;
 
-                case ToolStrip ts:
-                    ts.BackColor = dark ? DarkBg : SystemColors.Control;
-                    ts.ForeColor = dark ? DarkText : SystemColors.ControlText;
-                    ts.Renderer = dark ? DarkRenderer : DefaultRenderer;
-                    ApplyToToolStripItems(ts.Items, dark);
-                    break;
-
                 case ContextMenuStrip cms:
                     cms.BackColor = dark ? DarkCard : SystemColors.Control;
                     cms.ForeColor = dark ? DarkText : SystemColors.ControlText;
                     cms.Renderer = dark ? DarkRenderer : DefaultRenderer;
                     ApplyToToolStripItems(cms.Items, dark);
+                    break;
+
+                case ToolStrip ts:
+                    ts.BackColor = dark ? DarkBg : SystemColors.Control;
+                    ts.ForeColor = dark ? DarkText : SystemColors.ControlText;
+                    ts.Renderer = dark ? DarkRenderer : DefaultRenderer;
+                    ApplyToToolStripItems(ts.Items, dark);
                     break;
 
                 default:
