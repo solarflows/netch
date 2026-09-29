@@ -16,9 +16,9 @@ public class SmokeTests
     public void Setup()
     {
         // Ensure default settings are initialized
-        Global.Settings.Socks5LocalPort = 2801;
-        Global.Settings.LocalAddress = "127.0.0.1";
-        Global.Settings.CoreType = "sing-box";
+        Netch.Global.Settings.Socks5LocalPort = 2801;
+        Netch.Global.Settings.LocalAddress = "127.0.0.1";
+        Netch.Global.Settings.CoreType = "sing-box";
     }
 
     #region Subscription Parsing Smoke Tests
@@ -321,7 +321,7 @@ public class SmokeTests
     #region Proxy Core Config Generation Smoke Tests
 
     [TestMethod]
-    public async Task Smoke_SingboxConfig_Generation()
+    public async Task Smoke_SingboxConfig_GenerationAsync()
     {
         // 1. Socks5
         var s5 = new Socks5Server { Hostname = "127.0.0.1", Port = 1080, Username = "u", Password = "p" };
@@ -385,7 +385,7 @@ public class SmokeTests
     }
 
     [TestMethod]
-    public async Task Smoke_XrayConfig_Generation()
+    public async Task Smoke_XrayConfig_GenerationAsync()
     {
         // 1. Socks5
         var s5 = new Socks5Server { Hostname = "127.0.0.1", Port = 1080 };
@@ -425,7 +425,7 @@ public class SmokeTests
     [TestMethod]
     public void Smoke_Architecture_LegacyControllersAreRemoved()
     {
-        var netchAssembly = typeof(Global).Assembly;
+        var netchAssembly = typeof(Netch.Global).Assembly;
         var typeNames = netchAssembly.GetTypes().Select(t => t.Name).ToList();
 
         // Ensure legacy controllers do NOT exist in the assembly

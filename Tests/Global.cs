@@ -8,7 +8,7 @@ using System.Text;
 namespace Tests
 {
     [TestClass]
-    public class Global
+    public class UuidTests
     {
         [TestMethod]
         public void Test()
