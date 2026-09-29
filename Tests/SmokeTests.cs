@@ -448,5 +448,16 @@ public class SmokeTests
         Assert.IsTrue(setting.SingboxConfig.Sniffing);
     }
 
+    [TestMethod]
+    public async Task Smoke_DnsService_LifecycleAsync()
+    {
+        Assert.IsFalse(Netch.Services.DnsService.IsRunning);
+        await Netch.Controllers.DNSController.StartAsync();
+        Assert.IsTrue(Netch.Services.DnsService.IsRunning);
+        var controller = new Netch.Controllers.DNSController();
+        await controller.StopAsync();
+        Assert.IsFalse(Netch.Services.DnsService.IsRunning);
+    }
+
     #endregion
 }

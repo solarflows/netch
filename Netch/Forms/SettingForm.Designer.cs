@@ -145,7 +145,10 @@ namespace Netch.Forms
             //
             // TabControl
             //
-            this.TabControl.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
+            this.TabControl.Appearance = System.Windows.Forms.TabAppearance.Normal;
+            this.TabControl.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
+            this.TabControl.ItemSize = new System.Drawing.Size(66, 30);
+            this.TabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.TabControl.Controls.Add(this.GeneralTabPage);
             this.TabControl.Controls.Add(this.NFTabPage);
             this.TabControl.Controls.Add(this.WinTUNTabPage);
@@ -158,6 +161,7 @@ namespace Netch.Forms
             this.TabControl.SelectedIndex = 0;
             this.TabControl.Size = new System.Drawing.Size(488, 385);
             this.TabControl.TabIndex = 0;
+            this.TabControl.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.TabControl_DrawItem);
             //
             // GeneralTabPage
             //

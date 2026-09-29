@@ -106,10 +106,6 @@ public partial class MainForm : Form
 
     private void RecordSize()
     {
-        _numberBoxWidth = ServerComboBox.Width / 10;
-        _numberBoxX = _numberBoxWidth * 9;
-        _numberBoxWrap = _numberBoxWidth / 30;
-
         _configurationGroupBoxHeight = ConfigurationGroupBox.Height;
         _profileConfigurationHeight = ConfigurationGroupBox.Controls[0].Height / 3; // 因为 AutoSize, 所以得到的是Controls的总高度
         _profileGroupBoxPaddingHeight = ProfileGroupBox.Height - ProfileTable.Height;
@@ -1592,9 +1588,6 @@ public partial class MainForm : Form
     #region ComboBox_DrawItem
 
     private readonly SolidBrush _greenBrush = new(Color.FromArgb(50, 255, 56));
-    private int _numberBoxWidth;
-    private int _numberBoxX;
-    private int _numberBoxWrap;
 
     private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
     {
@@ -1609,47 +1602,34 @@ public partial class MainForm : Form
         if (e.Index < 0)
             return;
 
+        var isServer = cbx.Items[e.Index] is Server;
+        int boxWidth = isServer ? Math.Max(48, (int)(cbx.Font.Height * 2.2)) : 0;
+        int textWidth = isServer ? Math.Max(0, e.Bounds.Width - boxWidth - 8) : e.Bounds.Width;
+        var textRect = new Rectangle(e.Bounds.X + 2, e.Bounds.Y, textWidth, e.Bounds.Height);
+
         // 绘制 备注/名称 字符串
-        TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index]?.ToString() ?? string.Empty, cbx.Font, e.Bounds, textColor, TextFormatFlags.Left);
+        TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index]?.ToString() ?? string.Empty, cbx.Font, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
 
-        switch (cbx.Items[e.Index])
+        if (cbx.Items[e.Index] is Server item)
         {
-            case Server item:
-            {
-                // 计算延迟底色
-                var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
+            // 计算延迟底色
+            var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
 
-                // 绘制延迟底色
-                e.Graphics.FillRectangle(numBoxBackBrush, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
+            // 关键：永远在 e.Bounds 内部靠右计算，并保留安全边距，绝对不遮盖原生下拉箭头
+            int boxX = e.Bounds.Right - boxWidth - 3;
+            int boxY = e.Bounds.Y + 2;
+            int boxHeight = e.Bounds.Height - 4;
+            var numBoxRect = new Rectangle(boxX, boxY, boxWidth, boxHeight);
 
-                // 绘制延迟字符串
-                TextRenderer.DrawText(e.Graphics,
-                    item.Delay.ToString(),
-                    cbx.Font,
-                    new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
-                    Color.Black,
-                    TextFormatFlags.Left);
+            e.Graphics.FillRectangle(numBoxBackBrush, numBoxRect);
 
-                break;
-            }
-            case Mode:
-
-            {
-                /*
-                // 绘制 模式Box 底色
-                e.Graphics.FillRectangle(Brushes.Gray, _numberBoxX, e.Bounds.Y, _numberBoxWidth, e.Bounds.Height);
-
-                // 绘制 模式行数 字符串
-                TextRenderer.DrawText(e.Graphics,
-                item.Content.Count.ToString(),
+            // 绘制延迟字符串 (居中显示)
+            TextRenderer.DrawText(e.Graphics,
+                item.Delay.ToString(),
                 cbx.Font,
-                new Point(_numberBoxX + _numberBoxWrap, e.Bounds.Y),
+                numBoxRect,
                 Color.Black,
-                TextFormatFlags.Left);
-                */
-
-                break;
-            }
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
         }
     }
 

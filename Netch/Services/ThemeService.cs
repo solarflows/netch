@@ -130,9 +130,16 @@ public static class ThemeService
                     break;
 
                 case Button btn:
+                    btn.UseVisualStyleBackColor = !dark;
+                    btn.FlatStyle = dark ? FlatStyle.Flat : FlatStyle.Standard;
                     btn.BackColor = dark ? DarkInput : SystemColors.Control;
                     btn.ForeColor = dark ? DarkText : SystemColors.ControlText;
-                    btn.FlatStyle = FlatStyle.Standard;
+                    if (dark)
+                    {
+                        btn.FlatAppearance.BorderColor = DarkBorder;
+                        btn.FlatAppearance.MouseOverBackColor = Color.FromArgb(70, 70, 70);
+                        btn.FlatAppearance.MouseDownBackColor = Color.FromArgb(35, 35, 35);
+                    }
                     break;
 
                 case TextBox tb:
@@ -145,22 +152,22 @@ public static class ThemeService
                     cb.ForeColor = dark ? DarkText : SystemColors.WindowText;
                     break;
 
-                case MenuStrip ms:
-                    ms.BackColor = dark ? DarkBg : SystemColors.Control;
-                    ms.ForeColor = dark ? DarkText : SystemColors.ControlText;
-                    ms.Renderer = dark ? DarkRenderer : DefaultRenderer;
+                case PictureBox pb:
+                    pb.BackColor = dark ? DarkCard : Color.Transparent;
                     break;
 
-                case StatusStrip ss:
-                    ss.BackColor = dark ? DarkBg : SystemColors.Control;
-                    ss.ForeColor = dark ? DarkText : SystemColors.ControlText;
-                    ss.Renderer = dark ? DarkRenderer : DefaultRenderer;
+                case ToolStrip ts:
+                    ts.BackColor = dark ? DarkBg : SystemColors.Control;
+                    ts.ForeColor = dark ? DarkText : SystemColors.ControlText;
+                    ts.Renderer = dark ? DarkRenderer : DefaultRenderer;
+                    ApplyToToolStripItems(ts.Items, dark);
                     break;
 
                 case ContextMenuStrip cms:
                     cms.BackColor = dark ? DarkCard : SystemColors.Control;
                     cms.ForeColor = dark ? DarkText : SystemColors.ControlText;
                     cms.Renderer = dark ? DarkRenderer : DefaultRenderer;
+                    ApplyToToolStripItems(cms.Items, dark);
                     break;
 
                 default:
@@ -170,6 +177,27 @@ public static class ThemeService
                         ApplyToControls(c.Controls, dark);
                     }
                     break;
+            }
+        }
+    }
+
+    private static void ApplyToToolStripItems(ToolStripItemCollection items, bool dark)
+    {
+        foreach (ToolStripItem item in items)
+        {
+            item.ForeColor = dark ? DarkText : SystemColors.ControlText;
+
+            if (item is ToolStripLabel label)
+            {
+                if (label.Name == "VersionLabel")
+                {
+                    label.LinkColor = dark ? Color.FromArgb(100, 185, 255) : Color.FromArgb(0, 102, 204);
+                }
+            }
+
+            if (item is ToolStripDropDownItem dropDown)
+            {
+                ApplyToToolStripItems(dropDown.DropDownItems, dark);
             }
         }
     }

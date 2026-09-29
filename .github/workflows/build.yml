@@ -63,7 +63,7 @@ jobs:
         id: check_other
         uses: andstor/file-existence-action@v3
         with:
-          files: .\other\release\aiodns.bin
+          files: .\other\release\xray.exe
 
       - name: Setup Go
         uses: actions/setup-go@v5

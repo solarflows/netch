@@ -300,4 +300,48 @@ public partial class SettingForm : BindingForm
         MessageBoxX.Show(i18N.Translate("Saved"));
         Close();
     }
+
+    private void TabControl_DrawItem(object? sender, DrawItemEventArgs e)
+    {
+        if (sender is not TabControl tabControl || e.Index < 0 || e.Index >= tabControl.TabCount)
+            return;
+
+        var tabPage = tabControl.TabPages[e.Index];
+        bool isSelected = tabControl.SelectedIndex == e.Index;
+        bool isDark = ThemeService.IsDarkMode;
+
+        var headerRect = tabControl.GetTabRect(e.Index);
+
+        // 背景填充
+        var bgColor = isDark
+            ? (isSelected ? ThemeService.DarkCard : ThemeService.DarkBg)
+            : (isSelected ? SystemColors.Window : SystemColors.Control);
+
+        using (var bgBrush = new SolidBrush(bgColor))
+        {
+            e.Graphics.FillRectangle(bgBrush, headerRect);
+        }
+
+        // 选中项底部强调色横条 (Fluent Accent Bar)
+        if (isSelected)
+        {
+            var accentColor = isDark ? Color.FromArgb(0, 120, 215) : Color.FromArgb(0, 102, 204);
+            using var accentBrush = new SolidBrush(accentColor);
+            var lineRect = new Rectangle(headerRect.X, headerRect.Bottom - 3, headerRect.Width, 3);
+            e.Graphics.FillRectangle(accentBrush, lineRect);
+        }
+
+        // 文本绘制
+        var textColor = isDark
+            ? (isSelected ? ThemeService.DarkText : ThemeService.DarkTextDim)
+            : (isSelected ? SystemColors.ControlText : SystemColors.GrayText);
+
+        using var textFont = isSelected ? new Font(tabControl.Font, FontStyle.Bold) : new Font(tabControl.Font, FontStyle.Regular);
+        TextRenderer.DrawText(e.Graphics,
+            tabPage.Text,
+            textFont,
+            headerRect,
+            textColor,
+            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+    }
 }
