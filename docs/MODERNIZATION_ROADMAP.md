@@ -17,13 +17,13 @@
 
 ### 1.2 实施清单
 - [x] 更新 `docs/DNS_OPTIMIZATION_DESIGN.md` 完善设计。
-- [ ] 修改 `Netch/Utils/ServerHelper.cs`：
+- [x] 修改 `Netch/Utils/ServerHelper.cs`：
   - 增强 `ServerUtilDictionary` 的容错性，支持大小写不敏感匹配，并显式为 `"Socks5"` 和 `"SOCKS"` 做双向别名兼容。
-- [ ] 修改 `Netch/Servers/Socks5/Socks5Util.cs`：
+- [x] 修改 `Netch/Servers/Socks5/Socks5Util.cs`：
   - 声明 `UriScheme = new[] { "socks5", "socks" }`。
   - 重写 `ParseUri`：全面支持标准 RFC URI、Base64 认证串、Query 参数及 Telegram 格式。
   - 重写 `GetShareLink`：生成标准现代 `socks5://` 格式分享链接。
-- [ ] 校验 `ShareLink.cs`，确保粘贴与解析多节点无任何异常。
+- [x] 校验 `ShareLink.cs`，确保粘贴与解析多节点无任何异常。
 
 ---
 
@@ -36,14 +36,14 @@
 - **LRU 缓存器**：2048 容量上限（< 1MB 内存），支持大小写自适应（0x20 防投毒兼容）、Transaction ID 动态重写、TTL 智能提取与异常码负缓存防御。
 
 ### 2.2 实施清单
-- [ ] 创建 `Redirector/DnsCache.h` & `DnsCache.cpp`。
-- [ ] 创建 `Redirector/PersistentDnsChannel.h` & `PersistentDnsChannel.cpp`。
-- [ ] 修改 `Redirector/DNSHandler.h` & `DNSHandler.cpp`：
+- [x] 创建 `Redirector/DnsCache.h` & `DnsCache.cpp`。
+- [x] 创建 `Redirector/PersistentDnsChannel.h` & `PersistentDnsChannel.cpp`。
+- [x] 修改 `Redirector/DNSHandler.h` & `DNSHandler.cpp`：
   - 驱动回调 `CreateHandler` 加入 Fast-Path。
   - 慢速路径调用 `PersistentDnsChannel` 并回写缓存。
   - 增加 `DNSHandler::FREE()`。
-- [ ] 修改 `Redirector/EventHandler.cpp`：在 `eh_free()` 时释放 DNS 资源。
-- [ ] 更新 `Redirector/Redirector.vcxproj` & `Redirector.vcxproj.filters` 将新文件加入编译清单。
+- [x] 修改 `Redirector/EventHandler.cpp`：在 `eh_free()` 时释放 DNS 资源。
+- [x] 更新 `Redirector/Redirector.vcxproj` & `Redirector.vcxproj.filters` 将新文件加入编译清单。
 
 ---
 
