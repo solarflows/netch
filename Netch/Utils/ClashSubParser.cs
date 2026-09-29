@@ -1,7 +1,6 @@
 using System.Text.Json;
 using Netch.Models;
 using Netch.Servers;
-using Netch.Servers.Shadowsocks.ShareModels;
 
 namespace Netch.Utils;
 
@@ -334,8 +333,8 @@ public static class ClashSubParser
                 {
                     Hostname = hostname,
                     Port = port,
-                    LocalAddress = dict.GetValueOrDefault("ip") ?? "10.0.0.2",
-                    PublicKey = dict.GetValueOrDefault("public-key") ?? "",
+                    LocalAddresses = dict.GetValueOrDefault("ip") ?? "172.16.0.2/32",
+                    PeerPublicKey = dict.GetValueOrDefault("public-key") ?? "",
                     PrivateKey = dict.GetValueOrDefault("private-key") ?? "",
                     Remark = remark
                 };
