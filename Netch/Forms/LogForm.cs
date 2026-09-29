@@ -16,13 +16,13 @@ public partial class LogForm : Form
         _parent = parent;
     }
 
-    protected override void OnLoad(EventArgs? e)
+    protected override void OnLoad(EventArgs e)
     {
         base.OnLoad(e);
-        Parent_Move(null!, null!);
+        Parent_Move(null, EventArgs.Empty);
     }
 
-    private void Parent_Move(object? sender, EventArgs? e)
+    private void Parent_Move(object? sender, EventArgs e)
     {
         var cl = Location;
         var fl = _parent.Location;

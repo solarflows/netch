@@ -63,7 +63,11 @@ public class BindingForm : Form
         comboBox.ValueMember = nameof(TagItem<T>.Value);
         comboBox.DisplayMember = nameof(TagItem<T>.Text);
 
-        _saveActions.Add(comboBox, c => save(((TagItem<T>)((ComboBox)c).SelectedItem).Value));
+        _saveActions.Add(comboBox, c =>
+        {
+            if (((ComboBox)c).SelectedItem is TagItem<T> item)
+                save(item.Value);
+        });
         Load += (_, _) => { comboBox.SelectedItem = tagItems.SingleOrDefault(t => t.Value.Equals(value)); };
     }
 

@@ -118,13 +118,13 @@ public static class i18N
                     case TextBoxBase:
                     case ListControl:
                         break;
-                    case Control control:
+                    case Control control when !string.IsNullOrEmpty(control.Text):
                         control.Text = Translate(control.Text);
                         break;
-                    case ToolStripItem toolStripItem:
+                    case ToolStripItem toolStripItem when !string.IsNullOrEmpty(toolStripItem.Text):
                         toolStripItem.Text = Translate(toolStripItem.Text);
                         break;
-                    case ColumnHeader columnHeader:
+                    case ColumnHeader columnHeader when !string.IsNullOrEmpty(columnHeader.Text):
                         columnHeader.Text = Translate(columnHeader.Text);
                         break;
                 }

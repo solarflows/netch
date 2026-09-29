@@ -161,10 +161,12 @@ public partial class MainForm : Form
             case ListControl:
                 break;
             case Control c:
-                _mainFormText.Add(c.Name, c.Text);
+                if (!string.IsNullOrEmpty(c.Name))
+                    _mainFormText[c.Name] = c.Text ?? string.Empty;
                 break;
             case ToolStripItem c:
-                _mainFormText.Add(c.Name, c.Text);
+                if (!string.IsNullOrEmpty(c.Name))
+                    _mainFormText[c.Name] = c.Text ?? string.Empty;
                 break;
         }
     }
@@ -177,12 +179,12 @@ public partial class MainForm : Form
             case ListControl:
                 break;
             case Control c:
-                if (_mainFormText.ContainsKey(c.Name))
+                if (!string.IsNullOrEmpty(c.Name) && _mainFormText.ContainsKey(c.Name))
                     c.Text = ControlText(c.Name);
 
                 break;
             case ToolStripItem c:
-                if (_mainFormText.ContainsKey(c.Name))
+                if (!string.IsNullOrEmpty(c.Name) && _mainFormText.ContainsKey(c.Name))
                     c.Text = ControlText(c.Name);
 
                 break;
@@ -226,12 +228,10 @@ public partial class MainForm : Form
         await Configuration.SaveAsync();
     }
 
-    private async void AddServerToolStripMenuItem_Click([NotNull] object? sender, EventArgs? e)
+    private async void AddServerToolStripMenuItem_Click(object? sender, EventArgs? e)
     {
-        if (sender == null)
-            throw new ArgumentNullException(nameof(sender));
-
-        var util = (IServerUtil)((ToolStripMenuItem)sender).Tag;
+        if (sender is not ToolStripMenuItem item || item.Tag is not IServerUtil util)
+            return;
 
         Hide();
         util.Create();
@@ -919,7 +919,8 @@ public partial class MainForm : Form
     {
         try
         {
-            Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf((Mode)ModeComboBox.SelectedItem);
+            if (ModeComboBox.SelectedItem is Mode mode)
+                Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf(mode);
         }
         catch
         {
@@ -930,13 +931,12 @@ public partial class MainForm : Form
     private void EditModePictureBox_Click(object sender, EventArgs e)
     {
         // 当前ModeComboBox中至少有一项
-        if (ModeComboBox.SelectedIndex == -1)
+        if (ModeComboBox.SelectedIndex == -1 || ModeComboBox.SelectedItem is not Mode mode)
         {
             MessageBoxX.Show(i18N.Translate("Please select a mode first"));
             return;
         }
 
-        var mode = (Mode)ModeComboBox.SelectedItem;
         if (ModifierKeys == Keys.Control)
         {
             Utils.Utils.Open(mode.FullName);
@@ -966,13 +966,13 @@ public partial class MainForm : Form
     private void DeleteModePictureBox_Click(object sender, EventArgs e)
     {
         // 当前ModeComboBox中至少有一项
-        if (ModeComboBox.Items.Count <= 0 || ModeComboBox.SelectedIndex == -1)
+        if (ModeComboBox.Items.Count <= 0 || ModeComboBox.SelectedIndex == -1 || ModeComboBox.SelectedItem is not Mode mode)
         {
             MessageBoxX.Show(i18N.Translate("Please select a mode first"));
             return;
         }
 
-        ModeService.Delete((Mode)ModeComboBox.SelectedItem);
+        ModeService.Delete(mode);
         SelectLastMode();
     }
 
@@ -1210,8 +1210,10 @@ public partial class MainForm : Form
     private async Task StopCoreAsync()
     {
         State = State.Stopping;
-        _discoveryNatCts?.Cancel();
-        _httpConnectCts?.Cancel();
+        if (_discoveryNatCts != null)
+            await _discoveryNatCts.CancelAsync();
+        if (_httpConnectCts != null)
+            await _httpConnectCts.CancelAsync();
         await MainController.StopAsync();
         State = State.Stopped;
     }
@@ -1600,7 +1602,7 @@ public partial class MainForm : Form
             return;
 
         // 绘制 备注/名称 字符串
-        TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index].ToString(), cbx.Font, e.Bounds, Color.Black, TextFormatFlags.Left);
+        TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index]?.ToString() ?? string.Empty, cbx.Font, e.Bounds, Color.Black, TextFormatFlags.Left);
 
         switch (cbx.Items[e.Index])
         {

@@ -134,7 +134,7 @@ public static class Utils
                 return;
 
             TextRenderer.DrawText(e.Graphics,
-                cbx.Items[e.Index].ToString(),
+                cbx.Items[e.Index]?.ToString() ?? string.Empty,
                 cbx.Font,
                 e.Bounds,
                 (e.State & DrawItemState.Selected) == DrawItemState.Selected ? SystemColors.HighlightText : cbx.ForeColor,
