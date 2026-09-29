@@ -1,4 +1,5 @@
 using System.Net;
+using Netch.Enums;
 using Netch.Properties;
 using Netch.Services;
 using Netch.Utils;
