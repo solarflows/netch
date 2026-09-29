@@ -281,8 +281,8 @@ public static class ClashSubParser
                         UserID = dict.GetValueOrDefault("uuid") ?? "",
                         Flow = flow,
                         TLSSecureType = isReality ? "reality" : (dict.GetValueOrDefault("tls")?.Equals("true", StringComparison.OrdinalIgnoreCase) == true ? "tls" : "none"),
-                        PublicKey = dict.GetValueOrDefault("public-key") ?? dict.GetValueOrDefault("reality-opts-public-key"),
-                        ShortId = dict.GetValueOrDefault("short-id") ?? dict.GetValueOrDefault("reality-opts-short-id"),
+                        PublicKey = dict.GetValueOrDefault("public-key") ?? dict.GetValueOrDefault("reality-opts-public-key") ?? "",
+                        ShortId = dict.GetValueOrDefault("short-id") ?? dict.GetValueOrDefault("reality-opts-short-id") ?? "",
                         ServerName = dict.GetValueOrDefault("servername") ?? dict.GetValueOrDefault("sni"),
                         Remark = remark
                     };
