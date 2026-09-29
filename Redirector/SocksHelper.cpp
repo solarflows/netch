@@ -260,7 +260,7 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 		{
 			SOCKADDR_IN6 peer{};
 			int peerLen = sizeof(peer);
-			if (getpeername(client, (PSOCKADDR)&peer, &peerLen) == 0 && peer.sin_family == AF_INET6)
+			if (getpeername(client, (PSOCKADDR)&peer, &peerLen) == 0 && peer.sin6_family == AF_INET6)
 			{
 				addr->sin6_addr = peer.sin6_addr;
 			}
