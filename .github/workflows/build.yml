@@ -91,6 +91,49 @@ jobs:
         run: |
           .\build.ps1 -Configuration Release -OutputPath release
 
+      - name: Run Smoke Tests (.NET MSTest)
+        shell: pwsh
+        run: |
+          dotnet test .\Tests\Tests.csproj -c Release -p:Platform=x64 --logger "console;verbosity=normal"
+
+      - name: Run Binary Smoke Tests
+        shell: pwsh
+        run: |
+          Write-Host "=== Binary Existence & Integrity Smoke Test ==="
+          $requiredFiles = @(
+            "release\Netch.exe",
+            "release\bin\Redirector.bin",
+            "release\bin\nfapi.dll",
+            "release\bin\RouteHelper.bin",
+            "release\bin\sing-box.exe",
+            "release\bin\xray.exe"
+          )
+          foreach ($file in $requiredFiles) {
+            if (-not (Test-Path $file)) {
+              Write-Error "CRITICAL: Required binary missing: $file"
+              exit 1
+            }
+            $item = Get-Item $file
+            Write-Host " [OK] $file ($($item.Length) bytes)"
+          }
+
+          Write-Host "`n=== Proxy Core Executable Health Checks ==="
+          Write-Host "Checking sing-box version..."
+          & .\release\bin\sing-box.exe version
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "sing-box executable check failed with exit code $LASTEXITCODE"
+            exit 1
+          }
+
+          Write-Host "Checking xray-core version..."
+          & .\release\bin\xray.exe version
+          if ($LASTEXITCODE -ne 0) {
+            Write-Error "xray executable check failed with exit code $LASTEXITCODE"
+            exit 1
+          }
+
+          Write-Host "`n=== All Smoke Tests Passed Successfully! ==="
+
       - name: Upload
         uses: actions/upload-artifact@v4
         with:

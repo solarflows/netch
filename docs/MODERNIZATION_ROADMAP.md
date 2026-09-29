@@ -70,3 +70,20 @@
 - [x] 移除历史废弃的控制器与配置源文件（`ShadowsocksController.cs`, `ShadowsocksRController.cs`, `TrojanController.cs`, `TrojanConfig.cs`）。
 - [x] 更新所有协议的 `GetController()` 路由，统一导向 `SingboxController` 与 `V2rayController`。
 - [x] 保留并强化直连远端 Socks5 裸节点零核心开销模式。
+
+---
+
+## 阶段五：自动化冒烟测试套件（类似 VS Code 插件的 Smoke Tests）与 CI 质量看门狗
+
+### 5.1 目标与防护机制
+- 建立全覆盖的冒烟测试套件（Smoke Tests），确保订阅解析、Socks5 编解码、内核配置生成以及核心架构边界在代码迭代时无静默破坏。
+- CI 构建流水线接入端到端二进制健康检查看门狗，验证主程序及双核心二进制完备性及 CLI 正常执行。
+
+### 5.2 实施清单
+- [x] 配置 `Tests/Tests.csproj` 关联 `Netch.csproj` 并开放 `[InternalsVisibleTo]`。
+- [x] 编写 `Tests/SmokeTests.cs`：
+  - **订阅解析冒烟测试**：覆盖多行/行内（flow）Clash YAML 订阅（SS、VMess、VLESS Reality/Vision、Trojan、Socks5、WireGuard）及 sing-box outbounds JSON 解析。
+  - **Socks5 协议与别名冒烟测试**：覆盖 RFC 规范链接、Base64 认证、URL Query 参数、IPv6 格式及双向往返序列化。
+  - **内核配置生成冒烟测试**：覆盖 `sing-box` 与 `Xray-core` 各协议客户端配置文件合法性与 JSON 序列化。
+  - **架构约束冒烟测试**：反射检查确保废弃控制器彻底移除，且现代控制器就绪。
+- [x] 在 GitHub Actions CI 流水线（`.github/workflows/build.yml`）中挂载冒烟测试步骤与构建产物二进制存在性及版本探针检查。
