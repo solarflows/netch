@@ -4,6 +4,7 @@ using Netch.Interfaces;
 using Netch.Models;
 using Netch.Models.Modes;
 using Netch.Servers;
+using Netch.Servers.Singbox;
 using Netch.Services;
 using Netch.Utils;
 
@@ -48,16 +49,28 @@ public static class MainController
             if (modePort != null)
                 TryReleaseTcpPort((ushort)modePort, portName);
 
-            // if (Server is Socks5Server socks5 && (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth)))
-            // {
-            //     Socks5Server = socks5;
-            // }
-            // else
-            // {
+            if (Server is Socks5Server socks5 && (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth)) && !Global.Settings.ShareLan && !Global.Settings.V2RayConfig.AllowHttp)
+            {
+                // 直连直通远端裸节点模式：不启动任何本地代理核心，实现零额外内存与零CPU占用
+                Log.Information("Using direct Socks5 server mode (zero local core overhead): {Hostname}:{Port}", socks5.Hostname, socks5.Port);
+                Socks5Server = socks5;
+                ServerController = null;
+                StatusPortInfoText.Reset();
+            }
+            else
+            {
                 // Start Server Controller to get a local socks5 server
                 Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
 
-                ServerController = new V2rayController();
+                if (Global.Settings.CoreType.Equals("sing-box", StringComparison.OrdinalIgnoreCase) && SingboxConfigUtils.IsSupported(server))
+                {
+                    ServerController = new SingboxController();
+                }
+                else
+                {
+                    ServerController = new V2rayController();
+                }
+
                 Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
                 TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");
@@ -65,7 +78,7 @@ public static class MainController
 
                 StatusPortInfoText.Socks5Port = Socks5Server.Port;
                 StatusPortInfoText.UpdateShareLan();
-            // }
+            }
 
             // Start Mode Controller
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));

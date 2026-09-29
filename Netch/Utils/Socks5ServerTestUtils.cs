@@ -18,15 +18,23 @@ public static class Socks5ServerTestUtils
         var port = (ushort)Global.Settings.STUN_Server_Port;
         var local = new IPEndPoint(IPAddress.Any, 0);
 
+        var serverIp = await DnsUtils.LookupAsync(socks5.Hostname);
+        if (serverIp == null)
+        {
+            return new NatTypeTestResult { Result = "Resolve Server Failed!" };
+        }
+
         var socks5Option = new Socks5CreateOption
         {
-            Address = await DnsUtils.LookupAsync(socks5.Hostname),
+            Address = serverIp,
             Port = socks5.Port,
-            UsernamePassword = new UsernamePassword
-            {
-                UserName = socks5.Username,
-                Password = socks5.Password
-            }
+            UsernamePassword = socks5.Auth()
+                ? new UsernamePassword
+                {
+                    UserName = socks5.Username,
+                    Password = socks5.Password
+                }
+                : null
         };
 
         var ip = await DnsUtils.LookupAsync(stunServer);
@@ -35,7 +43,11 @@ public static class Socks5ServerTestUtils
             return new NatTypeTestResult { Result = "Wrong STUN Server!" };
         }
 
-        using IUdpProxy proxy = ProxyFactory.CreateProxy(ProxyType.Socks5, new IPEndPoint(IPAddress.Loopback, 0), socks5Option);
+        var bindAddress = IPAddress.IsLoopback(serverIp)
+            ? IPAddress.Loopback
+            : (serverIp.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any);
+
+        using IUdpProxy proxy = ProxyFactory.CreateProxy(ProxyType.Socks5, new IPEndPoint(bindAddress, 0), socks5Option);
         using var client = new StunClient5389UDP(new IPEndPoint(ip, port), local, proxy);
 
         await client.ConnectProxyAsync(ctx);
@@ -76,15 +88,21 @@ switch
 
     public static async Task<int?> HttpConnectAsync(Socks5Server socks5, CancellationToken ctx)
     {
+        var serverIp = await DnsUtils.LookupAsync(socks5.Hostname);
+        if (serverIp == null)
+            return null;
+
         var socks5Option = new Socks5CreateOption
         {
-            Address = await DnsUtils.LookupAsync(socks5.Hostname),
+            Address = serverIp,
             Port = socks5.Port,
-            UsernamePassword = new UsernamePassword
-            {
-                UserName = socks5.Username,
-                Password = socks5.Password
-            }
+            UsernamePassword = socks5.Auth()
+                ? new UsernamePassword
+                {
+                    UserName = socks5.Username,
+                    Password = socks5.Password
+                }
+                : null
         };
 
         var stopwatch = Stopwatch.StartNew();

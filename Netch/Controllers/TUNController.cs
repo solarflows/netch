@@ -47,21 +47,6 @@ namespace Netch.Controllers
             _outbound = NetRoute.GetBestRouteTemplate();
             await CheckDriverAsync();
 
-            // Wait for adapter to be created
-            for (var i = 0; i < 20; i++)
-            {
-                await Task.Delay(300);
-                try
-                {
-                    _tun.InterfaceIndex = NetworkInterfaceUtils.Get(ni => ni.Name.StartsWith(InterfaceName)).GetIndex();
-                    break;
-                }
-                catch
-                {
-                    // ignored
-                }
-            }
-
             Dial(NameList.TYPE_ADAPMTU, "1500");
             Dial(NameList.TYPE_BYPBIND, _outbound.Gateway);
             Dial(NameList.TYPE_BYPLIST, "disabled");
@@ -119,12 +104,17 @@ namespace Netch.Controllers
 
         public async Task StopAsync()
         {
-            var tasks = new[]
+            ClearRouteTable();
+
+            var tasks = new List<Task>
             {
-                FreeAsync(),
-                Task.Run(ClearRouteTable),
-                _aioDnsController.StopAsync()
+                FreeAsync()
             };
+
+            if (_tunConfig != null && !_tunConfig.UseCustomDNS)
+            {
+                tasks.Add(_aioDnsController.StopAsync());
+            }
 
             await Task.WhenAll(tasks);
         }
@@ -203,6 +193,19 @@ namespace Netch.Controllers
                 RouteUtils.DeleteRouteFill(_outbound, Global.Settings.TUNTAP.BypassIPs);
                 RouteUtils.DeleteRoute(_outbound.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.ChinaDNS), 32));
                 NetworkInterfaceUtils.SetInterfaceMetric(_outbound.InterfaceIndex);
+            }
+
+            if (_tunConfig != null)
+            {
+                if (_tunConfig.UseCustomDNS)
+                {
+                    if (_tunConfig.ProxyDNS)
+                        RouteUtils.DeleteRoute(_tun.FillTemplate(_tunConfig.DNS, 32));
+                }
+                else
+                {
+                    RouteUtils.DeleteRoute(_tun.FillTemplate(Utils.Utils.GetHostFromUri(Global.Settings.AioDNS.OtherDNS), 32));
+                }
             }
 
             if (_mode != null)

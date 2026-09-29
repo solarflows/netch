@@ -11,12 +11,20 @@ public static class V2rayUtils
     {
         var scheme = ShareLink.GetUriScheme(text).ToLower();
 
-        var server = scheme switch 
+        string? queryStr = text.Contains('?') ? text.Split('?')[1] : null;
+        if (queryStr != null && queryStr.Contains('#'))
+            queryStr = queryStr.Split('#')[0];
+
+        var parameter = queryStr != null ? HttpUtility.ParseQueryString(queryStr) : null;
+        var security = parameter?.Get("security") ?? "none";
+        var pbk = parameter?.Get("pbk");
+
+        VMessServer server = scheme switch
         {
-            "vless" => new VLESSServer(), 
+            "vless" => (security == "reality" || !string.IsNullOrWhiteSpace(pbk)) ? new VisionServer() : new VLESSServer(),
             "vmess" => new VMessServer(),
             "vision" => new VisionServer(),
-            _ => throw new ArgumentOutOfRangeException(nameof(text), $"Invalid scheme value: {scheme}") 
+            _ => throw new ArgumentOutOfRangeException(nameof(text), $"Invalid scheme value: {scheme}")
         };
 
         if (text.Contains('#'))
@@ -25,13 +33,34 @@ public static class V2rayUtils
             text = text.Split('#')[0];
         }
 
-        if (text.Contains('?'))
+        if (parameter != null)
         {
-            var parameter = HttpUtility.ParseQueryString(text.Split('?')[1]);
             text = text[..text.IndexOf("?", StringComparison.Ordinal)];
             server.TransferProtocol = parameter.Get("type") ?? "tcp";
             server.PacketEncoding = parameter.Get("packetEncoding") ?? "xudp";
-            server.EncryptMethod = parameter.Get("encryption") ?? scheme switch { "vless" => "none", _ => "auto" };
+            server.EncryptMethod = parameter.Get("encryption") ?? (server is VLESSServer ? "none" : "auto");
+
+            var flow = parameter.Get("flow");
+            if (server is VisionServer visionServer)
+            {
+                if (!string.IsNullOrWhiteSpace(flow))
+                    visionServer.Flow = flow;
+
+                visionServer.PublicKey = parameter.Get("pbk") ?? "";
+                visionServer.ShortId = parameter.Get("sid") ?? "";
+                visionServer.SpiderX = parameter.Get("spx") ?? "";
+                if (!string.IsNullOrWhiteSpace(parameter.Get("fp")))
+                    visionServer.Fingerprint = parameter.Get("fp")!;
+            }
+            else if (server is VLESSServer vlessServer)
+            {
+                if (!string.IsNullOrWhiteSpace(flow))
+                    vlessServer.FlowControl = flow;
+            }
+
+            if (!string.IsNullOrWhiteSpace(parameter.Get("alpn")))
+                server.Alpn = parameter.Get("alpn")!;
+
             switch (server.TransferProtocol)
             {
                 case "tcp":
@@ -136,16 +165,43 @@ public static class V2rayUtils
                 break;
         }
 
+        if (server is VisionServer vision)
+        {
+            if (server.TLSSecureType == "reality")
+            {
+                if (!string.IsNullOrWhiteSpace(vision.PublicKey))
+                    parameter["pbk"] = vision.PublicKey;
+                if (!string.IsNullOrWhiteSpace(vision.ShortId))
+                    parameter["sid"] = vision.ShortId;
+                if (!string.IsNullOrWhiteSpace(vision.SpiderX))
+                    parameter["spx"] = vision.SpiderX;
+                if (!string.IsNullOrWhiteSpace(vision.Fingerprint))
+                    parameter["fp"] = vision.Fingerprint;
+            }
+
+            if (!string.IsNullOrWhiteSpace(vision.Flow))
+                parameter["flow"] = vision.Flow;
+        }
+        else if (server is VLESSServer vless)
+        {
+            if (!string.IsNullOrWhiteSpace(vless.FlowControl))
+                parameter["flow"] = vless.FlowControl;
+        }
+
+        if (!string.IsNullOrWhiteSpace(server.Alpn))
+            parameter["alpn"] = server.Alpn;
+
         if (server.TLSSecureType != "none")
         {
-            parameter.Add("security", server.TLSSecureType);
+            parameter["security"] = server.TLSSecureType;
 
-            if (!server.Host.IsNullOrWhiteSpace())
-                parameter.Add("sni", server.Host!);
+            var sni = server.ServerName.ValueOrDefault() ?? server.Host;
+            if (!sni.IsNullOrWhiteSpace())
+                parameter["sni"] = sni!;
 
-            if (server.TLSSecureType == "xtls")
+            if (server.TLSSecureType == "xtls" && !parameter.ContainsKey("flow"))
             {
-                parameter.Add("flow", "xtls-rprx-direct");
+                parameter["flow"] = "xtls-rprx-direct";
             }
         }
 

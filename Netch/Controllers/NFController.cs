@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.ServiceProcess;
 using Netch.Interfaces;
 using Netch.Models;
@@ -164,20 +165,22 @@ public class NFController : IModeController
         }
 
         var reinstall = false;
-        if (Version.TryParse(binFileVersion, out var binResult) && Version.TryParse(systemFileVersion, out var systemResult))
+        try
         {
-            if (binResult.CompareTo(systemResult) > 0)
-                // Update
+            var binInfo = FileVersionInfo.GetVersionInfo(Constants.NFDriver);
+            var sysInfo = FileVersionInfo.GetVersionInfo(SystemDriver);
+
+            var binVer = new Version(binInfo.FileMajorPart, binInfo.FileMinorPart, binInfo.FileBuildPart, binInfo.FilePrivatePart);
+            var sysVer = new Version(sysInfo.FileMajorPart, sysInfo.FileMinorPart, sysInfo.FileBuildPart, sysInfo.FilePrivatePart);
+
+            if (binVer.CompareTo(sysVer) > 0)
                 reinstall = true;
-            else if (systemResult.Major != binResult.Major)
-                // Downgrade when Major version different (may have breaking changes)
+            else if (binVer.Major != sysVer.Major)
                 reinstall = true;
         }
-        else
+        catch
         {
-            // Parse File versionName to Version failed
-            if (!systemFileVersion.Equals(binFileVersion))
-                // versionNames are different, Reinstall
+            if (!systemFileVersion.Equals(binFileVersion, StringComparison.OrdinalIgnoreCase))
                 reinstall = true;
         }
 
@@ -228,58 +231,50 @@ public class NFController : IModeController
     /// <returns>是否成功卸载</returns>
     public static bool UninstallDriver()
     {
+        Log.Information("Uninstall netfilter2");
         try
         {
-            // 记录卸载过程开始
-            Log.Information("Uninstall netfilter2");
-
+            NFService.Refresh();
             if (NFService.Status == ServiceControllerStatus.Running)
             {
                 NFService.Stop();
-                NFService.WaitForStatus(ServiceControllerStatus.Stopped);
+                NFService.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(5));
                 Log.Information("NFService has been stopped");
             }
-            else
-            {
-                Log.Information("NFService is not running. No need to stop.");
-            }
+        }
+        catch (InvalidOperationException)
+        {
+            Log.Information("NFService is not installed or not accessible.");
         }
         catch (Exception ex)
         {
-            // 记录停止服务过程中的异常
-            Log.Error($"Error occurred while stopping the service: {ex.Message}");
-            // 在出现异常时返回 false 表示卸载失败
-            return false;
+            Log.Warning($"Error occurred while stopping the service: {ex.Message}");
         }
 
-        // 检查驱动文件是否存在
+        try
+        {
+            Interops.Redirector.aio_unregister("netfilter2");
+        }
+        catch (Exception ex)
+        {
+            Log.Warning($"Error unregistering netfilter2: {ex.Message}");
+        }
+
         if (!File.Exists(SystemDriver))
         {
-            // 记录警告日志，表示驱动文件未找到，并跳过卸载过程
-            Log.Warning($"Driver file {SystemDriver} not found. Skipping uninstallation.");
-            // 返回 true 表示卸载成功，因为不需要执行下面的步骤
+            Log.Information($"Driver file {SystemDriver} not found. Skipping uninstallation.");
             return true;
         }
 
         try
         {
-            // 调用Interop函数注销驱动
-            Interops.Redirector.aio_unregister("netfilter2");
-
-            // 删除驱动文件
             File.Delete(SystemDriver);
-
-            // 记录卸载成功的消息
             Log.Information("netfilter2 driver has been successfully uninstalled");
-
-            // 在卸载成功时返回 true
             return true;
         }
         catch (Exception ex)
         {
-            // 记录卸载过程中的异常
-            Log.Error($"Error occurred during driver uninstallation: {ex.Message}");
-            // 返回 false 表示卸载失败
+            Log.Error($"Error occurred during driver file deletion: {ex.Message}");
             return false;
         }
     }

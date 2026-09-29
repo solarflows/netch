@@ -54,6 +54,8 @@ namespace Netch.Forms
             this.BILU_ServerComboBox = new System.Windows.Forms.ComboBox();
             this.LanguageLabel = new System.Windows.Forms.Label();
             this.LanguageComboBox = new System.Windows.Forms.ComboBox();
+            this.CoreLabel = new System.Windows.Forms.Label();
+            this.CoreComboBox = new System.Windows.Forms.ComboBox();
             this.NFTabPage = new System.Windows.Forms.TabPage();
             this.FilterTCPCheckBox = new System.Windows.Forms.CheckBox();
             this.FilterUDPCheckBox = new System.Windows.Forms.CheckBox();
@@ -167,6 +169,8 @@ namespace Netch.Forms
             this.GeneralTabPage.Controls.Add(this.BILU_ServerComboBox);
             this.GeneralTabPage.Controls.Add(this.LanguageLabel);
             this.GeneralTabPage.Controls.Add(this.LanguageComboBox);
+            this.GeneralTabPage.Controls.Add(this.CoreLabel);
+            this.GeneralTabPage.Controls.Add(this.CoreComboBox);
             this.GeneralTabPage.Location = new System.Drawing.Point(4, 29);
             this.GeneralTabPage.Name = "GeneralTabPage";
             this.GeneralTabPage.Padding = new System.Windows.Forms.Padding(3);
@@ -350,15 +354,33 @@ namespace Netch.Forms
             this.LanguageLabel.Size = new System.Drawing.Size(65, 17);
             this.LanguageLabel.TabIndex = 13;
             this.LanguageLabel.Text = "Language";
-            // 
+            //
             // LanguageComboBox
-            // 
+            //
             this.LanguageComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.LanguageComboBox.FormattingEnabled = true;
             this.LanguageComboBox.Location = new System.Drawing.Point(182, 287);
             this.LanguageComboBox.Name = "LanguageComboBox";
-            this.LanguageComboBox.Size = new System.Drawing.Size(110, 25);
+            this.LanguageComboBox.Size = new System.Drawing.Size(100, 25);
             this.LanguageComboBox.TabIndex = 14;
+            //
+            // CoreLabel
+            //
+            this.CoreLabel.AutoSize = true;
+            this.CoreLabel.Location = new System.Drawing.Point(295, 290);
+            this.CoreLabel.Name = "CoreLabel";
+            this.CoreLabel.Size = new System.Drawing.Size(35, 17);
+            this.CoreLabel.TabIndex = 15;
+            this.CoreLabel.Text = "Core";
+            //
+            // CoreComboBox
+            //
+            this.CoreComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.CoreComboBox.FormattingEnabled = true;
+            this.CoreComboBox.Location = new System.Drawing.Point(340, 287);
+            this.CoreComboBox.Name = "CoreComboBox";
+            this.CoreComboBox.Size = new System.Drawing.Size(106, 25);
+            this.CoreComboBox.TabIndex = 16;
             // 
             // NFTabPage
             // 
@@ -1113,6 +1135,8 @@ namespace Netch.Forms
         private System.Windows.Forms.CheckBox ExitWhenClosedCheckBox;
         private System.Windows.Forms.Label LanguageLabel;
         private System.Windows.Forms.ComboBox LanguageComboBox;
+        private System.Windows.Forms.Label CoreLabel;
+        private System.Windows.Forms.ComboBox CoreComboBox;
         private System.Windows.Forms.Label DetectionTickLabel;
         private System.Windows.Forms.TextBox DetectionTickTextBox;
         private System.Windows.Forms.Label StartedPingLabel;

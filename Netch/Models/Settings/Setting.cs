@@ -7,6 +7,11 @@ namespace Netch.Models;
 /// </summary>
 public class Setting
 {
+    /// <summary>
+    ///     核心类型 (Xray / sing-box)
+    /// </summary>
+    public string CoreType { get; set; } = "Xray";
+
     public RedirectorConfig Redirector { get; set; } = new();
 
     /// <summary>

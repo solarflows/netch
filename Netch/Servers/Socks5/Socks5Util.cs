@@ -33,7 +33,7 @@ public class Socks5Util : IServerUtil
         // https://t.me/socks?server=1.1.1.1&port=443
         return $"https://t.me/socks?server={server.Hostname}&port={server.Port}" +
                $"{(!string.IsNullOrWhiteSpace(server.Username) ? $"&user={server.Username}" : "")}" +
-               $"{(server.Auth() ? $"&user={server.Password}" : "")}";
+               $"{(server.Auth() ? $"&pass={server.Password}" : "")}";
     }
 
     public IServerController GetController()

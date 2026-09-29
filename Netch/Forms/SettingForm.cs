@@ -96,6 +96,8 @@ public partial class SettingForm : BindingForm
 
         BindListComboBox(LanguageComboBox, o => Global.Settings.Language = o.ToString(), i18N.GetTranslateList(), Global.Settings.Language);
 
+        BindListComboBox(CoreComboBox, o => Global.Settings.CoreType = o.ToString(), new[] { "Xray", "sing-box" }, Global.Settings.CoreType ?? "Xray");
+
         #endregion
 
         #region Process Mode

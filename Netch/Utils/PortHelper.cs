@@ -56,12 +56,10 @@ public static class PortHelper
                         if (row.dwOwningPid is 0 or 4)
                             continue;
 
-#if (WINDOWS8_1_OR_GREATER)
                         if (PInvoke.ntohs((ushort)row.dwLocalPort) == port)
                             process.Add(Process.GetProcessById((int)row.dwOwningPid));
-#endif
-                        }
                     }
+                }
 
                 return process;
             }

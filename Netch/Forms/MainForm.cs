@@ -414,44 +414,36 @@ public partial class MainForm : Form
 
     private static int UpdateLocalFile(string filePath, string newContent, int skipLines = 2)
     {
-        // 将新内容分割成行
-        string[] newLines = newContent?.Split('\n') ?? Array.Empty<string>();
-        int updatedEntries = 0;
+        var newLines = (newContent ?? string.Empty)
+            .Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(s => s.Trim())
+            .Where(s => !string.IsNullOrEmpty(s))
+            .ToList();
 
         if (File.Exists(filePath))
         {
-            // 获取本地文件的内容并分割成行
-            string[] oldLines = File.ReadAllLines(filePath);
+            var oldLines = File.ReadAllLines(filePath)
+                .Select(s => s.Trim())
+                .ToList();
 
-            // 确保本地文件行数至少为skipLines
-            if (oldLines.Length < skipLines)
+            var oldHeaders = oldLines.Take(Math.Min(skipLines, oldLines.Count)).ToList();
+            var oldPayload = oldLines.Skip(skipLines).ToList();
+
+            if (!oldPayload.SequenceEqual(newLines))
             {
-                // 如果本地文件行数不够，直接用新内容覆盖
-                File.WriteAllText(filePath, newContent);
-                return newLines.Length;
+                var updatedContent = new List<string>(oldHeaders);
+                updatedContent.AddRange(newLines);
+                File.WriteAllLines(filePath, updatedContent);
+                return newLines.Count;
             }
 
-            // 只比较从第3行开始的内容
-            for (int i = skipLines; i < oldLines.Length; i++)
-            {
-                if (oldLines[i] != newLines[i - skipLines])
-                {
-                    // 从第3行开始不一致时，删除从第3行开始的内容
-                    List<string> updatedContent = oldLines.Take(skipLines).ToList();
-                    updatedContent.AddRange(newLines);
-                    File.WriteAllLines(filePath, updatedContent);
-                    return newLines.Length;
-                }
-            }
+            return 0;
         }
         else
         {
-            // 如果文件不存在，直接写入新内容
-            File.WriteAllText(filePath, newContent);
-            updatedEntries = newLines.Length;
+            File.WriteAllLines(filePath, newLines);
+            return newLines.Count;
         }
-
-        return updatedEntries;
     }
 
     private static async Task<string> DownloadStringAsync(string url)

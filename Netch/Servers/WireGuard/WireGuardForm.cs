@@ -23,10 +23,9 @@ public class WireGuardForm : ServerForm
 
     protected override string TypeName { get; } = "WireGuard";
 
-    private bool CheckReserved(string s)
+    private static bool CheckReserved(string s)
     {
-        var s_reserved = s.Split(",");
-        var int_reserved = s_reserved.Select(x => int.TryParse(x, out _)).ToList();
-        return int_reserved.Count == 3;
+        var s_reserved = s.Split(',');
+        return s_reserved.Length == 3 && s_reserved.All(x => int.TryParse(x.Trim(), out _));
     }
 }

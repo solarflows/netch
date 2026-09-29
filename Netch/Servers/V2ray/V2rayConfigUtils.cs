@@ -59,28 +59,29 @@ public static class CoreConfig
             case Socks5Server socks:
             {
                 outbound.protocol = "socks";
-                outbound.settings.servers = new object[]
+                var serverItem = new Dictionary<string, object>
                 {
-                    new
-                    {
-                        address = await server.AutoResolveHostnameAsync(),
-                        port = server.Port,
-                        users = socks.Auth() ? new[]
-                        {
-                            new
-                            {
-                                user = socks.Username,
-                                pass = socks.Password,
-                                level = 1
-                            }
-                        } : null
-                    }
+                    { "address", await server.AutoResolveHostnameAsync() },
+                    { "port", server.Port }
                 };
+
+                if (socks.Auth())
+                {
+                    serverItem["users"] = new[]
+                    {
+                        new
+                        {
+                            user = socks.Username,
+                            pass = socks.Password,
+                            level = 1
+                        }
+                    };
+                }
+
+                outbound.settings.servers = new object[] { serverItem };
                 outbound.settings.version = socks.Version;
 
-                outbound.mux = null; 
-//              outbound.mux.enabled = false;
-//              outbound.mux.concurrency = -1;
+                outbound.mux = null;
 
                 break;
             }
@@ -143,7 +144,7 @@ public static class CoreConfig
                             {
                                 id = GetUUID(vless.UserID),
                                 encryption = vless.EncryptMethod,
-                                flow = vless.TLSSecureType == "xtls" ? "xtls-rprx-direct" : ""
+                                flow = !string.IsNullOrWhiteSpace(vless.FlowControl) ? vless.FlowControl : (vless.TLSSecureType == "xtls" ? "xtls-rprx-direct" : "")
                             }
                         }
                     }
@@ -354,6 +355,7 @@ public static class CoreConfig
                 outbound.settings.privateKey = wg.PrivateKey;
                 outbound.settings.preSharedKey = wg.PreSharedKey;
                 outbound.settings.mtu = wg.MTU;
+                outbound.settings.domainStrategy = wg.DomainStrategy;
 
                 if (Global.Settings.V2RayConfig.TCPFastOpen)
                 {
@@ -418,13 +420,15 @@ public static class CoreConfig
             if (server.TLSSecureType == "tls")
             {
                 tlsSettings.allowInsecure = Global.Settings.V2RayConfig.AllowInsecure;
-                tlsSettings.alpn = server.Alpn.SplitOrDefault() ?? Global.Settings.V2RayConfig.Alpn[2]?.Split(',').Select(s => s.Trim()).ToArray();
+                tlsSettings.alpn = server.Alpn.SplitOrDefault() ?? (Global.Settings.V2RayConfig.Alpn != null && Global.Settings.V2RayConfig.Alpn.Length > 2 ? Global.Settings.V2RayConfig.Alpn[2]?.Split(',').Select(s => s.Trim()).ToArray() : new[] { "h2", "http/1.1" });
             }
-            else if (server is VisionServer vision && server.TLSSecureType == "reality")
+            else if (server.TLSSecureType == "reality")
             {
-                tlsSettings.publicKey = vision.PublicKey.ValueOrDefault();
-                tlsSettings.spiderX = vision.SpiderX.ValueOrDefault();
-                tlsSettings.shortId = vision.ShortId.ValueOrDefault();
+                var vision = server as VisionServer;
+                tlsSettings.publicKey = vision?.PublicKey.ValueOrDefault();
+                tlsSettings.spiderX = vision?.SpiderX.ValueOrDefault();
+                tlsSettings.shortId = vision?.ShortId.ValueOrDefault();
+                tlsSettings.fingerprint = !string.IsNullOrWhiteSpace(vision?.Fingerprint) ? vision.Fingerprint : Global.Settings.V2RayConfig.Fingerprint;
             }
 
             switch (server.TLSSecureType)

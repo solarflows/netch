@@ -9,41 +9,77 @@ extern string tgtPassword;
 
 SOCKET SocksHelper::Connect()
 {
-	auto client = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
-	if (client == INVALID_SOCKET)
+	ADDRINFOW hints{};
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	PADDRINFOW result = NULL;
+	if (GetAddrInfoW(tgtHost.c_str(), tgtPort.c_str(), &hints, &result) != 0 || result == NULL)
 	{
-		printf("[Redirector][SocksHelper::Connect] Create socket failed: %d\n", WSAGetLastError());
+		printf("[Redirector][SocksHelper::Connect] GetAddrInfoW failed for %ls:%ls: %d\n", tgtHost.c_str(), tgtPort.c_str(), WSAGetLastError());
 		return INVALID_SOCKET;
 	}
 
+	SOCKET client = INVALID_SOCKET;
+	for (auto ptr = result; ptr != NULL; ptr = ptr->ai_next)
 	{
-		int v6only = 0;
-		if (setsockopt(client, IPPROTO_IPV6, IPV6_V6ONLY, (char*)&v6only, sizeof(v6only)) == SOCKET_ERROR)
+		client = socket(ptr->ai_family, ptr->ai_socktype, ptr->ai_protocol);
+		if (client == INVALID_SOCKET)
+			continue;
+
+		u_long mode = 1;
+		ioctlsocket(client, FIONBIO, &mode);
+
+		int res = connect(client, ptr->ai_addr, (int)ptr->ai_addrlen);
+		if (res == SOCKET_ERROR)
 		{
-			printf("[Redirector][SocksHelper::Connect] Set socket option failed: %d\n", WSAGetLastError());
+			int err = WSAGetLastError();
+			if (err == WSAEWOULDBLOCK)
+			{
+				fd_set writeSet{};
+				FD_ZERO(&writeSet);
+				FD_SET(client, &writeSet);
+
+				timeval timeout{};
+				timeout.tv_sec = 4;
+
+				if (select(0, NULL, &writeSet, NULL, &timeout) > 0)
+				{
+					int sockErr = 0;
+					int optLen = sizeof(sockErr);
+					if (getsockopt(client, SOL_SOCKET, SO_ERROR, (char*)&sockErr, &optLen) == 0 && sockErr == 0)
+					{
+						mode = 0;
+						ioctlsocket(client, FIONBIO, &mode);
+						break;
+					}
+				}
+			}
 
 			closesocket(client);
-			return INVALID_SOCKET;
+			client = INVALID_SOCKET;
+			continue;
+		}
+		else
+		{
+			mode = 0;
+			ioctlsocket(client, FIONBIO, &mode);
+			break;
 		}
 	}
 
-	timeval timeout{};
-	timeout.tv_sec = 4;
+	FreeAddrInfoW(result);
 
-	if (!WSAConnectByNameW(client, (LPWSTR)tgtHost.c_str(), (LPWSTR)tgtPort.c_str(), NULL, NULL, NULL, NULL, &timeout, NULL))
+	if (client == INVALID_SOCKET)
 	{
 		printf("[Redirector][SocksHelper::Connect] Connect to remote server failed: %d\n", WSAGetLastError());
-
-		closesocket(client);
 		return INVALID_SOCKET;
 	}
 
-	{
-		DWORD returned = 0;
-
-		tcp_keepalive data = { 1, 120000, 10000 };
-		WSAIoctl(client, SIO_KEEPALIVE_VALS, &data, sizeof(data), NULL, 0, &returned, NULL, NULL);
-	}
+	DWORD returned = 0;
+	tcp_keepalive data = { 1, 120000, 10000 };
+	WSAIoctl(client, SIO_KEEPALIVE_VALS, &data, sizeof(data), NULL, 0, &returned, NULL, NULL);
 
 	return client;
 }
@@ -149,6 +185,55 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 			printf("[Redirector][SocksHelper::SplitAddr] Read IPv4 port failed: %d\n", WSAGetLastError());
 			return false;
 		}
+
+		// RFC 1928: If BND.ADDR is 0.0.0.0, use the destination IP address of the TCP connection
+		if (ipv4->sin_addr.S_un.S_addr == 0)
+		{
+			SOCKADDR_IN peer{};
+			int peerLen = sizeof(peer);
+			if (getpeername(client, (PSOCKADDR)&peer, &peerLen) == 0 && peer.sin_family == AF_INET)
+			{
+				ipv4->sin_addr = peer.sin_addr;
+			}
+		}
+	}
+	else if (addrType == 0x03)
+	{
+		unsigned char domainLen = 0;
+		if (recv(client, (char*)&domainLen, 1, 0) != 1)
+			return false;
+
+		char domain[256]{};
+		if (recv(client, domain, domainLen, 0) != domainLen)
+			return false;
+
+		USHORT port = 0;
+		if (recv(client, (char*)&port, 2, 0) != 2)
+			return false;
+
+		ADDRINFOA hints{};
+		hints.ai_family = AF_UNSPEC;
+		hints.ai_socktype = SOCK_DGRAM;
+		PADDRINFOA res = NULL;
+		if (getaddrinfo(domain, NULL, &hints, &res) == 0 && res != NULL)
+		{
+			if (res->ai_family == AF_INET)
+			{
+				auto ipv4 = (PSOCKADDR_IN)addr;
+				memcpy(ipv4, res->ai_addr, sizeof(SOCKADDR_IN));
+				ipv4->sin_port = port;
+			}
+			else if (res->ai_family == AF_INET6)
+			{
+				memcpy(addr, res->ai_addr, sizeof(SOCKADDR_IN6));
+				addr->sin6_port = port;
+			}
+			freeaddrinfo(res);
+		}
+		else
+		{
+			return false;
+		}
 	}
 	else if (addrType == 0x04)
 	{
@@ -164,6 +249,21 @@ bool SocksHelper::SplitAddr(SOCKET client, PSOCKADDR_IN6 addr)
 		{
 			printf("[Redirector][SocksHelper::SplitAddr] Read IPv6 port failed: %d\n", WSAGetLastError());
 			return false;
+		}
+
+		// RFC 1928: If BND.ADDR is ::, use the destination IP address of the TCP connection
+		bool isZero = true;
+		for (int i = 0; i < 16; i++) {
+			if (addr->sin6_addr.u.Byte[i] != 0) { isZero = false; break; }
+		}
+		if (isZero)
+		{
+			SOCKADDR_IN6 peer{};
+			int peerLen = sizeof(peer);
+			if (getpeername(client, (PSOCKADDR)&peer, &peerLen) == 0 && peer.sin_family == AF_INET6)
+			{
+				addr->sin6_addr = peer.sin6_addr;
+			}
 		}
 	}
 	else
@@ -286,10 +386,8 @@ void SocksHelper::UDP::Run(SOCKET tcpSocket, SOCKET udpSocket)
 
 	while (tcpSocket != INVALID_SOCKET)
 	{
-		if (recv(tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
-			break;
-
-		if (send(tcpSocket, buffer, sizeof(buffer), 0) != sizeof(buffer))
+		int ret = recv(tcpSocket, buffer, sizeof(buffer), 0);
+		if (ret <= 0)
 			break;
 	}
 
@@ -439,22 +537,28 @@ int SocksHelper::UDP::Read(PSOCKADDR_IN6 target, char* buffer, int length, PTIME
 	SOCKADDR_IN6 addr{};
 	if (buffer[3] == 0x01)
 	{
+		if (size < 10)
+			return SOCKET_ERROR;
+
 		auto ipv4 = (PSOCKADDR_IN)&addr;
 		ipv4->sin_family = AF_INET;
 
 		memcpy(&ipv4->sin_addr, buffer + 4, 4);
 		memcpy(&ipv4->sin_port, buffer + 8, 2);
 
-		memcpy(buffer, buffer + 10, (ULONG64)size - 10);
+		memmove(buffer, buffer + 10, (size_t)size - 10);
 	}
 	else if (buffer[3] == 0x04)
 	{
+		if (size < 22)
+			return SOCKET_ERROR;
+
 		addr.sin6_family = AF_INET6;
 
 		memcpy(&addr.sin6_addr, buffer + 4, 16);
 		memcpy(&addr.sin6_port, buffer + 20, 2);
 
-		memcpy(buffer, buffer + 22, (ULONG64)size - 22);
+		memmove(buffer, buffer + 22, (size_t)size - 22);
 	}
 	else
 	{

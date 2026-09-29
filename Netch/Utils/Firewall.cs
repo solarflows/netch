@@ -23,7 +23,7 @@ public static class Firewall
             var rule = FirewallManager.Instance.Rules.FirstOrDefault(r => r.Name == Netch);
             if (rule != null)
             {
-                if (rule.ApplicationName.StartsWith(Global.NetchDir))
+                if (rule.ApplicationName?.StartsWith(Global.NetchDir, StringComparison.OrdinalIgnoreCase) == true)
                     return;
 
                 RemoveNetchFwRules();
@@ -48,9 +48,10 @@ public static class Firewall
 
         try
         {
-            foreach (var rule in FirewallManager.Instance.Rules.Where(r
-                         => r.ApplicationName?.StartsWith(Global.NetchDir, StringComparison.OrdinalIgnoreCase) ?? r.Name == Netch))
-            { 
+            var rulesToRemove = FirewallManager.Instance.Rules.Where(r
+                         => r.ApplicationName?.StartsWith(Global.NetchDir, StringComparison.OrdinalIgnoreCase) ?? r.Name == Netch).ToList();
+            foreach (var rule in rulesToRemove)
+            {
                 FirewallManager.Instance.Rules.Remove(rule);
             }
             if (showNotification)
