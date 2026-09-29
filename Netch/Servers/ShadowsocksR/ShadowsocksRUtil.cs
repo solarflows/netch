@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using Netch.Interfaces;
 using Netch.Models;
 using Netch.Utils;
@@ -45,7 +45,7 @@ public class ShadowsocksRUtil : IServerUtil
 
     public IServerController GetController()
     {
-        return new ShadowsocksRController();
+        return new V2rayController();
     }
 
     /// <summary>

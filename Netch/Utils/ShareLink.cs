@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using System.Text.Json;
 using Netch.JsonConverter;
 using Netch.Models;
@@ -15,47 +15,67 @@ public static class ShareLink
 
     public static List<Server> ParseText(string text)
     {
+        if (string.IsNullOrWhiteSpace(text))
+            return new List<Server>();
+
+        // 1. Direct Clash YAML Subscription
+        if (ClashSubParser.IsClashYaml(text))
+        {
+            var clashServers = ClashSubParser.ParseYaml(text);
+            if (clashServers.Any())
+                return clashServers;
+        }
+
+        // 2. Direct JSON (sing-box outbounds or SSD format)
+        var trimmed = text.TrimStart();
+        if (trimmed.StartsWith('{') || trimmed.StartsWith('['))
+        {
+            var jsonServers = ClashSubParser.ParseJsonConfig(text);
+            if (jsonServers.Any())
+                return jsonServers;
+        }
+
+        // 3. Try URLSafe / Base64 decode
         try
         {
-            text = URLSafeBase64Decode(text);
+            var decoded = URLSafeBase64Decode(text);
+            if (!string.IsNullOrWhiteSpace(decoded))
+            {
+                if (ClashSubParser.IsClashYaml(decoded))
+                {
+                    var servers = ClashSubParser.ParseYaml(decoded);
+                    if (servers.Any())
+                        return servers;
+                }
+
+                var decodedTrimmed = decoded.TrimStart();
+                if (decodedTrimmed.StartsWith('{') || decodedTrimmed.StartsWith('['))
+                {
+                    var servers = ClashSubParser.ParseJsonConfig(decoded);
+                    if (servers.Any())
+                        return servers;
+                }
+
+                text = decoded;
+            }
         }
         catch
         {
-            // ignored
+            // Ignored, fallback to raw text
         }
 
+        // 4. Line-by-line URI parsing
         var list = new List<Server>();
-
-        try
+        foreach (var line in text.GetLines())
         {
-            list.AddRange(JsonSerializer.Deserialize<List<ShadowsocksConfig>>(text)!.Select(server => new ShadowsocksServer
+            try
             {
-                Hostname = server.server,
-                Port = server.server_port,
-                EncryptMethod = server.method,
-                Password = server.password,
-                Remark = server.remarks,
-                Plugin = server.plugin,
-                PluginOption = server.plugin_opts
-            }));
-        }
-        catch (JsonException)
-        {
-            foreach (var line in text.GetLines())
-            {
-                try
-                {
-                    list.AddRange(ParseUri(line));
-                }
-                catch (Exception e)
-                {
-                    Log.Error(e, "Parse servers from share link error");
-                }
+                list.AddRange(ParseUri(line));
             }
-        }
-        catch (Exception e)
-        {
-            Log.Error(e, "Parse servers from share link error");
+            catch (Exception e)
+            {
+                Log.Error(e, "Parse servers from share link error: {Line}", line);
+            }
         }
 
         return list;

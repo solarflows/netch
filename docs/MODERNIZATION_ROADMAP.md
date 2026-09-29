@@ -54,14 +54,19 @@
 - Netch 原生仅支持纯文本按行 Base64 解码，遇到 Clash 订阅时直接报错“没有任何节点被导入”，订阅体系名存实亡。
 
 ### 3.2 实施清单
-- [ ] 在 `ShareLink.cs` 中实现轻量健壮的 Clash YAML 节点提取器（支持识别并提取 `ss`, `trojan`, `vmess`, `vless`, `socks5` 字段并转换为 Netch 的 `Server` 模型）。
-- [ ] 优化 `SubscriptionUtil.cs`：预置主流客户端 UA（如 `clash.meta / sing-box`），防止订阅被机场网关拦截。
+- [x] 在 `Netch/Utils/ClashSubParser.cs` 与 `ShareLink.cs` 中实现轻量健壮的 Clash YAML 节点提取器（支持识别并提取 `ss`, `ssr`, `trojan`, `vmess`, `vless`, `socks5`, `wireguard` 字段并自动适配 Reality/Vision）。
+- [x] 在 `ClashSubParser.cs` 中增加对 sing-box JSON 格式与 SSD JSON 格式订阅解析支持。
+- [x] 优化 `WebUtil.cs`：预置默认客户端 UA 为 `clash.meta; Netch/1.9.10`，防止订阅被机场网关拦截。
 
 ---
 
-## 阶段四：代理核心架构精简与统一（全面拥抱 `sing-box`）
+## 阶段四：代理核心架构精简与统一（内核收窄为 sing-box + Xray-core）
 
 ### 4.1 目标与架构
-- 彻底摒弃历史遗留、报毒率高、难以维护的独立过时核心（`Shadowsocks.exe`, `Trojan.exe` 等）。
-- 全面以现代通用轻量核心 **`sing-box`** 作为核心运行时，支撑所有代理协议（SS 2022、Trojan、VMess、VLESS Reality/Vision、WireGuard、Socks5）。
-- 评估引入现代抗封锁高速协议（**Hysteria 2 / TUIC**）配置生成。
+- 彻底摒弃历史遗留、报毒率高、难以维护的独立过时核心（`Shadowsocks.exe`, `ShadowsocksR.exe`, `Trojan.exe`）。
+- 全面收窄核心为 **`sing-box`** + **`Xray-core`** 双核心架构，支撑所有代理协议（SS 2022、SSR、Trojan、VMess、VLESS Reality/Vision、WireGuard、Socks5）。
+
+### 4.2 实施清单
+- [x] 移除历史废弃的控制器与配置源文件（`ShadowsocksController.cs`, `ShadowsocksRController.cs`, `TrojanController.cs`, `TrojanConfig.cs`）。
+- [x] 更新所有协议的 `GetController()` 路由，统一导向 `SingboxController` 与 `V2rayController`。
+- [x] 保留并强化直连远端 Socks5 裸节点零核心开销模式。

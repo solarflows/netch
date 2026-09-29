@@ -37,7 +37,9 @@ public class TrojanUtil : IServerUtil
 
     public IServerController GetController()
     {
-        return new TrojanController();
+        return Global.Settings.CoreType.Equals("sing-box", StringComparison.OrdinalIgnoreCase)
+            ? new Controllers.SingboxController()
+            : new V2rayController();
     }
 
     public IEnumerable<Server> ParseUri(string text)

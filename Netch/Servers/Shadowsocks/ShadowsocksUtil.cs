@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Web;
 using Netch.Interfaces;
@@ -41,7 +41,9 @@ public class ShadowsocksUtil : IServerUtil
 
     public IServerController GetController()
     {
-        return new ShadowsocksController();
+        return Global.Settings.CoreType.Equals("sing-box", StringComparison.OrdinalIgnoreCase)
+            ? new Controllers.SingboxController()
+            : new V2rayController();
     }
 
     public IEnumerable<Server> ParseUri(string text)
