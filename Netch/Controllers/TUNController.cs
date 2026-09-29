@@ -97,7 +97,7 @@ namespace Netch.Controllers
             RouteHelper.CreateUnicastIP(AddressFamily.InterNetwork,
                 _tunConfig.Address,
                 (byte)Utils.Utils.SubnetToCidr(_tunConfig.Netmask),
-                (ulong)tunIndex);
+                (uint)tunIndex);
 
             SetupRouteTable();
         }

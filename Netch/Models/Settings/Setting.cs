@@ -56,6 +56,8 @@ public class Setting
     /// </summary>
     public string LocalAddress { get; set; } = "127.0.0.1";
 
+    public bool ShareLan => LocalAddress != "127.0.0.1";
+
     /// <summary>
     ///     是否启动后自动最小化
     /// </summary>

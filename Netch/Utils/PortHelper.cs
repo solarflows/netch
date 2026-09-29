@@ -56,7 +56,7 @@ public static class PortHelper
                         if (row.dwOwningPid is 0 or 4)
                             continue;
 
-                        if (PInvoke.ntohs((ushort)row.dwLocalPort) == port)
+                        if ((ushort)IPAddress.NetworkToHostOrder((short)row.dwLocalPort) == port)
                             process.Add(Process.GetProcessById((int)row.dwOwningPid));
                     }
                 }

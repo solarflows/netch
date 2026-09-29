@@ -66,6 +66,8 @@ public class OutboundConfiguration
 
     public string preSharedKey { get; set; }
 
+    public string domainStrategy { get; set; }
+
     public int? mtu { get; set; } = null;
 }
 

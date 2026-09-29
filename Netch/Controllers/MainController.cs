@@ -49,11 +49,11 @@ public static class MainController
             if (modePort != null)
                 TryReleaseTcpPort((ushort)modePort, portName);
 
-            if (Server is Socks5Server socks5 && (!socks5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth)) && !Global.Settings.ShareLan && !Global.Settings.V2RayConfig.AllowHttp)
+            if (Server is Socks5Server s5 && (!s5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth)) && !Global.Settings.ShareLan && !Global.Settings.V2RayConfig.AllowHttp)
             {
                 // 直连直通远端裸节点模式：不启动任何本地代理核心，实现零额外内存与零CPU占用
-                Log.Information("Using direct Socks5 server mode (zero local core overhead): {Hostname}:{Port}", socks5.Hostname, socks5.Port);
-                Socks5Server = socks5;
+                Log.Information("Using direct Socks5 server mode (zero local core overhead): {Hostname}:{Port}", s5.Hostname, s5.Port);
+                Socks5Server = s5;
                 ServerController = null;
                 StatusPortInfoText.Reset();
             }

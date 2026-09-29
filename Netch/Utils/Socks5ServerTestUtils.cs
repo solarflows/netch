@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
+using System.Net.Sockets;
 using Netch.Models;
 using Netch.Servers;
 using Socks5.Models;
