@@ -2,9 +2,7 @@ name: Netch Build CI
 on:
   push:
     branches:
-      - main
-      - newopt
-      - master
+      - '**'
     tags:
       - '*.*.*'
   pull_request:
@@ -71,7 +69,7 @@ jobs:
         uses: actions/setup-go@v5
         if: steps.check_other.outputs.files_exists == 'false'
         with:
-          go-version: 'stable'
+          go-version: '1.22.x'
 
       - name: Setup C++
         uses: msys2/setup-msys2@v2
