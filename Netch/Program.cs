@@ -104,6 +104,22 @@ public static class Program
         Application.ThreadException += Application_OnException;
         Application.ApplicationExit += Application_OnExit;
 
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            if (e.ExceptionObject is Exception ex)
+            {
+                Log.Fatal(ex, "AppDomain Unhandled Exception");
+                Log.CloseAndFlush();
+                MessageBox.Show($"Unhandled Fatal Error: {ex.Message}\n\n{ex.StackTrace}", @"Netch Fatal Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        };
+
+        TaskScheduler.UnobservedTaskException += (_, e) =>
+        {
+            Log.Error(e.Exception, "Unobserved Task Exception");
+            e.SetObserved();
+        };
+
         Application.SetHighDpiMode(HighDpiMode.DpiUnawareGdiScaled);
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);

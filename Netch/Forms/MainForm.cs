@@ -49,7 +49,7 @@ public partial class MainForm : Form
 
     private void AddAddServerToolStripMenuItems()
     {
-        foreach (var serversUtil in ServerHelper.ServerUtilDictionary.Values.OrderBy(i => i.Priority).Where(i => !string.IsNullOrEmpty(i.FullName)))
+        foreach (var serversUtil in ServerHelper.ServerUtilDictionary.Values.Distinct().OrderBy(i => i.Priority).Where(i => !string.IsNullOrEmpty(i.FullName)))
         {
             var fullName = serversUtil.FullName;
             var control = new ToolStripMenuItem
@@ -60,7 +60,7 @@ public partial class MainForm : Form
                 Tag = serversUtil
             };
 
-            _mainFormText.Add(control.Name, new[] { "Add [{0}] Server", fullName });
+            _mainFormText[control.Name] = new[] { "Add [{0}] Server", fullName };
             control.Click += AddServerToolStripMenuItem_Click;
             ServerToolStripMenuItem.DropDownItems.Add(control);
         }
