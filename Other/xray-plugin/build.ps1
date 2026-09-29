@@ -11,5 +11,5 @@ $Env:GOROOT_FINAL='/usr'
 
 $Env:GOOS='windows'
 $Env:GOARCH='amd64'
-go build -a -trimpath -gcflags=all="-d=checklinkname=0" -asmflags '-s -w' -ldflags '-s -w' -o '..\..\release\xray-plugin.exe'
+go build -a -trimpath -asmflags '-s -w' -ldflags '-s -w' -o '..\..\release\xray-plugin.exe'
 exit $lastExitCode
