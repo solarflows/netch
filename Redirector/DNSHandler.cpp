@@ -1,6 +1,8 @@
 #include "DNSHandler.h"
 
 #include "SocksHelper.h"
+#include "DnsCache.h"
+#include "PersistentDnsChannel.h"
 
 extern bool dnsProx;
 extern string dnsHost;
@@ -55,26 +57,15 @@ void HandleClientDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int len
 
 void HandleRemoteDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int length, PNF_UDP_OPTIONS option)
 {
-	auto remote = new SocksHelper::UDP();
-	if (remote->Associate())
+	char buffer[2048];
+	int outLen = sizeof(buffer);
+
+	if (PersistentDnsChannel::Instance().Query(&dnsAddr, packet, length, buffer, outLen))
 	{
-		if (remote->CreateUDP())
-		{
-			if (remote->Send(&dnsAddr, packet, length) == length)
-			{
-				char buffer[1024];
-
-				timeval timeout{};
-				timeout.tv_sec = 4;
-
-				int size = remote->Read(NULL, buffer, sizeof(buffer), &timeout);
-				if (size != 0 && size != SOCKET_ERROR)
-					nf_udpPostReceive(id, (PBYTE)target, buffer, size, option);
-			}
-		}
+		DnsCache::Instance().Put(packet, length, buffer, outLen);
+		nf_udpPostReceive(id, (PBYTE)target, buffer, outLen, option);
 	}
 
-	delete remote;
 	delete target;
 	delete[] packet;
 	delete[] option;
@@ -82,6 +73,8 @@ void HandleRemoteDNS(ENDPOINT_ID id, PSOCKADDR_IN6 target, char* packet, int len
 
 bool DNSHandler::INIT()
 {
+	DnsCache::Instance().Clear();
+
 	memset(&dnsAddr, 0, sizeof(dnsAddr));
 
 	auto ipv4 = (PSOCKADDR_IN)&dnsAddr;
@@ -113,6 +106,18 @@ bool DNSHandler::IsDNS(PSOCKADDR_IN6 target)
 
 void DNSHandler::CreateHandler(ENDPOINT_ID id, PSOCKADDR_IN6 target, const char* packet, int length, PNF_UDP_OPTIONS options)
 {
+	if (dnsProx)
+	{
+		// Fast-Path: synchronous LRU cache check directly on driver event callback thread
+		std::vector<char> cachedResponse;
+		if (DnsCache::Instance().Get(packet, length, cachedResponse))
+		{
+			// Microsecond direct return: 0 thread overhead, 0 heap allocations
+			nf_udpPostReceive(id, (PBYTE)target, cachedResponse.data(), (int)cachedResponse.size(), options);
+			return;
+		}
+	}
+
 	auto remote = new SOCKADDR_IN6();
 	auto buffer = new char[length]();
 	auto option = (PNF_UDP_OPTIONS)new char[sizeof(NF_UDP_OPTIONS) + options->optionsLength];
@@ -125,4 +130,10 @@ void DNSHandler::CreateHandler(ENDPOINT_ID id, PSOCKADDR_IN6 target, const char*
 		thread(HandleClientDNS, id, remote, buffer, length, option).detach();
 	else
 		thread(HandleRemoteDNS, id, remote, buffer, length, option).detach();
+}
+
+void DNSHandler::FREE()
+{
+	PersistentDnsChannel::Instance().Close();
+	DnsCache::Instance().Clear();
 }

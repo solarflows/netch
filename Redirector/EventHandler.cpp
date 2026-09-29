@@ -156,6 +156,7 @@ void eh_free()
 {
 	lock_guard<mutex> lg(udpContextLock);
 
+	DNSHandler::FREE();
 	TCPHandler::FREE();
 
 	for (auto &i : udpContext)

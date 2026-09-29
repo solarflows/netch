@@ -11,19 +11,27 @@ public static class ServerHelper
             .GetExportedTypes()
             .Where(type => type.GetInterfaces().Contains(typeof(IServerUtil)));
 
-        ServerUtilDictionary = serversUtilsTypes.Select(t => (IServerUtil)Activator.CreateInstance(t)!).ToDictionary(util => util.TypeName);
+        ServerUtilDictionary = new Dictionary<string, IServerUtil>(StringComparer.OrdinalIgnoreCase);
+        foreach (var util in serversUtilsTypes.Select(t => (IServerUtil)Activator.CreateInstance(t)!))
+        {
+            ServerUtilDictionary[util.TypeName] = util;
+            if (util.TypeName.Equals("SOCKS", StringComparison.OrdinalIgnoreCase))
+            {
+                ServerUtilDictionary["Socks5"] = util;
+            }
+        }
     }
 
     public static Dictionary<string, IServerUtil> ServerUtilDictionary { get; }
 
     public static IServerUtil GetUtilByTypeName(string typeName)
     {
-        return ServerUtilDictionary.GetValueOrDefault(typeName) ?? throw new NotSupportedException("Specified server type is not supported.");
+        return ServerUtilDictionary.GetValueOrDefault(typeName) ?? throw new NotSupportedException($"Specified server type {typeName} is not supported.");
     }
 
     public static IServerUtil? GetUtilByUriScheme(string scheme)
     {
-        return ServerUtilDictionary.Values.SingleOrDefault(i => i.UriScheme.Any(s => s.Equals(scheme)));
+        return ServerUtilDictionary.Values.Distinct().SingleOrDefault(i => i.UriScheme.Any(s => s.Equals(scheme, StringComparison.OrdinalIgnoreCase)));
     }
 
     public static Type GetTypeByTypeName(string typeName)
