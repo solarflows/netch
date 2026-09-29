@@ -438,5 +438,15 @@ public class SmokeTests
         Assert.IsTrue(typeNames.Contains("V2rayController"), "V2rayController must exist");
     }
 
+    [TestMethod]
+    public void Smoke_Settings_SingboxAndThemeProperties()
+    {
+        var setting = new Netch.Models.Setting();
+        Assert.AreEqual("Xray", setting.CoreType);
+        Assert.AreEqual("System", setting.Theme);
+        Assert.IsNotNull(setting.SingboxConfig);
+        Assert.IsTrue(setting.SingboxConfig.Sniffing);
+    }
+
     #endregion
 }

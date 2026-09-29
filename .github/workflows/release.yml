@@ -91,13 +91,18 @@ jobs:
       - name: Package
         shell: pwsh
         run: |
-          7z a -mx9 Netch.7z release
-          7z rn Netch.7z release Netch
+          $ver = "${{ github.ref_name }}"
+          if ([string]::IsNullOrWhiteSpace($ver)) { $ver = "Latest" }
+          $pkg = "Netch-$ver.7z"
+          echo "PACKAGE_NAME=$pkg" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
+          7z a -mx9 $pkg release
+          7z rn $pkg release Netch
 
       - name: Checksum
         shell: pwsh
         run: |
-          $hash=(Get-FileHash Netch.7z -Algorithm SHA256).Hash.ToLower()
+          $pkg = $env:PACKAGE_NAME
+          $hash=(Get-FileHash $pkg -Algorithm SHA256).Hash.ToLower()
           echo "NETCH_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
       - name: Release
@@ -109,7 +114,7 @@ jobs:
           prerelease: ${{ contains(github.ref, '-') }}
           draft: false
           files: |
-            Netch.7z
+            ${{ env.PACKAGE_NAME }}
           body: |
             [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)
             ## Changelogs
@@ -121,4 +126,4 @@ jobs:
             ## 校验和
             | 文件名 | SHA256 |
             | :- | :- |
-            | Netch.7z | ${{ env.NETCH_SHA256 }} |
+            | ${{ env.PACKAGE_NAME }} | ${{ env.NETCH_SHA256 }} |

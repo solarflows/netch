@@ -1,5 +1,6 @@
 using System.Net;
 using Netch.Properties;
+using Netch.Services;
 using Netch.Utils;
 
 namespace Netch.Forms;
@@ -62,7 +63,7 @@ public partial class SettingForm : BindingForm
             },
             o =>
             {
-                var split = o.ToString().SplitRemoveEmptyEntriesAndTrimEntries(':');
+                var split = o.ToString()!.SplitRemoveEmptyEntriesAndTrimEntries(':');
                 Global.Settings.STUN_Server = split[0];
 
                 var port = split.ElementAtOrDefault(1);
@@ -73,12 +74,8 @@ public partial class SettingForm : BindingForm
 
         // 获取上次选择的 BILU Server
         var lastSelected = Global.Settings.BILU_Server;
-        // 绑定 ComboBox，使用 BILU_ServerComboBox 控件、BiluServer.Bilu_Items 字典、
-        // 上次选择的值（如果为空，则使用空字符串）、BiluServer.NamesAndUrls 的键作为可选项
         BindComboBox(BILU_ServerComboBox,
-            // 验证是否存在于字典的键集合中
-            s => BiluServer.NamesAndUrls.ContainsKey(s),
-            // 保存选择的项到全局设置
+            s => string.IsNullOrEmpty(s) || BiluServer.NamesAndUrls.ContainsKey(s),
             o =>
             {
                 if (o is string displayName)
@@ -86,17 +83,14 @@ public partial class SettingForm : BindingForm
                     Global.Settings.BILU_Server = displayName;
                 }
             },
-            // 提供 ComboBox 的初始值，使用上次选择的值（如果为空，则使用空字符串）
             lastSelected ?? string.Empty,
-            // 提供 ComboBox 的值列表，使用 BiluServer.NamesAndUrls 的键
             BiluServer.NamesAndUrls.Keys.Cast<object>().ToArray()
         );
-        // 设置 ComboBox 选中项为上次选的 BILU Server
         BILU_ServerComboBox.SelectedItem = lastSelected;
 
-        BindListComboBox(LanguageComboBox, o => Global.Settings.Language = o.ToString(), i18N.GetTranslateList(), Global.Settings.Language);
+        BindListComboBox(LanguageComboBox, o => Global.Settings.Language = o.ToString()!, i18N.GetTranslateList(), Global.Settings.Language);
 
-        BindListComboBox(CoreComboBox, o => Global.Settings.CoreType = o.ToString(), new[] { "Xray", "sing-box" }, Global.Settings.CoreType ?? "Xray");
+        BindListComboBox(CoreComboBox, o => Global.Settings.CoreType = o.ToString()!, new[] { "Xray", "sing-box" }, Global.Settings.CoreType ?? "Xray");
 
         #endregion
 
@@ -112,7 +106,6 @@ public partial class SettingForm : BindingForm
 
         BindCheckBox(FilterDNSCheckBox, b => Global.Settings.Redirector.FilterDNS = b, Global.Settings.Redirector.FilterDNS);
 
-        // TODO validate Redirector AioDNS DNS
         BindTextBox(DNSHijackHostTextBox, s => true, s => Global.Settings.Redirector.DNSHost = s, Global.Settings.Redirector.DNSHost);
 
         BindCheckBox(ChildProcessHandleCheckBox, s => Global.Settings.Redirector.FilterParent = s, Global.Settings.Redirector.FilterParent);
@@ -146,7 +139,7 @@ public partial class SettingForm : BindingForm
 
         #endregion
 
-        #region V2Ray
+        #region Xray
         BindCheckBox(SniffingCheckBox, b => Global.Settings.V2RayConfig.Sniffing = b, Global.Settings.V2RayConfig.Sniffing);
         BindCheckBox(XrayConeCheckBox, b => Global.Settings.V2RayConfig.XrayFullCone = b, Global.Settings.V2RayConfig.XrayFullCone);
 
@@ -180,6 +173,13 @@ public partial class SettingForm : BindingForm
 
         #endregion
 
+        #region sing-box
+        BindCheckBox(SingboxSniffingCheckBox, b => Global.Settings.SingboxConfig.Sniffing = b, Global.Settings.SingboxConfig.Sniffing);
+        BindCheckBox(SingboxUseMuxCheckBox, b => Global.Settings.SingboxConfig.UseMux = b, Global.Settings.SingboxConfig.UseMux);
+        BindCheckBox(SingboxTCPFastOpenCheckBox, b => Global.Settings.SingboxConfig.TCPFastOpen = b, Global.Settings.SingboxConfig.TCPFastOpen);
+        BindCheckBox(SingboxAllowInsecureCheckBox, b => Global.Settings.SingboxConfig.AllowInsecure = b, Global.Settings.SingboxConfig.AllowInsecure);
+        #endregion
+
         #region Others
 
         BindCheckBox(ExitWhenClosedCheckBox, b => Global.Settings.ExitWhenClosed = b, Global.Settings.ExitWhenClosed);
@@ -200,6 +200,12 @@ public partial class SettingForm : BindingForm
 
         BindCheckBox(NoSupportDialogCheckBox, b => Global.Settings.NoSupportDialog = b, Global.Settings.NoSupportDialog);
 
+        BindListComboBox(ThemeComboBox, o =>
+        {
+            Global.Settings.Theme = o.ToString()!;
+            ThemeService.Apply(this);
+        }, new[] { "System", "Light", "Dark" }, Global.Settings.Theme);
+
         #endregion
 
         #region AioDNS
@@ -208,33 +214,14 @@ public partial class SettingForm : BindingForm
 
         BindTextBox(OtherDNSTextBox, _ => true, s => Global.Settings.AioDNS.OtherDNS = s, Global.Settings.AioDNS.OtherDNS);
 
-        BindTextBox(AioDNSListenPortTextBox,
-            s => ushort.TryParse(s, out _),
-            s => Global.Settings.AioDNS.ListenPort = ushort.Parse(s),
-            Global.Settings.AioDNS.ListenPort);
+        BindTextBox<ushort>(AioDNSListenPortTextBox, _ => true, p => Global.Settings.AioDNS.ListenPort = p, Global.Settings.AioDNS.ListenPort);
 
         #endregion
     }
 
     private void SettingForm_Load(object sender, EventArgs e)
     {
-        TUNTAPUseCustomDNSCheckBox_CheckedChanged(null, null);
-    }
-
-    protected override void BindTextBox<T>(TextBoxBase control, Func<T, bool> check, Action<T> save, object value)
-    {
-        base.BindTextBox(control, check, save, value);
-        control.TextChanged += (_, _) =>
-        {
-            if (Validate(control))
-            {
-                errorProvider.SetError(control, null);
-            }
-            else
-            {
-                errorProvider.SetError(control, i18N.Translate("Invalid value"));
-            }
-        };
+        ThemeService.Apply(this);
     }
 
     protected new void BindComboBox(ComboBox control, Func<string, bool> check, Action<string> save, string value, object[]? values = null)
@@ -271,7 +258,7 @@ public partial class SettingForm : BindingForm
 
     private async void ControlButton_Click(object sender, EventArgs e)
     {
-        Utils.Utils.ComponentIterator(this, component => Utils.Utils.ChangeControlForeColor(component, Color.Black));
+        Utils.Utils.ComponentIterator(this, component => Utils.Utils.ChangeControlForeColor(component, ThemeService.IsDarkMode ? ThemeService.DarkText : Color.Black));
 
         #region Check
 
@@ -294,6 +281,7 @@ public partial class SettingForm : BindingForm
                 p = p.Parent;
             }
 
+            MessageBoxX.Show(i18N.Translate("Please check invalid input values"), LogLevel.WARNING);
             return;
         }
 

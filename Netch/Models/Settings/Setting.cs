@@ -12,6 +12,16 @@ public class Setting
     /// </summary>
     public string CoreType { get; set; } = "Xray";
 
+    /// <summary>
+    ///     界面主题 (System / Light / Dark)
+    /// </summary>
+    public string Theme { get; set; } = "System";
+
+    /// <summary>
+    ///     sing-box 核心配置
+    /// </summary>
+    public SingboxConfig SingboxConfig { get; set; } = new();
+
     public RedirectorConfig Redirector { get; set; } = new();
 
     /// <summary>

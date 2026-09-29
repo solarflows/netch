@@ -81,7 +81,7 @@ namespace Netch.Forms
             this.UseCustomDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.ProxyDNSCheckBox = new System.Windows.Forms.CheckBox();
             this.GlobalBypassIPsButton = new System.Windows.Forms.Button();
-            this.v2rayTabPage = new System.Windows.Forms.TabPage();
+            this.xrayTabPage = new System.Windows.Forms.TabPage();
             this.SniffingCheckBox = new System.Windows.Forms.CheckBox();
             this.XrayConeCheckBox = new System.Windows.Forms.CheckBox();
             this.TLSAllowInsecureCheckBox = new System.Windows.Forms.CheckBox();
@@ -101,6 +101,11 @@ namespace Netch.Forms
             this.writeBufferSizeLabel = new System.Windows.Forms.Label();
             this.writeBufferSizeTextBox = new System.Windows.Forms.TextBox();
             this.congestionCheckBox = new System.Windows.Forms.CheckBox();
+            this.singboxTabPage = new System.Windows.Forms.TabPage();
+            this.SingboxSniffingCheckBox = new System.Windows.Forms.CheckBox();
+            this.SingboxUseMuxCheckBox = new System.Windows.Forms.CheckBox();
+            this.SingboxTCPFastOpenCheckBox = new System.Windows.Forms.CheckBox();
+            this.SingboxAllowInsecureCheckBox = new System.Windows.Forms.CheckBox();
             this.OtherTabPage = new System.Windows.Forms.TabPage();
             this.ExitWhenClosedCheckBox = new System.Windows.Forms.CheckBox();
             this.StopWhenExitedCheckBox = new System.Windows.Forms.CheckBox();
@@ -111,6 +116,8 @@ namespace Netch.Forms
             this.NoSupportDialogCheckBox = new System.Windows.Forms.CheckBox();
             this.CheckBetaUpdateCheckBox = new System.Windows.Forms.CheckBox();
             this.UpdateServersWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
+            this.ThemeLabel = new System.Windows.Forms.Label();
+            this.ThemeComboBox = new System.Windows.Forms.ComboBox();
             this.AioDNSTabPage = new System.Windows.Forms.TabPage();
             this.ChinaDNSLabel = new System.Windows.Forms.Label();
             this.ChinaDNSTextBox = new System.Windows.Forms.TextBox();
@@ -127,31 +134,33 @@ namespace Netch.Forms
             this.NFTabPage.SuspendLayout();
             this.WinTUNTabPage.SuspendLayout();
             this.WinTUNGroupBox.SuspendLayout();
-            this.v2rayTabPage.SuspendLayout();
+            this.xrayTabPage.SuspendLayout();
             this.KCPGroupBox.SuspendLayout();
+            this.singboxTabPage.SuspendLayout();
             this.OtherTabPage.SuspendLayout();
             this.AioDNSTabPage.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.SuspendLayout();
-            // 
+            //
             // TabControl
-            // 
+            //
             this.TabControl.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
             this.TabControl.Controls.Add(this.GeneralTabPage);
             this.TabControl.Controls.Add(this.NFTabPage);
             this.TabControl.Controls.Add(this.WinTUNTabPage);
-            this.TabControl.Controls.Add(this.v2rayTabPage);
+            this.TabControl.Controls.Add(this.xrayTabPage);
+            this.TabControl.Controls.Add(this.singboxTabPage);
             this.TabControl.Controls.Add(this.OtherTabPage);
             this.TabControl.Controls.Add(this.AioDNSTabPage);
             this.TabControl.Location = new System.Drawing.Point(3, 3);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(469, 354);
+            this.TabControl.Size = new System.Drawing.Size(488, 385);
             this.TabControl.TabIndex = 0;
-            // 
+            //
             // GeneralTabPage
-            // 
+            //
             this.GeneralTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.GeneralTabPage.Controls.Add(this.PortGroupBox);
             this.GeneralTabPage.Controls.Add(this.ServerPingTypeLabel);
@@ -174,12 +183,12 @@ namespace Netch.Forms
             this.GeneralTabPage.Location = new System.Drawing.Point(4, 29);
             this.GeneralTabPage.Name = "GeneralTabPage";
             this.GeneralTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.GeneralTabPage.Size = new System.Drawing.Size(461, 321);
+            this.GeneralTabPage.Size = new System.Drawing.Size(480, 350);
             this.GeneralTabPage.TabIndex = 0;
             this.GeneralTabPage.Text = "General";
-            // 
+            //
             // PortGroupBox
-            // 
+            //
             this.PortGroupBox.Controls.Add(this.Socks5PortLabel);
             this.PortGroupBox.Controls.Add(this.Socks5PortTextBox);
             this.PortGroupBox.Controls.Add(this.AllowHttpCheckBox);
@@ -190,26 +199,26 @@ namespace Netch.Forms
             this.PortGroupBox.TabIndex = 0;
             this.PortGroupBox.TabStop = false;
             this.PortGroupBox.Text = "Local Port";
-            // 
+            //
             // Socks5PortLabel
-            // 
+            //
             this.Socks5PortLabel.AutoSize = true;
             this.Socks5PortLabel.Location = new System.Drawing.Point(9, 25);
             this.Socks5PortLabel.Name = "Socks5PortLabel";
             this.Socks5PortLabel.Size = new System.Drawing.Size(49, 17);
             this.Socks5PortLabel.TabIndex = 0;
             this.Socks5PortLabel.Text = "Socks5";
-            // 
+            //
             // Socks5PortTextBox
-            // 
+            //
             this.Socks5PortTextBox.Location = new System.Drawing.Point(120, 22);
             this.Socks5PortTextBox.Name = "Socks5PortTextBox";
             this.Socks5PortTextBox.Size = new System.Drawing.Size(90, 23);
             this.Socks5PortTextBox.TabIndex = 1;
             this.Socks5PortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // AllowHttpCheckBox
-            // 
+            //
             this.AllowHttpCheckBox.AutoSize = true;
             this.AllowHttpCheckBox.Location = new System.Drawing.Point(6, 84);
             this.AllowHttpCheckBox.Name = "AllowHttpCheckBox";
@@ -218,9 +227,9 @@ namespace Netch.Forms
             this.AllowHttpCheckBox.Text = "Allow http protocol (Socks port + 1)";
             this.AllowHttpCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.AllowHttpCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // AllowDevicesCheckBox
-            // 
+            //
             this.AllowDevicesCheckBox.AutoSize = true;
             this.AllowDevicesCheckBox.Location = new System.Drawing.Point(6, 58);
             this.AllowDevicesCheckBox.Name = "AllowDevicesCheckBox";
@@ -229,127 +238,127 @@ namespace Netch.Forms
             this.AllowDevicesCheckBox.Text = "Allow other Devices to connect";
             this.AllowDevicesCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.AllowDevicesCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // ServerPingTypeLabel
-            // 
+            //
             this.ServerPingTypeLabel.AutoSize = true;
-            this.ServerPingTypeLabel.Location = new System.Drawing.Point(267, 15);
+            this.ServerPingTypeLabel.Location = new System.Drawing.Point(270, 15);
             this.ServerPingTypeLabel.Name = "ServerPingTypeLabel";
             this.ServerPingTypeLabel.Size = new System.Drawing.Size(86, 17);
             this.ServerPingTypeLabel.TabIndex = 2;
             this.ServerPingTypeLabel.Text = "Ping Protocol";
-            // 
+            //
             // ICMPingRadioBtn
-            // 
+            //
             this.ICMPingRadioBtn.AutoSize = true;
-            this.ICMPingRadioBtn.Location = new System.Drawing.Point(268, 34);
+            this.ICMPingRadioBtn.Location = new System.Drawing.Point(270, 35);
             this.ICMPingRadioBtn.Name = "ICMPingRadioBtn";
             this.ICMPingRadioBtn.Size = new System.Drawing.Size(75, 21);
             this.ICMPingRadioBtn.TabIndex = 3;
             this.ICMPingRadioBtn.TabStop = true;
             this.ICMPingRadioBtn.Text = "ICMPing";
             this.ICMPingRadioBtn.UseVisualStyleBackColor = true;
-            // 
+            //
             // TCPingRadioBtn
-            // 
+            //
             this.TCPingRadioBtn.AutoSize = true;
-            this.TCPingRadioBtn.Location = new System.Drawing.Point(366, 35);
+            this.TCPingRadioBtn.Location = new System.Drawing.Point(365, 35);
             this.TCPingRadioBtn.Name = "TCPingRadioBtn";
             this.TCPingRadioBtn.Size = new System.Drawing.Size(66, 21);
             this.TCPingRadioBtn.TabIndex = 4;
             this.TCPingRadioBtn.TabStop = true;
             this.TCPingRadioBtn.Text = "TCPing";
             this.TCPingRadioBtn.UseVisualStyleBackColor = true;
-            // 
+            //
             // ProfileCountLabel
-            // 
+            //
             this.ProfileCountLabel.AutoSize = true;
-            this.ProfileCountLabel.Location = new System.Drawing.Point(15, 140);
+            this.ProfileCountLabel.Location = new System.Drawing.Point(15, 135);
             this.ProfileCountLabel.Name = "ProfileCountLabel";
             this.ProfileCountLabel.Size = new System.Drawing.Size(83, 17);
             this.ProfileCountLabel.TabIndex = 5;
             this.ProfileCountLabel.Text = "Profile Count";
-            // 
+            //
             // ProfileCountTextBox
-            // 
-            this.ProfileCountTextBox.Location = new System.Drawing.Point(182, 137);
+            //
+            this.ProfileCountTextBox.Location = new System.Drawing.Point(182, 132);
             this.ProfileCountTextBox.Name = "ProfileCountTextBox";
             this.ProfileCountTextBox.Size = new System.Drawing.Size(70, 23);
             this.ProfileCountTextBox.TabIndex = 6;
             this.ProfileCountTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // DetectionTickLabel
-            // 
+            //
             this.DetectionTickLabel.AutoSize = true;
-            this.DetectionTickLabel.Location = new System.Drawing.Point(15, 170);
+            this.DetectionTickLabel.Location = new System.Drawing.Point(15, 165);
             this.DetectionTickLabel.Name = "DetectionTickLabel";
             this.DetectionTickLabel.Size = new System.Drawing.Size(117, 17);
             this.DetectionTickLabel.TabIndex = 7;
             this.DetectionTickLabel.Text = "Detection Tick(sec)";
-            // 
+            //
             // DetectionTickTextBox
-            // 
-            this.DetectionTickTextBox.Location = new System.Drawing.Point(182, 167);
+            //
+            this.DetectionTickTextBox.Location = new System.Drawing.Point(182, 162);
             this.DetectionTickTextBox.Name = "DetectionTickTextBox";
             this.DetectionTickTextBox.Size = new System.Drawing.Size(70, 23);
             this.DetectionTickTextBox.TabIndex = 8;
             this.DetectionTickTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // StartedPingLabel
-            // 
+            //
             this.StartedPingLabel.AutoSize = true;
-            this.StartedPingLabel.Location = new System.Drawing.Point(15, 200);
+            this.StartedPingLabel.Location = new System.Drawing.Point(15, 195);
             this.StartedPingLabel.Name = "StartedPingLabel";
             this.StartedPingLabel.Size = new System.Drawing.Size(153, 17);
             this.StartedPingLabel.TabIndex = 9;
             this.StartedPingLabel.Text = "Delay test after start(sec)";
-            // 
+            //
             // StartedPingIntervalTextBox
-            // 
-            this.StartedPingIntervalTextBox.Location = new System.Drawing.Point(182, 197);
+            //
+            this.StartedPingIntervalTextBox.Location = new System.Drawing.Point(182, 192);
             this.StartedPingIntervalTextBox.Name = "StartedPingIntervalTextBox";
             this.StartedPingIntervalTextBox.Size = new System.Drawing.Size(70, 23);
             this.StartedPingIntervalTextBox.TabIndex = 10;
             this.StartedPingIntervalTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // STUNServerLabel
-            // 
+            //
             this.STUNServerLabel.AutoSize = true;
-            this.STUNServerLabel.Location = new System.Drawing.Point(15, 230);
+            this.STUNServerLabel.Location = new System.Drawing.Point(15, 225);
             this.STUNServerLabel.Name = "STUNServerLabel";
             this.STUNServerLabel.Size = new System.Drawing.Size(82, 17);
             this.STUNServerLabel.TabIndex = 11;
             this.STUNServerLabel.Text = "STUN Server";
-            // 
+            //
             // STUN_ServerComboBox
-            // 
+            //
             this.STUN_ServerComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.STUN_ServerComboBox.Location = new System.Drawing.Point(182, 227);
+            this.STUN_ServerComboBox.Location = new System.Drawing.Point(182, 222);
             this.STUN_ServerComboBox.Name = "STUN_ServerComboBox";
-            this.STUN_ServerComboBox.Size = new System.Drawing.Size(264, 25);
+            this.STUN_ServerComboBox.Size = new System.Drawing.Size(280, 25);
             this.STUN_ServerComboBox.TabIndex = 12;
-            // 
+            //
             // BILUServerLabel
-            // 
+            //
             this.BILUServerLabel.AutoSize = true;
-            this.BILUServerLabel.Location = new System.Drawing.Point(15, 260);
+            this.BILUServerLabel.Location = new System.Drawing.Point(15, 255);
             this.BILUServerLabel.Name = "BILUServerLabel";
             this.BILUServerLabel.Size = new System.Drawing.Size(82, 17);
             this.BILUServerLabel.TabIndex = 11;
-            this.BILUServerLabel.Text = "BILU Server"; //  Bypass IP List Update Server
-            // 
-            // BPIP_ServerComboBox
-            // 
+            this.BILUServerLabel.Text = "BILU Server";
+            //
+            // BILU_ServerComboBox
+            //
             this.BILU_ServerComboBox.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.Suggest;
-            this.BILU_ServerComboBox.Location = new System.Drawing.Point(182, 257);
+            this.BILU_ServerComboBox.Location = new System.Drawing.Point(182, 252);
             this.BILU_ServerComboBox.Name = "BILU_ServerComboBox";
-            this.BILU_ServerComboBox.Size = new System.Drawing.Size(264, 25);
+            this.BILU_ServerComboBox.Size = new System.Drawing.Size(280, 25);
             this.BILU_ServerComboBox.TabIndex = 12;
-            // 
+            //
             // LanguageLabel
-            // 
+            //
             this.LanguageLabel.AutoSize = true;
-            this.LanguageLabel.Location = new System.Drawing.Point(15, 290);
+            this.LanguageLabel.Location = new System.Drawing.Point(15, 285);
             this.LanguageLabel.Name = "LanguageLabel";
             this.LanguageLabel.Size = new System.Drawing.Size(65, 17);
             this.LanguageLabel.TabIndex = 13;
@@ -359,15 +368,15 @@ namespace Netch.Forms
             //
             this.LanguageComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.LanguageComboBox.FormattingEnabled = true;
-            this.LanguageComboBox.Location = new System.Drawing.Point(182, 287);
+            this.LanguageComboBox.Location = new System.Drawing.Point(182, 282);
             this.LanguageComboBox.Name = "LanguageComboBox";
-            this.LanguageComboBox.Size = new System.Drawing.Size(100, 25);
+            this.LanguageComboBox.Size = new System.Drawing.Size(280, 25);
             this.LanguageComboBox.TabIndex = 14;
             //
             // CoreLabel
             //
             this.CoreLabel.AutoSize = true;
-            this.CoreLabel.Location = new System.Drawing.Point(295, 290);
+            this.CoreLabel.Location = new System.Drawing.Point(15, 315);
             this.CoreLabel.Name = "CoreLabel";
             this.CoreLabel.Size = new System.Drawing.Size(35, 17);
             this.CoreLabel.TabIndex = 15;
@@ -377,13 +386,13 @@ namespace Netch.Forms
             //
             this.CoreComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.CoreComboBox.FormattingEnabled = true;
-            this.CoreComboBox.Location = new System.Drawing.Point(340, 287);
+            this.CoreComboBox.Location = new System.Drawing.Point(182, 312);
             this.CoreComboBox.Name = "CoreComboBox";
-            this.CoreComboBox.Size = new System.Drawing.Size(106, 25);
+            this.CoreComboBox.Size = new System.Drawing.Size(280, 25);
             this.CoreComboBox.TabIndex = 16;
-            // 
+            //
             // NFTabPage
-            // 
+            //
             this.NFTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.NFTabPage.Controls.Add(this.FilterTCPCheckBox);
             this.NFTabPage.Controls.Add(this.FilterUDPCheckBox);
@@ -399,12 +408,12 @@ namespace Netch.Forms
             this.NFTabPage.Location = new System.Drawing.Point(4, 29);
             this.NFTabPage.Name = "NFTabPage";
             this.NFTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.NFTabPage.Size = new System.Drawing.Size(461, 321);
+            this.NFTabPage.Size = new System.Drawing.Size(480, 350);
             this.NFTabPage.TabIndex = 1;
             this.NFTabPage.Text = "Process Mode";
-            // 
+            //
             // FilterTCPCheckBox
-            // 
+            //
             this.FilterTCPCheckBox.AutoSize = true;
             this.FilterTCPCheckBox.Location = new System.Drawing.Point(16, 16);
             this.FilterTCPCheckBox.Name = "FilterTCPCheckBox";
@@ -412,9 +421,9 @@ namespace Netch.Forms
             this.FilterTCPCheckBox.TabIndex = 1;
             this.FilterTCPCheckBox.Text = "Handle TCP";
             this.FilterTCPCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // FilterUDPCheckBox
-            // 
+            //
             this.FilterUDPCheckBox.AutoSize = true;
             this.FilterUDPCheckBox.Location = new System.Drawing.Point(216, 16);
             this.FilterUDPCheckBox.Name = "FilterUDPCheckBox";
@@ -422,9 +431,9 @@ namespace Netch.Forms
             this.FilterUDPCheckBox.TabIndex = 2;
             this.FilterUDPCheckBox.Text = "Handle UDP";
             this.FilterUDPCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // FilterICMPCheckBox
-            // 
+            //
             this.FilterICMPCheckBox.AutoSize = true;
             this.FilterICMPCheckBox.Location = new System.Drawing.Point(16, 48);
             this.FilterICMPCheckBox.Name = "FilterICMPCheckBox";
@@ -432,36 +441,35 @@ namespace Netch.Forms
             this.FilterICMPCheckBox.TabIndex = 3;
             this.FilterICMPCheckBox.Text = "Handle ICMP";
             this.FilterICMPCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // DNSHijackLabel
-            // 
+            //
             this.DNSHijackLabel.AutoSize = true;
             this.DNSHijackLabel.Location = new System.Drawing.Point(48, 144);
             this.DNSHijackLabel.Name = "DNSHijackLabel";
             this.DNSHijackLabel.Size = new System.Drawing.Size(34, 17);
-            this.DNSHijackLabel.TabIndex = 3;
+            this.DNSHijackLabel.TabIndex = 4;
             this.DNSHijackLabel.Text = "DNS";
-            // 
+            //
             // ICMPDelayLabel
-            // 
+            //
             this.ICMPDelayLabel.AutoSize = true;
             this.ICMPDelayLabel.Location = new System.Drawing.Point(48, 80);
             this.ICMPDelayLabel.Name = "ICMPDelayLabel";
-            this.ICMPDelayLabel.Size = new System.Drawing.Size(99, 17);
-            this.ICMPDelayLabel.TabIndex = 3;
+            this.ICMPDelayLabel.Size = new System.Drawing.Size(95, 17);
+            this.ICMPDelayLabel.TabIndex = 0;
             this.ICMPDelayLabel.Text = "ICMP delay(ms)";
-            // 
+            //
             // ICMPDelayTextBox
-            // 
-            this.ICMPDelayTextBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.FilterICMPCheckBox, "Checked", true));
-            this.ICMPDelayTextBox.Location = new System.Drawing.Point(216, 80);
+            //
+            this.ICMPDelayTextBox.Location = new System.Drawing.Point(216, 77);
             this.ICMPDelayTextBox.Name = "ICMPDelayTextBox";
-            this.ICMPDelayTextBox.Size = new System.Drawing.Size(98, 23);
-            this.ICMPDelayTextBox.TabIndex = 4;
+            this.ICMPDelayTextBox.Size = new System.Drawing.Size(70, 23);
+            this.ICMPDelayTextBox.TabIndex = 1;
             this.ICMPDelayTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // FilterDNSCheckBox
-            // 
+            //
             this.FilterDNSCheckBox.AutoSize = true;
             this.FilterDNSCheckBox.Location = new System.Drawing.Point(16, 112);
             this.FilterDNSCheckBox.Name = "FilterDNSCheckBox";
@@ -469,18 +477,18 @@ namespace Netch.Forms
             this.FilterDNSCheckBox.TabIndex = 5;
             this.FilterDNSCheckBox.Text = "Handle DNS (DNS hijacking)";
             this.FilterDNSCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // DNSHijackHostTextBox
-            // 
+            //
             this.DNSHijackHostTextBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.FilterDNSCheckBox, "Checked", true));
             this.DNSHijackHostTextBox.Location = new System.Drawing.Point(216, 144);
             this.DNSHijackHostTextBox.Name = "DNSHijackHostTextBox";
             this.DNSHijackHostTextBox.Size = new System.Drawing.Size(191, 23);
             this.DNSHijackHostTextBox.TabIndex = 6;
             this.DNSHijackHostTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // HandleProcDNSCheckBox
-            // 
+            //
             this.HandleProcDNSCheckBox.AutoSize = true;
             this.HandleProcDNSCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.FilterDNSCheckBox, "Checked", true));
             this.HandleProcDNSCheckBox.Location = new System.Drawing.Point(16, 176);
@@ -489,9 +497,9 @@ namespace Netch.Forms
             this.HandleProcDNSCheckBox.TabIndex = 7;
             this.HandleProcDNSCheckBox.Text = "Handle handled process\'s DNS";
             this.HandleProcDNSCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // DNSProxyCheckBox
-            // 
+            //
             this.DNSProxyCheckBox.AutoSize = true;
             this.DNSProxyCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.FilterDNSCheckBox, "Checked", true));
             this.DNSProxyCheckBox.Location = new System.Drawing.Point(16, 208);
@@ -500,9 +508,9 @@ namespace Netch.Forms
             this.DNSProxyCheckBox.TabIndex = 8;
             this.DNSProxyCheckBox.Text = "Handle DNS through proxy";
             this.DNSProxyCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // ChildProcessHandleCheckBox
-            // 
+            //
             this.ChildProcessHandleCheckBox.AutoSize = true;
             this.ChildProcessHandleCheckBox.Location = new System.Drawing.Point(16, 240);
             this.ChildProcessHandleCheckBox.Name = "ChildProcessHandleCheckBox";
@@ -510,21 +518,21 @@ namespace Netch.Forms
             this.ChildProcessHandleCheckBox.TabIndex = 9;
             this.ChildProcessHandleCheckBox.Text = "Handle child process";
             this.ChildProcessHandleCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // WinTUNTabPage
-            // 
+            //
             this.WinTUNTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.WinTUNTabPage.Controls.Add(this.WinTUNGroupBox);
             this.WinTUNTabPage.Controls.Add(this.GlobalBypassIPsButton);
             this.WinTUNTabPage.Location = new System.Drawing.Point(4, 29);
             this.WinTUNTabPage.Name = "WinTUNTabPage";
             this.WinTUNTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.WinTUNTabPage.Size = new System.Drawing.Size(461, 321);
+            this.WinTUNTabPage.Size = new System.Drawing.Size(480, 350);
             this.WinTUNTabPage.TabIndex = 2;
             this.WinTUNTabPage.Text = "WinTUN";
-            // 
+            //
             // WinTUNGroupBox
-            // 
+            //
             this.WinTUNGroupBox.Controls.Add(this.TUNTAPAddressLabel);
             this.WinTUNGroupBox.Controls.Add(this.TUNTAPAddressTextBox);
             this.WinTUNGroupBox.Controls.Add(this.TUNTAPNetmaskLabel);
@@ -537,81 +545,82 @@ namespace Netch.Forms
             this.WinTUNGroupBox.Controls.Add(this.ProxyDNSCheckBox);
             this.WinTUNGroupBox.Location = new System.Drawing.Point(6, 6);
             this.WinTUNGroupBox.Name = "WinTUNGroupBox";
-            this.WinTUNGroupBox.Size = new System.Drawing.Size(450, 175);
+            this.WinTUNGroupBox.Size = new System.Drawing.Size(460, 175);
             this.WinTUNGroupBox.TabIndex = 0;
             this.WinTUNGroupBox.TabStop = false;
-            // 
+            this.WinTUNGroupBox.Text = "Mode specific options";
+            //
             // TUNTAPAddressLabel
-            // 
+            //
             this.TUNTAPAddressLabel.AutoSize = true;
             this.TUNTAPAddressLabel.Location = new System.Drawing.Point(9, 25);
             this.TUNTAPAddressLabel.Name = "TUNTAPAddressLabel";
             this.TUNTAPAddressLabel.Size = new System.Drawing.Size(56, 17);
             this.TUNTAPAddressLabel.TabIndex = 0;
             this.TUNTAPAddressLabel.Text = "Address";
-            // 
+            //
             // TUNTAPAddressTextBox
-            // 
+            //
             this.TUNTAPAddressTextBox.Location = new System.Drawing.Point(120, 22);
             this.TUNTAPAddressTextBox.Name = "TUNTAPAddressTextBox";
             this.TUNTAPAddressTextBox.Size = new System.Drawing.Size(294, 23);
             this.TUNTAPAddressTextBox.TabIndex = 1;
             this.TUNTAPAddressTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // TUNTAPNetmaskLabel
-            // 
+            //
             this.TUNTAPNetmaskLabel.AutoSize = true;
             this.TUNTAPNetmaskLabel.Location = new System.Drawing.Point(9, 54);
             this.TUNTAPNetmaskLabel.Name = "TUNTAPNetmaskLabel";
-            this.TUNTAPNetmaskLabel.Size = new System.Drawing.Size(60, 17);
+            this.TUNTAPNetmaskLabel.Size = new System.Drawing.Size(56, 17);
             this.TUNTAPNetmaskLabel.TabIndex = 2;
             this.TUNTAPNetmaskLabel.Text = "Netmask";
-            // 
+            //
             // TUNTAPNetmaskTextBox
-            // 
+            //
             this.TUNTAPNetmaskTextBox.Location = new System.Drawing.Point(120, 51);
             this.TUNTAPNetmaskTextBox.Name = "TUNTAPNetmaskTextBox";
             this.TUNTAPNetmaskTextBox.Size = new System.Drawing.Size(294, 23);
             this.TUNTAPNetmaskTextBox.TabIndex = 3;
             this.TUNTAPNetmaskTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // TUNTAPGatewayLabel
-            // 
+            //
             this.TUNTAPGatewayLabel.AutoSize = true;
             this.TUNTAPGatewayLabel.Location = new System.Drawing.Point(9, 83);
             this.TUNTAPGatewayLabel.Name = "TUNTAPGatewayLabel";
             this.TUNTAPGatewayLabel.Size = new System.Drawing.Size(57, 17);
             this.TUNTAPGatewayLabel.TabIndex = 4;
             this.TUNTAPGatewayLabel.Text = "Gateway";
-            // 
+            //
             // TUNTAPGatewayTextBox
-            // 
+            //
             this.TUNTAPGatewayTextBox.Location = new System.Drawing.Point(120, 80);
             this.TUNTAPGatewayTextBox.Name = "TUNTAPGatewayTextBox";
             this.TUNTAPGatewayTextBox.Size = new System.Drawing.Size(294, 23);
             this.TUNTAPGatewayTextBox.TabIndex = 5;
             this.TUNTAPGatewayTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // TUNTAPDNSLabel
-            // 
+            //
             this.TUNTAPDNSLabel.AutoSize = true;
             this.TUNTAPDNSLabel.Location = new System.Drawing.Point(9, 112);
             this.TUNTAPDNSLabel.Name = "TUNTAPDNSLabel";
             this.TUNTAPDNSLabel.Size = new System.Drawing.Size(34, 17);
             this.TUNTAPDNSLabel.TabIndex = 6;
             this.TUNTAPDNSLabel.Text = "DNS";
-            // 
+            //
             // TUNTAPDNSTextBox
-            // 
+            //
             this.TUNTAPDNSTextBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.UseCustomDNSCheckBox, "Checked", true));
             this.TUNTAPDNSTextBox.Location = new System.Drawing.Point(120, 110);
             this.TUNTAPDNSTextBox.Name = "TUNTAPDNSTextBox";
             this.TUNTAPDNSTextBox.Size = new System.Drawing.Size(294, 23);
             this.TUNTAPDNSTextBox.TabIndex = 7;
             this.TUNTAPDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // UseCustomDNSCheckBox
-            // 
+            //
             this.UseCustomDNSCheckBox.AutoSize = true;
             this.UseCustomDNSCheckBox.Location = new System.Drawing.Point(10, 139);
             this.UseCustomDNSCheckBox.Name = "UseCustomDNSCheckBox";
@@ -620,9 +629,9 @@ namespace Netch.Forms
             this.UseCustomDNSCheckBox.Text = "Use custom DNS";
             this.UseCustomDNSCheckBox.UseVisualStyleBackColor = true;
             this.UseCustomDNSCheckBox.Click += new System.EventHandler(this.TUNTAPUseCustomDNSCheckBox_CheckedChanged);
-            // 
+            //
             // ProxyDNSCheckBox
-            // 
+            //
             this.ProxyDNSCheckBox.AutoSize = true;
             this.ProxyDNSCheckBox.DataBindings.Add(new System.Windows.Forms.Binding("Visible", this.UseCustomDNSCheckBox, "Checked", true));
             this.ProxyDNSCheckBox.Location = new System.Drawing.Point(175, 139);
@@ -631,9 +640,9 @@ namespace Netch.Forms
             this.ProxyDNSCheckBox.TabIndex = 9;
             this.ProxyDNSCheckBox.Text = "Proxy DNS";
             this.ProxyDNSCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // GlobalBypassIPsButton
-            // 
+            //
             this.GlobalBypassIPsButton.Location = new System.Drawing.Point(6, 199);
             this.GlobalBypassIPsButton.Name = "GlobalBypassIPsButton";
             this.GlobalBypassIPsButton.Size = new System.Drawing.Size(128, 23);
@@ -641,35 +650,35 @@ namespace Netch.Forms
             this.GlobalBypassIPsButton.Text = "Global Bypass IPs";
             this.GlobalBypassIPsButton.UseVisualStyleBackColor = true;
             this.GlobalBypassIPsButton.Click += new System.EventHandler(this.GlobalBypassIPsButton_Click);
-            // 
-            // v2rayTabPage
-            // 
-            this.v2rayTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
-            this.v2rayTabPage.Controls.Add(this.SniffingCheckBox);
-            this.v2rayTabPage.Controls.Add(this.XrayConeCheckBox);
-            this.v2rayTabPage.Controls.Add(this.TLSAllowInsecureCheckBox);
-            this.v2rayTabPage.Controls.Add(this.UseMuxCheckBox);
-            this.v2rayTabPage.Controls.Add(this.TCPFastOpenBox);
-            this.v2rayTabPage.Controls.Add(this.KCPGroupBox);
-            this.v2rayTabPage.Location = new System.Drawing.Point(4, 29);
-            this.v2rayTabPage.Name = "v2rayTabPage";
-            this.v2rayTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.v2rayTabPage.Size = new System.Drawing.Size(461, 321);
-            this.v2rayTabPage.TabIndex = 3;
-            this.v2rayTabPage.Text = "V2Ray";
-            // 
+            //
+            // xrayTabPage
+            //
+            this.xrayTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.xrayTabPage.Controls.Add(this.SniffingCheckBox);
+            this.xrayTabPage.Controls.Add(this.XrayConeCheckBox);
+            this.xrayTabPage.Controls.Add(this.TLSAllowInsecureCheckBox);
+            this.xrayTabPage.Controls.Add(this.UseMuxCheckBox);
+            this.xrayTabPage.Controls.Add(this.TCPFastOpenBox);
+            this.xrayTabPage.Controls.Add(this.KCPGroupBox);
+            this.xrayTabPage.Location = new System.Drawing.Point(4, 29);
+            this.xrayTabPage.Name = "xrayTabPage";
+            this.xrayTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.xrayTabPage.Size = new System.Drawing.Size(480, 350);
+            this.xrayTabPage.TabIndex = 3;
+            this.xrayTabPage.Text = "Xray";
+            //
             // SniffingCheckBox
-            // 
+            //
             this.SniffingCheckBox.AutoSize = true;
             this.SniffingCheckBox.Location = new System.Drawing.Point(6, 15);
             this.SniffingCheckBox.Name = "SniffingCheckBox";
-            this.SniffingCheckBox.Size = new System.Drawing.Size(340, 21);
+            this.SniffingCheckBox.Size = new System.Drawing.Size(110, 21);
             this.SniffingCheckBox.TabIndex = 0;
             this.SniffingCheckBox.Text = "Traffic Sniffing";
             this.SniffingCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // XrayConeCheckBox
-            // 
+            //
             this.XrayConeCheckBox.AutoSize = true;
             this.XrayConeCheckBox.Location = new System.Drawing.Point(123, 15);
             this.XrayConeCheckBox.Name = "XrayConeCheckBox";
@@ -677,9 +686,9 @@ namespace Netch.Forms
             this.XrayConeCheckBox.TabIndex = 0;
             this.XrayConeCheckBox.Text = "FullCone Support (Required Server Xray-core v1.3.0+)";
             this.XrayConeCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // TLSAllowInsecureCheckBox
-            // 
+            //
             this.TLSAllowInsecureCheckBox.AutoSize = true;
             this.TLSAllowInsecureCheckBox.Location = new System.Drawing.Point(6, 42);
             this.TLSAllowInsecureCheckBox.Name = "TLSAllowInsecureCheckBox";
@@ -687,9 +696,9 @@ namespace Netch.Forms
             this.TLSAllowInsecureCheckBox.TabIndex = 1;
             this.TLSAllowInsecureCheckBox.Text = "TLS AllowInsecure";
             this.TLSAllowInsecureCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // UseMuxCheckBox
-            // 
+            //
             this.UseMuxCheckBox.AutoSize = true;
             this.UseMuxCheckBox.Location = new System.Drawing.Point(148, 42);
             this.UseMuxCheckBox.Name = "UseMuxCheckBox";
@@ -697,19 +706,19 @@ namespace Netch.Forms
             this.UseMuxCheckBox.TabIndex = 2;
             this.UseMuxCheckBox.Text = "Use Mux";
             this.UseMuxCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // TCPFastOpenBox
-            // 
+            //
             this.TCPFastOpenBox.AutoSize = true;
-            this.TCPFastOpenBox.Location = new System.Drawing.Point(300, 42);
+            this.TCPFastOpenBox.Location = new System.Drawing.Point(250, 42);
             this.TCPFastOpenBox.Name = "TCPFastOpenBox";
             this.TCPFastOpenBox.Size = new System.Drawing.Size(131, 21);
             this.TCPFastOpenBox.TabIndex = 3;
             this.TCPFastOpenBox.Text = "TCP FastOpen";
             this.TCPFastOpenBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // KCPGroupBox
-            // 
+            //
             this.KCPGroupBox.Controls.Add(this.mtuLabel);
             this.KCPGroupBox.Controls.Add(this.mtuTextBox);
             this.KCPGroupBox.Controls.Add(this.ttiLabel);
@@ -723,117 +732,117 @@ namespace Netch.Forms
             this.KCPGroupBox.Controls.Add(this.writeBufferSizeLabel);
             this.KCPGroupBox.Controls.Add(this.writeBufferSizeTextBox);
             this.KCPGroupBox.Controls.Add(this.congestionCheckBox);
-            this.KCPGroupBox.Location = new System.Drawing.Point(9, 75);
+            this.KCPGroupBox.Location = new System.Drawing.Point(6, 69);
             this.KCPGroupBox.Name = "KCPGroupBox";
-            this.KCPGroupBox.Size = new System.Drawing.Size(447, 204);
-            this.KCPGroupBox.TabIndex = 3;
+            this.KCPGroupBox.Size = new System.Drawing.Size(460, 168);
+            this.KCPGroupBox.TabIndex = 11;
             this.KCPGroupBox.TabStop = false;
             this.KCPGroupBox.Text = "KCP";
-            // 
+            //
             // mtuLabel
-            // 
+            //
             this.mtuLabel.AutoSize = true;
-            this.mtuLabel.Location = new System.Drawing.Point(6, 26);
+            this.mtuLabel.Location = new System.Drawing.Point(6, 27);
             this.mtuLabel.Name = "mtuLabel";
-            this.mtuLabel.Size = new System.Drawing.Size(30, 17);
+            this.mtuLabel.Size = new System.Drawing.Size(31, 17);
             this.mtuLabel.TabIndex = 0;
             this.mtuLabel.Text = "mtu";
-            // 
+            //
             // mtuTextBox
-            // 
-            this.mtuTextBox.Location = new System.Drawing.Point(103, 17);
+            //
+            this.mtuTextBox.Location = new System.Drawing.Point(103, 24);
             this.mtuTextBox.Name = "mtuTextBox";
             this.mtuTextBox.Size = new System.Drawing.Size(90, 23);
             this.mtuTextBox.TabIndex = 1;
             this.mtuTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // ttiLabel
-            // 
+            //
             this.ttiLabel.AutoSize = true;
-            this.ttiLabel.Location = new System.Drawing.Point(216, 26);
+            this.ttiLabel.Location = new System.Drawing.Point(216, 27);
             this.ttiLabel.Name = "ttiLabel";
-            this.ttiLabel.Size = new System.Drawing.Size(19, 17);
+            this.ttiLabel.Size = new System.Drawing.Size(20, 17);
             this.ttiLabel.TabIndex = 2;
             this.ttiLabel.Text = "tti";
-            // 
+            //
             // ttiTextBox
-            // 
-            this.ttiTextBox.Location = new System.Drawing.Point(331, 17);
+            //
+            this.ttiTextBox.Location = new System.Drawing.Point(331, 24);
             this.ttiTextBox.Name = "ttiTextBox";
             this.ttiTextBox.Size = new System.Drawing.Size(90, 23);
             this.ttiTextBox.TabIndex = 3;
             this.ttiTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // uplinkCapacityLabel
-            // 
+            //
             this.uplinkCapacityLabel.AutoSize = true;
             this.uplinkCapacityLabel.Location = new System.Drawing.Point(6, 68);
             this.uplinkCapacityLabel.Name = "uplinkCapacityLabel";
-            this.uplinkCapacityLabel.Size = new System.Drawing.Size(92, 17);
+            this.uplinkCapacityLabel.Size = new System.Drawing.Size(93, 17);
             this.uplinkCapacityLabel.TabIndex = 4;
             this.uplinkCapacityLabel.Text = "uplinkCapacity";
-            // 
+            //
             // uplinkCapacityTextBox
-            // 
-            this.uplinkCapacityTextBox.Location = new System.Drawing.Point(103, 59);
+            //
+            this.uplinkCapacityTextBox.Location = new System.Drawing.Point(103, 65);
             this.uplinkCapacityTextBox.Name = "uplinkCapacityTextBox";
             this.uplinkCapacityTextBox.Size = new System.Drawing.Size(90, 23);
             this.uplinkCapacityTextBox.TabIndex = 5;
             this.uplinkCapacityTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // downlinkCapacityLabel
-            // 
+            //
             this.downlinkCapacityLabel.AutoSize = true;
             this.downlinkCapacityLabel.Location = new System.Drawing.Point(216, 68);
             this.downlinkCapacityLabel.Name = "downlinkCapacityLabel";
             this.downlinkCapacityLabel.Size = new System.Drawing.Size(109, 17);
             this.downlinkCapacityLabel.TabIndex = 6;
             this.downlinkCapacityLabel.Text = "downlinkCapacity";
-            // 
+            //
             // downlinkCapacityTextBox
-            // 
+            //
             this.downlinkCapacityTextBox.Location = new System.Drawing.Point(331, 65);
             this.downlinkCapacityTextBox.Name = "downlinkCapacityTextBox";
             this.downlinkCapacityTextBox.Size = new System.Drawing.Size(90, 23);
             this.downlinkCapacityTextBox.TabIndex = 7;
             this.downlinkCapacityTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // readBufferSizeLabel
-            // 
+            //
             this.readBufferSizeLabel.AutoSize = true;
             this.readBufferSizeLabel.Location = new System.Drawing.Point(6, 109);
             this.readBufferSizeLabel.Name = "readBufferSizeLabel";
             this.readBufferSizeLabel.Size = new System.Drawing.Size(93, 17);
             this.readBufferSizeLabel.TabIndex = 8;
             this.readBufferSizeLabel.Text = "readBufferSize";
-            // 
+            //
             // readBufferSizeTextBox
-            // 
+            //
             this.readBufferSizeTextBox.Location = new System.Drawing.Point(103, 100);
             this.readBufferSizeTextBox.Name = "readBufferSizeTextBox";
             this.readBufferSizeTextBox.Size = new System.Drawing.Size(90, 23);
             this.readBufferSizeTextBox.TabIndex = 9;
             this.readBufferSizeTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // writeBufferSizeLabel
-            // 
+            //
             this.writeBufferSizeLabel.AutoSize = true;
             this.writeBufferSizeLabel.Location = new System.Drawing.Point(216, 109);
             this.writeBufferSizeLabel.Name = "writeBufferSizeLabel";
             this.writeBufferSizeLabel.Size = new System.Drawing.Size(94, 17);
             this.writeBufferSizeLabel.TabIndex = 10;
             this.writeBufferSizeLabel.Text = "writeBufferSize";
-            // 
+            //
             // writeBufferSizeTextBox
-            // 
+            //
             this.writeBufferSizeTextBox.Location = new System.Drawing.Point(331, 106);
             this.writeBufferSizeTextBox.Name = "writeBufferSizeTextBox";
             this.writeBufferSizeTextBox.Size = new System.Drawing.Size(90, 23);
             this.writeBufferSizeTextBox.TabIndex = 11;
             this.writeBufferSizeTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // congestionCheckBox
-            // 
+            //
             this.congestionCheckBox.AutoSize = true;
             this.congestionCheckBox.Location = new System.Drawing.Point(8, 139);
             this.congestionCheckBox.Name = "congestionCheckBox";
@@ -841,9 +850,63 @@ namespace Netch.Forms
             this.congestionCheckBox.TabIndex = 12;
             this.congestionCheckBox.Text = "congestion";
             this.congestionCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
+            // singboxTabPage
+            //
+            this.singboxTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.singboxTabPage.Controls.Add(this.SingboxSniffingCheckBox);
+            this.singboxTabPage.Controls.Add(this.SingboxUseMuxCheckBox);
+            this.singboxTabPage.Controls.Add(this.SingboxTCPFastOpenCheckBox);
+            this.singboxTabPage.Controls.Add(this.SingboxAllowInsecureCheckBox);
+            this.singboxTabPage.Location = new System.Drawing.Point(4, 29);
+            this.singboxTabPage.Name = "singboxTabPage";
+            this.singboxTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.singboxTabPage.Size = new System.Drawing.Size(480, 350);
+            this.singboxTabPage.TabIndex = 4;
+            this.singboxTabPage.Text = "sing-box";
+            //
+            // SingboxSniffingCheckBox
+            //
+            this.SingboxSniffingCheckBox.AutoSize = true;
+            this.SingboxSniffingCheckBox.Location = new System.Drawing.Point(16, 20);
+            this.SingboxSniffingCheckBox.Name = "SingboxSniffingCheckBox";
+            this.SingboxSniffingCheckBox.Size = new System.Drawing.Size(110, 21);
+            this.SingboxSniffingCheckBox.TabIndex = 0;
+            this.SingboxSniffingCheckBox.Text = "Traffic Sniffing";
+            this.SingboxSniffingCheckBox.UseVisualStyleBackColor = true;
+            //
+            // SingboxUseMuxCheckBox
+            //
+            this.SingboxUseMuxCheckBox.AutoSize = true;
+            this.SingboxUseMuxCheckBox.Location = new System.Drawing.Point(16, 55);
+            this.SingboxUseMuxCheckBox.Name = "SingboxUseMuxCheckBox";
+            this.SingboxUseMuxCheckBox.Size = new System.Drawing.Size(155, 21);
+            this.SingboxUseMuxCheckBox.TabIndex = 1;
+            this.SingboxUseMuxCheckBox.Text = "Use Multiplex (smux)";
+            this.SingboxUseMuxCheckBox.UseVisualStyleBackColor = true;
+            //
+            // SingboxTCPFastOpenCheckBox
+            //
+            this.SingboxTCPFastOpenCheckBox.AutoSize = true;
+            this.SingboxTCPFastOpenCheckBox.Location = new System.Drawing.Point(16, 90);
+            this.SingboxTCPFastOpenCheckBox.Name = "SingboxTCPFastOpenCheckBox";
+            this.SingboxTCPFastOpenCheckBox.Size = new System.Drawing.Size(131, 21);
+            this.SingboxTCPFastOpenCheckBox.TabIndex = 2;
+            this.SingboxTCPFastOpenCheckBox.Text = "TCP FastOpen";
+            this.SingboxTCPFastOpenCheckBox.UseVisualStyleBackColor = true;
+            //
+            // SingboxAllowInsecureCheckBox
+            //
+            this.SingboxAllowInsecureCheckBox.AutoSize = true;
+            this.SingboxAllowInsecureCheckBox.Location = new System.Drawing.Point(16, 125);
+            this.SingboxAllowInsecureCheckBox.Name = "SingboxAllowInsecureCheckBox";
+            this.SingboxAllowInsecureCheckBox.Size = new System.Drawing.Size(131, 21);
+            this.SingboxAllowInsecureCheckBox.TabIndex = 3;
+            this.SingboxAllowInsecureCheckBox.Text = "TLS AllowInsecure";
+            this.SingboxAllowInsecureCheckBox.UseVisualStyleBackColor = true;
+            //
             // OtherTabPage
-            // 
+            //
             this.OtherTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.OtherTabPage.Controls.Add(this.ExitWhenClosedCheckBox);
             this.OtherTabPage.Controls.Add(this.StopWhenExitedCheckBox);
@@ -854,15 +917,17 @@ namespace Netch.Forms
             this.OtherTabPage.Controls.Add(this.NoSupportDialogCheckBox);
             this.OtherTabPage.Controls.Add(this.CheckBetaUpdateCheckBox);
             this.OtherTabPage.Controls.Add(this.UpdateServersWhenOpenedCheckBox);
+            this.OtherTabPage.Controls.Add(this.ThemeLabel);
+            this.OtherTabPage.Controls.Add(this.ThemeComboBox);
             this.OtherTabPage.Location = new System.Drawing.Point(4, 29);
             this.OtherTabPage.Name = "OtherTabPage";
             this.OtherTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.OtherTabPage.Size = new System.Drawing.Size(461, 321);
-            this.OtherTabPage.TabIndex = 4;
+            this.OtherTabPage.Size = new System.Drawing.Size(480, 350);
+            this.OtherTabPage.TabIndex = 5;
             this.OtherTabPage.Text = "Others";
-            // 
+            //
             // ExitWhenClosedCheckBox
-            // 
+            //
             this.ExitWhenClosedCheckBox.AutoSize = true;
             this.ExitWhenClosedCheckBox.Location = new System.Drawing.Point(16, 16);
             this.ExitWhenClosedCheckBox.Name = "ExitWhenClosedCheckBox";
@@ -871,9 +936,9 @@ namespace Netch.Forms
             this.ExitWhenClosedCheckBox.Text = "Exit when closed";
             this.ExitWhenClosedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.ExitWhenClosedCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // StopWhenExitedCheckBox
-            // 
+            //
             this.StopWhenExitedCheckBox.AutoSize = true;
             this.StopWhenExitedCheckBox.Location = new System.Drawing.Point(224, 18);
             this.StopWhenExitedCheckBox.Name = "StopWhenExitedCheckBox";
@@ -882,9 +947,9 @@ namespace Netch.Forms
             this.StopWhenExitedCheckBox.Text = "Stop when exited";
             this.StopWhenExitedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.StopWhenExitedCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // StartWhenOpenedCheckBox
-            // 
+            //
             this.StartWhenOpenedCheckBox.AutoSize = true;
             this.StartWhenOpenedCheckBox.Location = new System.Drawing.Point(16, 48);
             this.StartWhenOpenedCheckBox.Name = "StartWhenOpenedCheckBox";
@@ -893,9 +958,9 @@ namespace Netch.Forms
             this.StartWhenOpenedCheckBox.Text = "Start when opened";
             this.StartWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.StartWhenOpenedCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // MinimizeWhenStartedCheckBox
-            // 
+            //
             this.MinimizeWhenStartedCheckBox.AutoSize = true;
             this.MinimizeWhenStartedCheckBox.Location = new System.Drawing.Point(224, 48);
             this.MinimizeWhenStartedCheckBox.Name = "MinimizeWhenStartedCheckBox";
@@ -903,9 +968,9 @@ namespace Netch.Forms
             this.MinimizeWhenStartedCheckBox.TabIndex = 3;
             this.MinimizeWhenStartedCheckBox.Text = "Minimize when started";
             this.MinimizeWhenStartedCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // RunAtStartupCheckBox
-            // 
+            //
             this.RunAtStartupCheckBox.AutoSize = true;
             this.RunAtStartupCheckBox.Location = new System.Drawing.Point(16, 80);
             this.RunAtStartupCheckBox.Name = "RunAtStartupCheckBox";
@@ -913,9 +978,9 @@ namespace Netch.Forms
             this.RunAtStartupCheckBox.TabIndex = 4;
             this.RunAtStartupCheckBox.Text = "Run at startup";
             this.RunAtStartupCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // CheckUpdateWhenOpenedCheckBox
-            // 
+            //
             this.CheckUpdateWhenOpenedCheckBox.AutoSize = true;
             this.CheckUpdateWhenOpenedCheckBox.Location = new System.Drawing.Point(224, 80);
             this.CheckUpdateWhenOpenedCheckBox.Name = "CheckUpdateWhenOpenedCheckBox";
@@ -924,9 +989,9 @@ namespace Netch.Forms
             this.CheckUpdateWhenOpenedCheckBox.Text = "Check update when opened";
             this.CheckUpdateWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.CheckUpdateWhenOpenedCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // NoSupportDialogCheckBox
-            // 
+            //
             this.NoSupportDialogCheckBox.AutoSize = true;
             this.NoSupportDialogCheckBox.Location = new System.Drawing.Point(16, 112);
             this.NoSupportDialogCheckBox.Name = "NoSupportDialogCheckBox";
@@ -934,9 +999,9 @@ namespace Netch.Forms
             this.NoSupportDialogCheckBox.TabIndex = 6;
             this.NoSupportDialogCheckBox.Text = "Disable Support Warning";
             this.NoSupportDialogCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // CheckBetaUpdateCheckBox
-            // 
+            //
             this.CheckBetaUpdateCheckBox.AutoSize = true;
             this.CheckBetaUpdateCheckBox.Location = new System.Drawing.Point(224, 112);
             this.CheckBetaUpdateCheckBox.Name = "CheckBetaUpdateCheckBox";
@@ -945,9 +1010,9 @@ namespace Netch.Forms
             this.CheckBetaUpdateCheckBox.Text = "Check Beta update";
             this.CheckBetaUpdateCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.CheckBetaUpdateCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // UpdateServersWhenOpenedCheckBox
-            // 
+            //
             this.UpdateServersWhenOpenedCheckBox.AutoSize = true;
             this.UpdateServersWhenOpenedCheckBox.Location = new System.Drawing.Point(224, 144);
             this.UpdateServersWhenOpenedCheckBox.Name = "UpdateServersWhenOpenedCheckBox";
@@ -956,9 +1021,27 @@ namespace Netch.Forms
             this.UpdateServersWhenOpenedCheckBox.Text = "Update Servers when opened";
             this.UpdateServersWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.UpdateServersWhenOpenedCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
+            // ThemeLabel
+            //
+            this.ThemeLabel.AutoSize = true;
+            this.ThemeLabel.Location = new System.Drawing.Point(16, 185);
+            this.ThemeLabel.Name = "ThemeLabel";
+            this.ThemeLabel.Size = new System.Drawing.Size(47, 17);
+            this.ThemeLabel.TabIndex = 9;
+            this.ThemeLabel.Text = "Theme";
+            //
+            // ThemeComboBox
+            //
+            this.ThemeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ThemeComboBox.FormattingEnabled = true;
+            this.ThemeComboBox.Location = new System.Drawing.Point(150, 182);
+            this.ThemeComboBox.Name = "ThemeComboBox";
+            this.ThemeComboBox.Size = new System.Drawing.Size(160, 25);
+            this.ThemeComboBox.TabIndex = 10;
+            //
             // AioDNSTabPage
-            // 
+            //
             this.AioDNSTabPage.Controls.Add(this.ChinaDNSLabel);
             this.AioDNSTabPage.Controls.Add(this.ChinaDNSTextBox);
             this.AioDNSTabPage.Controls.Add(this.OtherDNSLabel);
@@ -968,47 +1051,47 @@ namespace Netch.Forms
             this.AioDNSTabPage.Location = new System.Drawing.Point(4, 29);
             this.AioDNSTabPage.Name = "AioDNSTabPage";
             this.AioDNSTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.AioDNSTabPage.Size = new System.Drawing.Size(461, 321);
-            this.AioDNSTabPage.TabIndex = 5;
+            this.AioDNSTabPage.Size = new System.Drawing.Size(480, 350);
+            this.AioDNSTabPage.TabIndex = 6;
             this.AioDNSTabPage.Text = "AioDNS";
             this.AioDNSTabPage.UseVisualStyleBackColor = true;
-            // 
+            //
             // ChinaDNSLabel
-            // 
+            //
             this.ChinaDNSLabel.AutoSize = true;
             this.ChinaDNSLabel.Location = new System.Drawing.Point(15, 23);
             this.ChinaDNSLabel.Name = "ChinaDNSLabel";
             this.ChinaDNSLabel.Size = new System.Drawing.Size(70, 17);
             this.ChinaDNSLabel.TabIndex = 0;
             this.ChinaDNSLabel.Text = "China DNS";
-            // 
+            //
             // ChinaDNSTextBox
-            // 
+            //
             this.ChinaDNSTextBox.Location = new System.Drawing.Point(150, 20);
             this.ChinaDNSTextBox.Name = "ChinaDNSTextBox";
             this.ChinaDNSTextBox.Size = new System.Drawing.Size(201, 23);
             this.ChinaDNSTextBox.TabIndex = 1;
             this.ChinaDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // OtherDNSLabel
-            // 
+            //
             this.OtherDNSLabel.AutoSize = true;
             this.OtherDNSLabel.Location = new System.Drawing.Point(15, 63);
             this.OtherDNSLabel.Name = "OtherDNSLabel";
             this.OtherDNSLabel.Size = new System.Drawing.Size(71, 17);
             this.OtherDNSLabel.TabIndex = 2;
             this.OtherDNSLabel.Text = "Other DNS";
-            // 
+            //
             // OtherDNSTextBox
-            // 
+            //
             this.OtherDNSTextBox.Location = new System.Drawing.Point(150, 60);
             this.OtherDNSTextBox.Name = "OtherDNSTextBox";
             this.OtherDNSTextBox.Size = new System.Drawing.Size(201, 23);
             this.OtherDNSTextBox.TabIndex = 3;
             this.OtherDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // AioDNSListenPortLabel
-            // 
+            //
             this.AioDNSListenPortLabel.AutoSize = true;
             this.AioDNSListenPortLabel.Location = new System.Drawing.Point(15, 103);
             this.AioDNSListenPortLabel.Name = "AioDNSListenPortLabel";
@@ -1016,29 +1099,29 @@ namespace Netch.Forms
             this.AioDNSListenPortLabel.TabIndex = 4;
             this.AioDNSListenPortLabel.Text = "Listen Port";
             this.AioDNSListenPortLabel.Visible = false;
-            // 
+            //
             // AioDNSListenPortTextBox
-            // 
+            //
             this.AioDNSListenPortTextBox.Location = new System.Drawing.Point(150, 100);
             this.AioDNSListenPortTextBox.Name = "AioDNSListenPortTextBox";
             this.AioDNSListenPortTextBox.Size = new System.Drawing.Size(80, 23);
             this.AioDNSListenPortTextBox.TabIndex = 5;
             this.AioDNSListenPortTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.AioDNSListenPortTextBox.Visible = false;
-            // 
+            //
             // ControlButton
-            // 
-            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.ControlButton.Location = new System.Drawing.Point(397, 363);
+            //
+            this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.ControlButton.Location = new System.Drawing.Point(400, 395);
             this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(75, 23);
+            this.ControlButton.Size = new System.Drawing.Size(75, 27);
             this.ControlButton.TabIndex = 1;
             this.ControlButton.Text = "Save";
             this.ControlButton.UseVisualStyleBackColor = true;
             this.ControlButton.Click += new System.EventHandler(this.ControlButton_Click);
-            // 
+            //
             // flowLayoutPanel1
-            // 
+            //
             this.flowLayoutPanel1.AutoSize = true;
             this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.flowLayoutPanel1.Controls.Add(this.TabControl);
@@ -1047,21 +1130,21 @@ namespace Netch.Forms
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(480, 400);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(500, 440);
             this.flowLayoutPanel1.TabIndex = 0;
-            // 
+            //
             // errorProvider
-            // 
+            //
             this.errorProvider.BlinkStyle = System.Windows.Forms.ErrorBlinkStyle.NeverBlink;
             this.errorProvider.ContainerControl = this;
-            // 
+            //
             // SettingForm
-            // 
+            //
             this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(480, 400);
+            this.ClientSize = new System.Drawing.Size(500, 440);
             this.Controls.Add(this.flowLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -1079,10 +1162,12 @@ namespace Netch.Forms
             this.WinTUNTabPage.ResumeLayout(false);
             this.WinTUNGroupBox.ResumeLayout(false);
             this.WinTUNGroupBox.PerformLayout();
-            this.v2rayTabPage.ResumeLayout(false);
-            this.v2rayTabPage.PerformLayout();
+            this.xrayTabPage.ResumeLayout(false);
+            this.xrayTabPage.PerformLayout();
             this.KCPGroupBox.ResumeLayout(false);
             this.KCPGroupBox.PerformLayout();
+            this.singboxTabPage.ResumeLayout(false);
+            this.singboxTabPage.PerformLayout();
             this.OtherTabPage.ResumeLayout(false);
             this.OtherTabPage.PerformLayout();
             this.AioDNSTabPage.ResumeLayout(false);
@@ -1093,9 +1178,6 @@ namespace Netch.Forms
             this.PerformLayout();
 
         }
-        private System.Windows.Forms.CheckBox SniffingCheckBox;
-        private System.Windows.Forms.CheckBox XrayConeCheckBox;
-        private System.Windows.Forms.TextBox StartedPingIntervalTextBox;
 
         #endregion
 
@@ -1103,7 +1185,8 @@ namespace Netch.Forms
         private System.Windows.Forms.TabPage GeneralTabPage;
         private System.Windows.Forms.TabPage NFTabPage;
         private System.Windows.Forms.TabPage WinTUNTabPage;
-        private System.Windows.Forms.TabPage v2rayTabPage;
+        private System.Windows.Forms.TabPage xrayTabPage;
+        private System.Windows.Forms.TabPage singboxTabPage;
         private System.Windows.Forms.GroupBox PortGroupBox;
         private System.Windows.Forms.CheckBox AllowHttpCheckBox;
         private System.Windows.Forms.CheckBox AllowDevicesCheckBox;
@@ -1140,6 +1223,7 @@ namespace Netch.Forms
         private System.Windows.Forms.Label DetectionTickLabel;
         private System.Windows.Forms.TextBox DetectionTickTextBox;
         private System.Windows.Forms.Label StartedPingLabel;
+        private System.Windows.Forms.TextBox StartedPingIntervalTextBox;
         private System.Windows.Forms.Label STUNServerLabel;
         private System.Windows.Forms.ComboBox STUN_ServerComboBox;
         private System.Windows.Forms.Label BILUServerLabel;
@@ -1150,6 +1234,8 @@ namespace Netch.Forms
         private System.Windows.Forms.CheckBox congestionCheckBox;
         private System.Windows.Forms.CheckBox TLSAllowInsecureCheckBox;
         private System.Windows.Forms.CheckBox TCPFastOpenBox;
+        private System.Windows.Forms.CheckBox SniffingCheckBox;
+        private System.Windows.Forms.CheckBox XrayConeCheckBox;
         private System.Windows.Forms.Label mtuLabel;
         private System.Windows.Forms.TextBox mtuTextBox;
         private System.Windows.Forms.Label writeBufferSizeLabel;
@@ -1163,27 +1249,33 @@ namespace Netch.Forms
         private System.Windows.Forms.Label ttiLabel;
         private System.Windows.Forms.TextBox ttiTextBox;
         private System.Windows.Forms.CheckBox UseMuxCheckBox;
+        private System.Windows.Forms.CheckBox SingboxSniffingCheckBox;
+        private System.Windows.Forms.CheckBox SingboxUseMuxCheckBox;
+        private System.Windows.Forms.CheckBox SingboxTCPFastOpenCheckBox;
+        private System.Windows.Forms.CheckBox SingboxAllowInsecureCheckBox;
+        private System.Windows.Forms.Label ThemeLabel;
+        private System.Windows.Forms.ComboBox ThemeComboBox;
         private System.Windows.Forms.TabPage AioDNSTabPage;
         private System.Windows.Forms.Label AioDNSListenPortLabel;
         private System.Windows.Forms.TextBox AioDNSListenPortTextBox;
         private System.Windows.Forms.Label OtherDNSLabel;
-        private System.Windows.Forms.Label ChinaDNSLabel;
         private System.Windows.Forms.TextBox OtherDNSTextBox;
+        private System.Windows.Forms.Label ChinaDNSLabel;
         private System.Windows.Forms.TextBox ChinaDNSTextBox;
-        private System.Windows.Forms.TextBox DNSHijackHostTextBox;
-        private System.Windows.Forms.Label ServerPingTypeLabel;
         private System.Windows.Forms.RadioButton TCPingRadioBtn;
         private System.Windows.Forms.RadioButton ICMPingRadioBtn;
-        private System.Windows.Forms.CheckBox FilterICMPCheckBox;
+        private System.Windows.Forms.Label ServerPingTypeLabel;
+        private System.Windows.Forms.CheckBox NoSupportDialogCheckBox;
         private System.Windows.Forms.CheckBox ChildProcessHandleCheckBox;
+        private System.Windows.Forms.CheckBox DNSProxyCheckBox;
+        private System.Windows.Forms.CheckBox HandleProcDNSCheckBox;
+        private System.Windows.Forms.TextBox DNSHijackHostTextBox;
         private System.Windows.Forms.TextBox ICMPDelayTextBox;
         private System.Windows.Forms.Label ICMPDelayLabel;
-        private System.Windows.Forms.CheckBox NoSupportDialogCheckBox;
         private System.Windows.Forms.Label DNSHijackLabel;
-        private System.Windows.Forms.CheckBox HandleProcDNSCheckBox;
-        private System.Windows.Forms.CheckBox FilterTCPCheckBox;
+        private System.Windows.Forms.CheckBox FilterICMPCheckBox;
         private System.Windows.Forms.CheckBox FilterUDPCheckBox;
-        private System.Windows.Forms.CheckBox DNSProxyCheckBox;
-        private ErrorProvider errorProvider;
+        private System.Windows.Forms.CheckBox FilterTCPCheckBox;
+        private System.Windows.Forms.ErrorProvider errorProvider;
     }
 }

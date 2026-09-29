@@ -38,8 +38,10 @@ cp -Recurse -Force '..\Storage\nfdriver.sys' 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\aiodns.conf' 'bin'  | Out-Null
 try {
     Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country.mmdb' -OutFile 'bin\GeoLite2-Country.mmdb' -TimeoutSec 30
+    Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geoip.dat' -OutFile 'bin\geoip.dat' -TimeoutSec 30
+    Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Loyalsoldier/v2ray-rules-dat/release/geosite.dat' -OutFile 'bin\geosite.dat' -TimeoutSec 30
 } catch {
-    Write-Warning "Failed to download Country.mmdb: $_"
+    Write-Warning "Failed to download rule databases: $_"
 }
 #cp -Recurse -Force '..\Storage\GeoLite2-Country.mmdb' 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\tun2socks.bin' 'bin'  | Out-Null

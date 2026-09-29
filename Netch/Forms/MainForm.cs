@@ -98,6 +98,9 @@ public partial class MainForm : Form
         if (Global.Settings.StartWhenOpened)
             ControlButton.PerformClick();
 
+        // 应用界面主题
+        ThemeService.Apply(this);
+
         Program.SingleInstance.StartListenServer();
     }
 
@@ -774,6 +777,9 @@ public partial class MainForm : Form
 
         if (oldSettings.ProfileCount != Global.Settings.ProfileCount)
             LoadProfiles();
+
+        if (oldSettings.Theme != Global.Settings.Theme)
+            ThemeService.Apply(this);
 
         Show();
     }
@@ -1596,13 +1602,15 @@ public partial class MainForm : Form
             return;
 
         // 绘制背景颜色
-        e.Graphics.FillRectangle(Brushes.White, e.Bounds);
+        var backBrush = ThemeService.IsDarkMode ? new SolidBrush(ThemeService.DarkInput) : Brushes.White;
+        var textColor = ThemeService.IsDarkMode ? ThemeService.DarkText : Color.Black;
+        e.Graphics.FillRectangle(backBrush, e.Bounds);
 
         if (e.Index < 0)
             return;
 
         // 绘制 备注/名称 字符串
-        TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index]?.ToString() ?? string.Empty, cbx.Font, e.Bounds, Color.Black, TextFormatFlags.Left);
+        TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index]?.ToString() ?? string.Empty, cbx.Font, e.Bounds, textColor, TextFormatFlags.Left);
 
         switch (cbx.Items[e.Index])
         {

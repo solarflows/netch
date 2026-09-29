@@ -11,6 +11,7 @@ public static class SingboxConfigUtils
     {
         var localPort = Global.Settings.Socks5LocalPort;
         var localAddress = Global.Settings.LocalAddress;
+        var sboxCfg = Global.Settings.SingboxConfig;
 
         var inbounds = new List<object>
         {
@@ -20,9 +21,20 @@ public static class SingboxConfigUtils
                 { "tag", "mixed-in" },
                 { "listen", localAddress },
                 { "listen_port", localPort },
-                { "sniff", true }
+                { "sniff", sboxCfg.Sniffing }
             }
         };
+
+        if (Global.Settings.V2RayConfig.AllowHttp)
+        {
+            inbounds.Add(new Dictionary<string, object>
+            {
+                { "type", "http" },
+                { "tag", "http-in" },
+                { "listen", localAddress },
+                { "listen_port", localPort + 1 }
+            });
+        }
 
         var outbounds = new List<object>
         {
@@ -53,7 +65,8 @@ public static class SingboxConfigUtils
             {
                 "route", new Dictionary<string, object>
                 {
-                    { "auto_detect_interface", true }
+                    { "auto_detect_interface", true },
+                    { "final", "proxy" }
                 }
             }
         };
@@ -69,6 +82,12 @@ public static class SingboxConfigUtils
         };
 
         var resolvedAddress = await server.AutoResolveHostnameAsync();
+        var sboxCfg = Global.Settings.SingboxConfig;
+
+        if (sboxCfg.TCPFastOpen)
+        {
+            outbound["tcp_fast_open"] = true;
+        }
 
         switch (server)
         {
@@ -83,7 +102,8 @@ public static class SingboxConfigUtils
 
                 var tls = new Dictionary<string, object>
                 {
-                    { "enabled", vision.TLSSecureType != "none" }
+                    { "enabled", vision.TLSSecureType != "none" },
+                    { "insecure", sboxCfg.AllowInsecure }
                 };
 
                 var serverName = vision.ServerName.ValueOrDefault() ?? vision.Host.SplitOrDefault()?[0] ?? vision.Hostname;
@@ -126,7 +146,7 @@ public static class SingboxConfigUtils
                     var tls = new Dictionary<string, object>
                     {
                         { "enabled", true },
-                        { "insecure", Global.Settings.V2RayConfig.AllowInsecure }
+                        { "insecure", sboxCfg.AllowInsecure }
                     };
 
                     var serverName = vless.ServerName.ValueOrDefault() ?? vless.Host.SplitOrDefault()?[0] ?? vless.Hostname;
@@ -134,6 +154,11 @@ public static class SingboxConfigUtils
                         tls["server_name"] = serverName;
 
                     outbound["tls"] = tls;
+                }
+
+                if (sboxCfg.UseMux && string.IsNullOrWhiteSpace(vless.FlowControl))
+                {
+                    ApplyMultiplex(outbound);
                 }
 
                 AttachTransport(outbound, vless);
@@ -155,7 +180,7 @@ public static class SingboxConfigUtils
                     var tls = new Dictionary<string, object>
                     {
                         { "enabled", true },
-                        { "insecure", Global.Settings.V2RayConfig.AllowInsecure }
+                        { "insecure", sboxCfg.AllowInsecure }
                     };
 
                     var serverName = vmess.ServerName.ValueOrDefault() ?? vmess.Host.SplitOrDefault()?[0] ?? vmess.Hostname;
@@ -163,6 +188,11 @@ public static class SingboxConfigUtils
                         tls["server_name"] = serverName;
 
                     outbound["tls"] = tls;
+                }
+
+                if (sboxCfg.UseMux)
+                {
+                    ApplyMultiplex(outbound);
                 }
 
                 AttachTransport(outbound, vmess);
@@ -178,7 +208,8 @@ public static class SingboxConfigUtils
 
                 var tls = new Dictionary<string, object>
                 {
-                    { "enabled", trojan.TLSSecureType != "none" }
+                    { "enabled", trojan.TLSSecureType != "none" },
+                    { "insecure", sboxCfg.AllowInsecure }
                 };
 
                 var serverName = trojan.Host.ValueOrDefault() ?? trojan.Hostname;
@@ -186,6 +217,11 @@ public static class SingboxConfigUtils
                     tls["server_name"] = serverName;
 
                 outbound["tls"] = tls;
+
+                if (sboxCfg.UseMux)
+                {
+                    ApplyMultiplex(outbound);
+                }
 
                 if (trojan.Mode?.Equals("grpc", StringComparison.OrdinalIgnoreCase) == true)
                 {
@@ -211,6 +247,11 @@ public static class SingboxConfigUtils
                 {
                     outbound["plugin"] = ss.Plugin;
                     outbound["plugin_opts"] = ss.PluginOption ?? "";
+                }
+
+                if (sboxCfg.UseMux)
+                {
+                    ApplyMultiplex(outbound);
                 }
 
                 break;
@@ -262,6 +303,16 @@ public static class SingboxConfigUtils
         }
 
         return outbound;
+    }
+
+    private static void ApplyMultiplex(Dictionary<string, object> outbound)
+    {
+        outbound["multiplex"] = new Dictionary<string, object>
+        {
+            { "enabled", true },
+            { "protocol", "smux" },
+            { "max_connections", 4 }
+        };
     }
 
     private static void AttachTransport(Dictionary<string, object> outbound, VMessServer server)

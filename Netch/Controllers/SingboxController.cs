@@ -13,7 +13,7 @@ public class SingboxController : Guard, IServerController
     {
     }
 
-    protected override IEnumerable<string> StartedKeywords => new[] { "sing-box started", "started" };
+    protected override IEnumerable<string> StartedKeywords => new[] { "sing-box started", "started", "listening at", "serving at", "inbound/mixed" };
 
     protected override IEnumerable<string> FailedKeywords => new[] { "FATAL", "panic" };
 

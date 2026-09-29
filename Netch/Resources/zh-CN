@@ -240,6 +240,10 @@
   "Allow Ips": "允许的 IP(AllowedIPs)",
   "Packet Encoding": "数据包编码",
 
+  "Use Multiplex (smux)": "使用多路复用 (smux)",
+  "Theme": "界面主题",
+  "Please check invalid input values": "请检查不合法的输入项",
+
   "Unhandled Exception": "未处理的异常",
   "Resolve Server Failed!": "解析服务器域名失败！",
   "Wrong STUN Server!": "STUN 服务器地址错误！",
