@@ -217,16 +217,4 @@ public class BorderlessTabControl : TabControl
         ItemSize = new Size(0, 1);
         SizeMode = TabSizeMode.Fixed;
     }
-
-    protected override void WndProc(ref Message m)
-    {
-        // 0x1328 is TCM_ADJUSTRECT
-        if (m.Msg == 0x1328 && !DesignMode)
-        {
-            m.Result = (IntPtr)1;
-            return;
-        }
-
-        base.WndProc(ref m);
-    }
 }

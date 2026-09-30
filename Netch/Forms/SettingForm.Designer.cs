@@ -168,7 +168,7 @@ namespace Netch.Forms
             this.TabControl.Location = new System.Drawing.Point(3, 42);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(502, 365);
+            this.TabControl.Size = new System.Drawing.Size(502, 380);
             this.TabControl.TabIndex = 1;
             //
             // GeneralTabPage
@@ -1136,7 +1136,7 @@ namespace Netch.Forms
             // ControlButton
             //
             this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ControlButton.Location = new System.Drawing.Point(418, 410);
+            this.ControlButton.Location = new System.Drawing.Point(418, 426);
             this.ControlButton.Margin = new System.Windows.Forms.Padding(418, 6, 3, 3);
             this.ControlButton.Name = "ControlButton";
             this.ControlButton.Size = new System.Drawing.Size(80, 28);
@@ -1156,8 +1156,9 @@ namespace Netch.Forms
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(516, 450);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(516, 465);
             this.flowLayoutPanel1.TabIndex = 0;
+            this.flowLayoutPanel1.WrapContents = false;
             //
             // errorProvider
             //
@@ -1170,9 +1171,8 @@ namespace Netch.Forms
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(516, 450);
-            this.MinimumSize = new System.Drawing.Size(516, 450);
-            this.MaximumSize = new System.Drawing.Size(516, 450);
+            this.ClientSize = new System.Drawing.Size(516, 465);
+            this.MinimumSize = new System.Drawing.Size(516, 465);
             this.Controls.Add(this.flowLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
