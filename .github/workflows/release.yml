@@ -155,31 +155,70 @@ jobs:
       - name: Generate Changelog
         shell: pwsh
         run: |
-          Write-Host "Extracting previous version tag..."
-          $prevTag = git describe --tags --abbrev=0 HEAD^ 2>$null
+          git fetch --tags --force
+          $currTag = "${{ github.ref_name }}"
+          $repo = "${{ github.repository }}"
+
+          Write-Host "Extracting previous version tag for $currTag..."
+          $prevTag = git describe --tags --abbrev=0 --exclude="$currTag" HEAD 2>$null
+          if (-not $prevTag) {
+            $prevTag = git describe --tags --abbrev=0 HEAD^ 2>$null
+          }
           if (-not $prevTag) {
             $prevTag = $(git rev-list --max-parents=0 HEAD)
           }
-          Write-Host "Previous tag: $prevTag, Current ref: ${{ github.ref_name }}"
+          Write-Host "Previous tag: $prevTag, Current ref: $currTag"
 
-          $commits = git log "$prevTag..HEAD" --pretty=format:"* %s ([%h](https://github.com/${{ github.repository }}/commit/%H))" --no-merges
-          if ([string]::IsNullOrWhiteSpace($commits)) {
-            $commits = "* Updates and maintenance for ${{ github.ref_name }}"
+          $raw = (git log "$prevTag..HEAD" --no-merges --format="%h%x09%s%x09%b%x1E") -join "`n"
+          $entries = $raw -split "\x1E" | Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+
+          $sb = [System.Text.StringBuilder]::new()
+          [void]$sb.AppendLine("[![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)")
+          [void]$sb.AppendLine()
+          [void]$sb.AppendLine("## Changelog / 更新日志 ($currTag)")
+          if ($prevTag) {
+            [void]$sb.AppendLine("> 对比基准：[$prevTag...$currTag](https://github.com/$repo/compare/$prevTag...$currTag)")
+          }
+          [void]$sb.AppendLine()
+
+          $hasCommits = $false
+          foreach ($entry in $entries) {
+              $parts = $entry -split "\t", 3
+              if ($parts.Count -lt 2) { continue }
+              $hash = $parts[0].Trim()
+              $subject = $parts[1].Trim()
+              $body = if ($parts.Count -ge 3) { $parts[2] } else { "" }
+
+              $hasCommits = $true
+              [void]$sb.AppendLine("* **$subject** ([$hash](https://github.com/$repo/commit/$hash))")
+
+              if (-not [string]::IsNullOrWhiteSpace($body)) {
+                  $lines = $body -split "\r?\n"
+                  foreach ($line in $lines) {
+                      $trimmed = $line.Trim()
+                      if ($trimmed.StartsWith("- ") -or $trimmed.StartsWith("* ")) {
+                          $content = $trimmed.Substring(2).Trim()
+                          [void]$sb.AppendLine("  - $content")
+                      } elseif ($trimmed.StartsWith("Co-Authored-By:") -or [string]::IsNullOrWhiteSpace($trimmed)) {
+                          # skip
+                      } else {
+                          [void]$sb.AppendLine("  - $trimmed")
+                      }
+                  }
+              }
           }
 
-          $body = @"
-          [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)
+          if (-not $hasCommits) {
+              [void]$sb.AppendLine("* Maintenance and automated deployment for $currTag")
+          }
 
-          ## Changelog / 更新日志 (${{ github.ref_name }})
-          $commits
+          [void]$sb.AppendLine()
+          [void]$sb.AppendLine("## Checksums / 校验和")
+          [void]$sb.AppendLine("| 文件名 | SHA256 |")
+          [void]$sb.AppendLine("| :- | :- |")
+          [void]$sb.AppendLine("| $env:PACKAGE_NAME | $env:NETCH_SHA256 |")
 
-          ## Checksums / 校验和
-          | 文件名 | SHA256 |
-          | :- | :- |
-          | $env:PACKAGE_NAME | $env:NETCH_SHA256 |
-          "@
-
-          Set-Content -Path "release_body.md" -Value $body -Encoding UTF8
+          [System.IO.File]::WriteAllText("release_body.md", $sb.ToString(), [System.Text.Encoding]::UTF8)
 
       - name: Release
         uses: softprops/action-gh-release@v2
