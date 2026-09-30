@@ -194,9 +194,11 @@ public static class MainController
 
     public static async Task<NatTypeTestResult> DiscoveryNatTypeAsync(CancellationToken ctx = default)
     {
-        Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
+        if (Socks5Server == null)
+            return new NatTypeTestResult { Result = "Error: Socks5Server is null" };
+
         Log.Information("Starting NAT type discovery via STUN server {StunServer}:{Port} through {SocksServer}...",
-            Global.Settings.STUN_Server, Global.Settings.STUN_Server_Port, Socks5Server?.Hostname);
+            Global.Settings.STUN_Server, Global.Settings.STUN_Server_Port, Socks5Server.Hostname);
         var result = await Socks5ServerTestUtils.DiscoveryNatTypeAsync(Socks5Server, ctx);
         Log.Information("NAT type discovery result: {Result}, LocalEnd: {Local}, PublicEnd: {Public}",
             result.Result, result.LocalEnd, result.PublicEnd);
@@ -205,10 +207,12 @@ public static class MainController
 
     public static async Task<int?> HttpConnectAsync(CancellationToken ctx = default)
     {
-        Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
+        if (Socks5Server == null)
+            return null;
+
         try
         {
-            Log.Information("Testing HTTP connectivity through {SocksServer}...", Socks5Server?.Hostname);
+            Log.Information("Testing HTTP connectivity through {SocksServer}...", Socks5Server.Hostname);
             var result = await Socks5ServerTestUtils.HttpConnectAsync(Socks5Server, ctx);
             Log.Information("HTTP connectivity test result: {Latency}ms", result);
             return result;

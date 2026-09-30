@@ -525,7 +525,7 @@ public class SingboxServerForm : Form
             Global.Settings.Server.Add(resultServer);
         }
 
-        await Configuration.SaveAsync();
+        await Utils.Configuration.SaveAsync();
         DialogResult = DialogResult.OK;
         Close();
     }

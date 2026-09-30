@@ -13,6 +13,7 @@ using Netch.Interfaces;
 using Netch.Models;
 using Netch.Models.Modes;
 using Netch.Properties;
+using Netch.Servers;
 using Netch.Services;
 using Netch.Utils;
 
@@ -56,12 +57,12 @@ public partial class MainForm : Form
             Text = i18N.Translate("Add [Socks5] Server")
         };
         _mainFormText[socks5Item.Name] = "Add [Socks5] Server";
-        socks5Item.Click += async (_, _) =>
+        socks5Item.Click += (_, _) =>
         {
             Hide();
             new Socks5Form().ShowDialog();
             LoadServers();
-            await Configuration.SaveAsync();
+            Utils.Configuration.SaveAsync().Forget();
             Show();
         };
         ServerToolStripMenuItem.DropDownItems.Add(socks5Item);
@@ -73,12 +74,12 @@ public partial class MainForm : Form
             Text = i18N.Translate("Add [Xray] Server")
         };
         _mainFormText[xrayItem.Name] = "Add [Xray] Server";
-        xrayItem.Click += async (_, _) =>
+        xrayItem.Click += (_, _) =>
         {
             Hide();
             new XrayServerForm().ShowDialog();
             LoadServers();
-            await Configuration.SaveAsync();
+            Utils.Configuration.SaveAsync().Forget();
             Show();
         };
         ServerToolStripMenuItem.DropDownItems.Add(xrayItem);
@@ -90,12 +91,12 @@ public partial class MainForm : Form
             Text = i18N.Translate("Add [sing-box] Server")
         };
         _mainFormText[singboxItem.Name] = "Add [sing-box] Server";
-        singboxItem.Click += async (_, _) =>
+        singboxItem.Click += (_, _) =>
         {
             Hide();
             new SingboxServerForm().ShowDialog();
             LoadServers();
-            await Configuration.SaveAsync();
+            Utils.Configuration.SaveAsync().Forget();
             Show();
         };
         ServerToolStripMenuItem.DropDownItems.Add(singboxItem);
@@ -259,7 +260,7 @@ public partial class MainForm : Form
         NotifyTip(i18N.TranslateFormat("Import {0} server(s) form Clipboard", servers.Count));
 
         LoadServers();
-        await Configuration.SaveAsync();
+        await Utils.Configuration.SaveAsync();
     }
 
     private async void AddServerToolStripMenuItem_Click(object? sender, EventArgs? e)
@@ -271,7 +272,7 @@ public partial class MainForm : Form
         util.Create();
 
         LoadServers();
-        await Configuration.SaveAsync();
+        await Utils.Configuration.SaveAsync();
         Show();
     }
 
@@ -344,7 +345,7 @@ public partial class MainForm : Form
             await SubscriptionUtil.UpdateServersAsync();
 
             LoadServers();
-            await Configuration.SaveAsync();
+            await Utils.Configuration.SaveAsync();
             StatusText(i18N.Translate("Servers updated"));
         }
         catch (Exception e)
@@ -674,7 +675,7 @@ public partial class MainForm : Form
             }
 
             await StopAsync();
-            await Configuration.SaveAsync();
+            await Utils.Configuration.SaveAsync();
 
             // Update
             await Task.Run(updater.ApplyUpdate);
@@ -724,7 +725,7 @@ public partial class MainForm : Form
             return;
         }
 
-        Configuration.SaveAsync().Forget();
+        Utils.Configuration.SaveAsync().Forget();
 
         // 服务器、模式 需选择
         if (ServerComboBox.SelectedItem is not Server server)
@@ -878,7 +879,7 @@ public partial class MainForm : Form
         }
 
         LoadServers();
-        await Configuration.SaveAsync();
+        await Utils.Configuration.SaveAsync();
         Show();
     }
 
@@ -1519,7 +1520,7 @@ public partial class MainForm : Form
         Hide();
 
         if (saveConfiguration)
-            await Configuration.SaveAsync();
+            await Utils.Configuration.SaveAsync();
 
         foreach (var file in new[] { Constants.TempConfig, Constants.TempRouteFile })
             if (File.Exists(file))
@@ -1532,8 +1533,6 @@ public partial class MainForm : Form
     }
 
     #region FormClosingButton
-
-    private bool _isFirstCloseWindow = true;
 
     private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
     {

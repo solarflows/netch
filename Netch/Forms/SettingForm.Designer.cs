@@ -1187,8 +1187,8 @@ namespace Netch.Forms
             this.singboxTabPage.PerformLayout();
             this.OtherTabPage.ResumeLayout(false);
             this.OtherTabPage.PerformLayout();
-            this.AioDNSTabPage.ResumeLayout(false);
-            this.AioDNSTabPage.PerformLayout();
+            this.DNSTabPage.ResumeLayout(false);
+            this.DNSTabPage.PerformLayout();
             this.flowLayoutPanel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).EndInit();
             this.ResumeLayout(false);
