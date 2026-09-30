@@ -50,6 +50,10 @@ public static class DelayTestHelper
 
         using var _ = await Lock.EnterAsync();
 
+        var serverCount = Global.Settings.Server.Count;
+        Log.Information("Starting latency test for {Count} servers (Protocol: {Method})...",
+            serverCount, Global.Settings.ServerTCPing ? "TCPing" : "ICMPing");
+
         try
         {
             var tasks = Global.Settings.Server.Select(async s =>
@@ -61,10 +65,11 @@ public static class DelayTestHelper
             });
 
             await Task.WhenAll(tasks);
+            Log.Information("Latency test completed for {Count} servers.", serverCount);
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // ignored
+            Log.Warning(ex, "Latency test encountered error");
         }
     }
 

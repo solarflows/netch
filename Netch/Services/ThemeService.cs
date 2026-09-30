@@ -111,6 +111,7 @@ public static class ThemeService
                     tc.ForeColor = dark ? DarkText : SystemColors.ControlText;
                     foreach (TabPage page in tc.TabPages)
                     {
+                        page.UseVisualStyleBackColor = !dark;
                         page.BackColor = dark ? DarkCard : SystemColors.ButtonFace;
                         page.ForeColor = dark ? DarkText : SystemColors.ControlText;
                         ApplyToControls(page.Controls, dark);

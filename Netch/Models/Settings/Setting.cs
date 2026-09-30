@@ -74,6 +74,11 @@ public class Setting
     public bool MinimizeWhenStarted { get; set; } = false;
 
     /// <summary>
+    ///     最小化到托盘时是否显示通知提示
+    /// </summary>
+    public bool NotifyOnMinimize { get; set; } = false;
+
+    /// <summary>
     ///     模式选择位置
     /// </summary>
     public int ModeComboBoxSelectedIndex { get; set; } = -1;

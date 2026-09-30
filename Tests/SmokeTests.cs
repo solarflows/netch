@@ -444,8 +444,19 @@ public class SmokeTests
         var setting = new Netch.Models.Setting();
         Assert.AreEqual("Xray", setting.CoreType);
         Assert.AreEqual("System", setting.Theme);
+        Assert.IsFalse(setting.NotifyOnMinimize);
         Assert.IsNotNull(setting.SingboxConfig);
         Assert.IsTrue(setting.SingboxConfig.Sniffing);
+    }
+
+    [TestMethod]
+    public void Smoke_Architecture_ModernServerFormsExist()
+    {
+        var netchAssembly = typeof(Netch.Global).Assembly;
+        var typeNames = netchAssembly.GetTypes().Select(t => t.Name).ToList();
+
+        Assert.IsTrue(typeNames.Contains("XrayServerForm"), "XrayServerForm must exist");
+        Assert.IsTrue(typeNames.Contains("SingboxServerForm"), "SingboxServerForm must exist");
     }
 
     [TestMethod]

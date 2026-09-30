@@ -25,6 +25,14 @@
 
   "Server": "服务器",
   "Import Servers From Clipboard": "从剪贴板导入服务器",
+  "Add [Socks5] Server": "添加 [Socks5] 裸节点",
+  "Add [Xray] Server": "添加 [Xray] 节点",
+  "Add [sing-box] Server": "添加 [sing-box] 节点",
+  "Edit [Xray] Server": "修改 [Xray] 节点",
+  "Edit [sing-box] Server": "修改 [sing-box] 节点",
+  "Basic Configuration": "基础配置",
+  "Notice": "提示",
+  "💡 Manual configuration only provides essential client parameters.\r\nFor complex routing, chain proxies, or full advanced features, we recommend importing via Subscription URL or Clipboard.": "💡 手动配置仅提供基础客户端参数。\r\n如需复杂分流、链式代理、自定义传输或完整高级功能，建议使用【从剪贴板导入】或【订阅链接导入】以获得最佳体验与自由度。",
   "Add [{0}] Server": "添加 [{0}] 服务器",
   "Netch is now minimized to the notification bar, double click this icon to restore.": "Netch 已最小化至通知栏，双击此图标恢复窗口",
   "New version available": "发现新版本",
@@ -242,6 +250,8 @@
 
   "Use Multiplex (smux)": "使用多路复用 (smux)",
   "Theme": "界面主题",
+  "Notify on minimize to tray": "最小化到托盘时显示通知提示",
+  "DNS": "DNS 服务",
   "Please check invalid input values": "请检查不合法的输入项",
 
   "Unhandled Exception": "未处理的异常",

@@ -165,6 +165,7 @@ public static class DnsService
                 cachedResp[0] = (byte)(queryId >> 8);
                 cachedResp[1] = (byte)(queryId & 0xFF);
 
+                Log.Debug("DNS Cache Hit: [{QType}] {Domain} (0ms response to {Client})", qtype, domain, clientEp);
                 await listener.SendToAsync(cachedResp, SocketFlags.None, clientEp);
                 return;
             }
@@ -172,6 +173,7 @@ public static class DnsService
             // 2. 判断国内外分流目标
             bool isChina = IsChinaDomain(domain);
             var targetUpstream = isChina ? _chinaDnsEndPoint : _otherDnsEndPoint;
+            Log.Debug("DNS Query: [{QType}] {Domain} -> Upstream {Target} ({Route})", qtype, domain, targetUpstream, isChina ? "China" : "Foreign");
 
             // 3. 向上游发起查询
             using var upstreamClient = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);

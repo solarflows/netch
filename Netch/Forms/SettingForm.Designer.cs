@@ -116,9 +116,10 @@ namespace Netch.Forms
             this.NoSupportDialogCheckBox = new System.Windows.Forms.CheckBox();
             this.CheckBetaUpdateCheckBox = new System.Windows.Forms.CheckBox();
             this.UpdateServersWhenOpenedCheckBox = new System.Windows.Forms.CheckBox();
+            this.NotifyOnMinimizeCheckBox = new System.Windows.Forms.CheckBox();
             this.ThemeLabel = new System.Windows.Forms.Label();
             this.ThemeComboBox = new System.Windows.Forms.ComboBox();
-            this.AioDNSTabPage = new System.Windows.Forms.TabPage();
+            this.DNSTabPage = new System.Windows.Forms.TabPage();
             this.ChinaDNSLabel = new System.Windows.Forms.Label();
             this.ChinaDNSTextBox = new System.Windows.Forms.TextBox();
             this.OtherDNSLabel = new System.Windows.Forms.Label();
@@ -138,7 +139,7 @@ namespace Netch.Forms
             this.KCPGroupBox.SuspendLayout();
             this.singboxTabPage.SuspendLayout();
             this.OtherTabPage.SuspendLayout();
-            this.AioDNSTabPage.SuspendLayout();
+            this.DNSTabPage.SuspendLayout();
             this.flowLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.SuspendLayout();
@@ -147,7 +148,7 @@ namespace Netch.Forms
             //
             this.TabControl.Appearance = System.Windows.Forms.TabAppearance.Normal;
             this.TabControl.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
-            this.TabControl.ItemSize = new System.Drawing.Size(66, 30);
+            this.TabControl.ItemSize = new System.Drawing.Size(68, 30);
             this.TabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.TabControl.Controls.Add(this.GeneralTabPage);
             this.TabControl.Controls.Add(this.NFTabPage);
@@ -155,7 +156,7 @@ namespace Netch.Forms
             this.TabControl.Controls.Add(this.xrayTabPage);
             this.TabControl.Controls.Add(this.singboxTabPage);
             this.TabControl.Controls.Add(this.OtherTabPage);
-            this.TabControl.Controls.Add(this.AioDNSTabPage);
+            this.TabControl.Controls.Add(this.DNSTabPage);
             this.TabControl.Location = new System.Drawing.Point(3, 3);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
@@ -921,6 +922,7 @@ namespace Netch.Forms
             this.OtherTabPage.Controls.Add(this.NoSupportDialogCheckBox);
             this.OtherTabPage.Controls.Add(this.CheckBetaUpdateCheckBox);
             this.OtherTabPage.Controls.Add(this.UpdateServersWhenOpenedCheckBox);
+            this.OtherTabPage.Controls.Add(this.NotifyOnMinimizeCheckBox);
             this.OtherTabPage.Controls.Add(this.ThemeLabel);
             this.OtherTabPage.Controls.Add(this.ThemeComboBox);
             this.OtherTabPage.Location = new System.Drawing.Point(4, 29);
@@ -1026,13 +1028,23 @@ namespace Netch.Forms
             this.UpdateServersWhenOpenedCheckBox.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.UpdateServersWhenOpenedCheckBox.UseVisualStyleBackColor = true;
             //
+            // NotifyOnMinimizeCheckBox
+            //
+            this.NotifyOnMinimizeCheckBox.AutoSize = true;
+            this.NotifyOnMinimizeCheckBox.Location = new System.Drawing.Point(16, 144);
+            this.NotifyOnMinimizeCheckBox.Name = "NotifyOnMinimizeCheckBox";
+            this.NotifyOnMinimizeCheckBox.Size = new System.Drawing.Size(190, 21);
+            this.NotifyOnMinimizeCheckBox.TabIndex = 9;
+            this.NotifyOnMinimizeCheckBox.Text = "Notify on minimize to tray";
+            this.NotifyOnMinimizeCheckBox.UseVisualStyleBackColor = true;
+            //
             // ThemeLabel
             //
             this.ThemeLabel.AutoSize = true;
             this.ThemeLabel.Location = new System.Drawing.Point(16, 185);
             this.ThemeLabel.Name = "ThemeLabel";
             this.ThemeLabel.Size = new System.Drawing.Size(47, 17);
-            this.ThemeLabel.TabIndex = 9;
+            this.ThemeLabel.TabIndex = 10;
             this.ThemeLabel.Text = "Theme";
             //
             // ThemeComboBox
@@ -1042,23 +1054,24 @@ namespace Netch.Forms
             this.ThemeComboBox.Location = new System.Drawing.Point(150, 182);
             this.ThemeComboBox.Name = "ThemeComboBox";
             this.ThemeComboBox.Size = new System.Drawing.Size(160, 25);
-            this.ThemeComboBox.TabIndex = 10;
+            this.ThemeComboBox.TabIndex = 11;
             //
-            // AioDNSTabPage
+            // DNSTabPage
             //
-            this.AioDNSTabPage.Controls.Add(this.ChinaDNSLabel);
-            this.AioDNSTabPage.Controls.Add(this.ChinaDNSTextBox);
-            this.AioDNSTabPage.Controls.Add(this.OtherDNSLabel);
-            this.AioDNSTabPage.Controls.Add(this.OtherDNSTextBox);
-            this.AioDNSTabPage.Controls.Add(this.AioDNSListenPortLabel);
-            this.AioDNSTabPage.Controls.Add(this.AioDNSListenPortTextBox);
-            this.AioDNSTabPage.Location = new System.Drawing.Point(4, 29);
-            this.AioDNSTabPage.Name = "AioDNSTabPage";
-            this.AioDNSTabPage.Padding = new System.Windows.Forms.Padding(3);
-            this.AioDNSTabPage.Size = new System.Drawing.Size(480, 350);
-            this.AioDNSTabPage.TabIndex = 6;
-            this.AioDNSTabPage.Text = "AioDNS";
-            this.AioDNSTabPage.UseVisualStyleBackColor = true;
+            this.DNSTabPage.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.DNSTabPage.Controls.Add(this.ChinaDNSLabel);
+            this.DNSTabPage.Controls.Add(this.ChinaDNSTextBox);
+            this.DNSTabPage.Controls.Add(this.OtherDNSLabel);
+            this.DNSTabPage.Controls.Add(this.OtherDNSTextBox);
+            this.DNSTabPage.Controls.Add(this.AioDNSListenPortLabel);
+            this.DNSTabPage.Controls.Add(this.AioDNSListenPortTextBox);
+            this.DNSTabPage.Location = new System.Drawing.Point(4, 29);
+            this.DNSTabPage.Name = "DNSTabPage";
+            this.DNSTabPage.Padding = new System.Windows.Forms.Padding(3);
+            this.DNSTabPage.Size = new System.Drawing.Size(480, 350);
+            this.DNSTabPage.TabIndex = 6;
+            this.DNSTabPage.Text = "DNS";
+            this.DNSTabPage.UseVisualStyleBackColor = false;
             //
             // ChinaDNSLabel
             //
@@ -1259,7 +1272,8 @@ namespace Netch.Forms
         private System.Windows.Forms.CheckBox SingboxAllowInsecureCheckBox;
         private System.Windows.Forms.Label ThemeLabel;
         private System.Windows.Forms.ComboBox ThemeComboBox;
-        private System.Windows.Forms.TabPage AioDNSTabPage;
+        private System.Windows.Forms.CheckBox NotifyOnMinimizeCheckBox;
+        private System.Windows.Forms.TabPage DNSTabPage;
         private System.Windows.Forms.Label AioDNSListenPortLabel;
         private System.Windows.Forms.TextBox AioDNSListenPortTextBox;
         private System.Windows.Forms.Label OtherDNSLabel;

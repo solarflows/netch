@@ -75,21 +75,40 @@ public static class Program
 
         SingleInstance.Received.Subscribe(SingleInstance_ArgumentsReceived);
 
-        // clean up old logs
+        // archive current log and clean up old logs (> 7 days)
         if (Directory.Exists("logging"))
         {
-            var directory = new DirectoryInfo("logging");
+            try
+            {
+                var currentLog = Path.Combine(Global.NetchDir, Constants.LogFile);
+                if (File.Exists(currentLog))
+                {
+                    var prevLog = Path.Combine(Global.NetchDir, "logging", "application.previous.log");
+                    File.Copy(currentLog, prevLog, true);
+                }
 
-            foreach (var file in directory.GetFiles())
-                file.Delete();
-
-            foreach (var dir in directory.GetDirectories())
-                dir.Delete(true);
+                var directory = new DirectoryInfo("logging");
+                foreach (var file in directory.GetFiles("*.log*"))
+                {
+                    if (file.Name != "application.log" && file.Name != "application.previous.log" && DateTime.Now - file.LastWriteTime > TimeSpan.FromDays(7))
+                        file.Delete();
+                }
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         InitConsole();
 
         CreateLogger();
+
+        Log.Information("Configuration loaded: {ServerCount} servers, {ProfileCount} profiles, Active Core: {CoreType}, Theme: {Theme}",
+            Global.Settings.Server.Count,
+            Global.Settings.Profiles.Count,
+            Global.Settings.CoreType,
+            Global.Settings.Theme);
 
         // load i18n
         i18N.Load(Global.Settings.Language);
@@ -200,7 +219,9 @@ public static class Program
 #endif
             .WriteTo.Async(c => c.File(Path.Combine(Global.NetchDir, Constants.LogFile),
                 outputTemplate: Constants.OutputTemplate,
-                rollOnFileSizeLimit: false))
+                flushToDiskInterval: TimeSpan.FromSeconds(1),
+                rollOnFileSizeLimit: true,
+                fileSizeLimitBytes: 10 * 1024 * 1024))
             .WriteTo.Console(outputTemplate: Constants.OutputTemplate)
             .MinimumLevel.Override(@"Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()

@@ -75,7 +75,10 @@ public abstract class Server : ICloneable
         {
             var destination = await DnsUtils.LookupAsync(Hostname);
             if (destination == null)
+            {
+                Log.Debug("Ping failed for [{Type}] {Remark}: Hostname {Hostname} could not be resolved", Type, Remark, Hostname);
                 return Delay = -2;
+            }
 
             var list = new Task<int>[3];
             for (var i = 0; i < 3; i++)
@@ -97,10 +100,13 @@ public abstract class Server : ICloneable
 
             var resTask = await Task.WhenAny(list[0], list[1], list[2]);
 
-            return Delay = await resTask;
+            Delay = await resTask;
+            Log.Debug("Ping result for [{Type}] {Remark} ({Hostname}:{Port}): {Delay}ms", Type, Remark, Hostname, Port, Delay);
+            return Delay;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Log.Debug(ex, "Ping exception for [{Type}] {Remark}", Type, Remark);
             return Delay = -4;
         }
     }

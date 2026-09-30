@@ -49,21 +49,56 @@ public partial class MainForm : Form
 
     private void AddAddServerToolStripMenuItems()
     {
-        foreach (var serversUtil in ServerHelper.ServerUtilDictionary.Values.Distinct().OrderBy(i => i.Priority).Where(i => !string.IsNullOrEmpty(i.FullName)))
+        var socks5Item = new ToolStripMenuItem
         {
-            var fullName = serversUtil.FullName;
-            var control = new ToolStripMenuItem
-            {
-                Name = $"Add{fullName}ServerToolStripMenuItem",
-                Size = new Size(259, 22),
-                Text = i18N.TranslateFormat("Add [{0}] Server", fullName),
-                Tag = serversUtil
-            };
+            Name = "AddSocks5BareServerToolStripMenuItem",
+            Size = new Size(259, 22),
+            Text = i18N.Translate("Add [Socks5] Server")
+        };
+        _mainFormText[socks5Item.Name] = "Add [Socks5] Server";
+        socks5Item.Click += async (_, _) =>
+        {
+            Hide();
+            new Socks5Form().ShowDialog();
+            LoadServers();
+            await Configuration.SaveAsync();
+            Show();
+        };
+        ServerToolStripMenuItem.DropDownItems.Add(socks5Item);
 
-            _mainFormText[control.Name] = new[] { "Add [{0}] Server", fullName };
-            control.Click += AddServerToolStripMenuItem_Click;
-            ServerToolStripMenuItem.DropDownItems.Add(control);
-        }
+        var xrayItem = new ToolStripMenuItem
+        {
+            Name = "AddXrayServerToolStripMenuItem",
+            Size = new Size(259, 22),
+            Text = i18N.Translate("Add [Xray] Server")
+        };
+        _mainFormText[xrayItem.Name] = "Add [Xray] Server";
+        xrayItem.Click += async (_, _) =>
+        {
+            Hide();
+            new XrayServerForm().ShowDialog();
+            LoadServers();
+            await Configuration.SaveAsync();
+            Show();
+        };
+        ServerToolStripMenuItem.DropDownItems.Add(xrayItem);
+
+        var singboxItem = new ToolStripMenuItem
+        {
+            Name = "AddSingboxServerToolStripMenuItem",
+            Size = new Size(259, 22),
+            Text = i18N.Translate("Add [sing-box] Server")
+        };
+        _mainFormText[singboxItem.Name] = "Add [sing-box] Server";
+        singboxItem.Click += async (_, _) =>
+        {
+            Hide();
+            new SingboxServerForm().ShowDialog();
+            LoadServers();
+            await Configuration.SaveAsync();
+            Show();
+        };
+        ServerToolStripMenuItem.DropDownItems.Add(singboxItem);
     }
 
     private void MainForm_Load(object sender, EventArgs e)
@@ -704,6 +739,9 @@ public partial class MainForm : Form
             return;
         }
 
+        Log.Information("Starting connection: Server=[{Type}] {Server} ({Hostname}:{Port}), Mode=[{ModeType}] {Mode}",
+            server.Type, server.Remark, server.Hostname, server.Port, mode.Type, mode.Remark);
+
         State = State.Starting;
 
         try
@@ -755,6 +793,7 @@ public partial class MainForm : Form
 
     private void SettingsButton_Click(object sender, EventArgs e)
     {
+        Log.Information("Opening SettingsForm dialog");
         var oldSettings = Global.Settings.ShallowCopy();
 
         Hide();
@@ -776,6 +815,9 @@ public partial class MainForm : Form
 
         if (oldSettings.Theme != Global.Settings.Theme)
             ThemeService.Apply(this);
+
+        Log.Information("SettingsForm closed. Current: Core={Core}, Theme={Theme}, Lang={Lang}, NotifyOnMin={Notify}",
+            Global.Settings.CoreType, Global.Settings.Theme, Global.Settings.Language, Global.Settings.NotifyOnMinimize);
 
         Show();
     }
@@ -806,6 +848,10 @@ public partial class MainForm : Form
     private void ServerComboBox_SelectionChangeCommitted(object sender, EventArgs o)
     {
         Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
+        if (ServerComboBox.SelectedItem is Server s)
+        {
+            Log.Information("Selected server changed: [{Type}] {Remark} ({Hostname}:{Port})", s.Type, s.Remark, s.Hostname, s.Port);
+        }
     }
 
     private async void EditServerPictureBox_Click(object sender, EventArgs e)
@@ -818,7 +864,19 @@ public partial class MainForm : Form
         }
 
         Hide();
-        ServerHelper.GetUtilByTypeName(server.Type).Edit(server);
+        if (server is Socks5Server s5 && s5.Group != "Xray" && s5.Group != "sing-box")
+        {
+            new Socks5Form(s5).ShowDialog();
+        }
+        else if (server.Group == "sing-box" || server is WireGuardServer)
+        {
+            new SingboxServerForm(server).ShowDialog();
+        }
+        else
+        {
+            new XrayServerForm(server).ShowDialog();
+        }
+
         LoadServers();
         await Configuration.SaveAsync();
         Show();
@@ -922,7 +980,10 @@ public partial class MainForm : Form
         try
         {
             if (ModeComboBox.SelectedItem is Mode mode)
+            {
                 Global.Settings.ModeComboBoxSelectedIndex = Global.Modes.IndexOf(mode);
+                Log.Information("Selected mode changed: [{Type}] {Remark} ({FullName})", mode.Type, mode.Remark, mode.FullName);
+            }
         }
         catch
         {
@@ -1433,14 +1494,14 @@ public partial class MainForm : Form
         // 使关闭时窗口向右下角缩小的效果
         WindowState = FormWindowState.Minimized;
 
-        if (_isFirstCloseWindow)
+        if (Global.Settings.NotifyOnMinimize)
         {
             // 显示提示语
             NotifyTip(i18N.Translate("Netch is now minimized to the notification bar, double click this icon to restore."));
-            _isFirstCloseWindow = false;
         }
 
         Hide();
+        Log.Information("MainForm minimized to notification tray");
     }
 
     public async void Exit(bool forceExit = false, bool saveConfiguration = true)

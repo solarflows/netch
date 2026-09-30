@@ -31,6 +31,7 @@ public class ModeService
         Global.Modes.Clear();
         LoadCore(ModeDirectoryFullName);
         Sort();
+        Log.Information("Loaded {Count} modes from {Directory}", Global.Modes.Count, ModeDirectoryFullName);
         Global.MainForm.LoadModes();
     }
 

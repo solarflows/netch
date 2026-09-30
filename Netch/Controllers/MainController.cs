@@ -28,10 +28,17 @@ public static class MainController
     {
         using var releaser = await Lock.EnterAsync();
 
-        Log.Information("Start MainController: {Server} {Mode}", $"{server.Type}", $"[{(int)mode.Type}]{mode.i18NRemark}");
+        Log.Information("Starting MainController: Server=[{Type}] {Server} ({Hostname}:{Port}), Mode=[{ModeType}] {Mode}",
+            server.Type, server.Remark, server.Hostname, server.Port, (int)mode.Type, mode.i18NRemark);
 
-        if (await DnsUtils.LookupAsync(server.Hostname) == null)
+        var destination = await DnsUtils.LookupAsync(server.Hostname);
+        if (destination == null)
+        {
+            Log.Error("Failed to resolve hostname for server: {Hostname}", server.Hostname);
             throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
+        }
+
+        Log.Information("Server hostname {Hostname} resolved to {Address}", server.Hostname, destination);
 
         // TODO Disable NAT Type Test setting
         // cache STUN Server ip to prevent "Wrong STUN Server"
@@ -82,8 +89,10 @@ public static class MainController
 
             // Start Mode Controller
             Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ModeController.Name));
+            Log.Information("Starting mode controller: {ModeName}", ModeController.Name);
 
             await ModeController.StartAsync(Socks5Server, mode);
+            Log.Information("MainController started successfully. Core: {Core}, Mode: {Mode}", ServerController?.Name ?? "Direct", ModeController.Name);
         }
         catch (Exception e)
         {
@@ -122,7 +131,7 @@ public static class MainController
         if (ServerController == null && ModeController == null)
             return;
 
-        Log.Information("Stop Main Controller");
+        Log.Information("Stopping MainController: Core={Core}, Mode={Mode}", ServerController?.Name ?? "Direct", ModeController?.Name ?? "None");
         StatusPortInfoText.Reset();
 
         var tasks = new[]
@@ -134,6 +143,7 @@ public static class MainController
         try
         {
             await Task.WhenAll(tasks);
+            Log.Information("MainController stopped successfully.");
         }
         catch (Exception e)
         {
@@ -182,18 +192,26 @@ public static class MainController
         PortCheck(port, portName, PortType.TCP);
     }
 
-    public static Task<NatTypeTestResult> DiscoveryNatTypeAsync(CancellationToken ctx = default)
+    public static async Task<NatTypeTestResult> DiscoveryNatTypeAsync(CancellationToken ctx = default)
     {
         Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
-        return Socks5ServerTestUtils.DiscoveryNatTypeAsync(Socks5Server, ctx);
+        Log.Information("Starting NAT type discovery via STUN server {StunServer}:{Port} through {SocksServer}...",
+            Global.Settings.STUN_Server, Global.Settings.STUN_Server_Port, Socks5Server?.Hostname);
+        var result = await Socks5ServerTestUtils.DiscoveryNatTypeAsync(Socks5Server, ctx);
+        Log.Information("NAT type discovery result: {Result}, LocalEnd: {Local}, PublicEnd: {Public}",
+            result.Result, result.LocalEnd, result.PublicEnd);
+        return result;
     }
 
-    public static Task<int?> HttpConnectAsync(CancellationToken ctx = default)
+    public static async Task<int?> HttpConnectAsync(CancellationToken ctx = default)
     {
         Debug.Assert(Socks5Server != null, nameof(Socks5Server) + " != null");
         try
         {
-            return Socks5ServerTestUtils.HttpConnectAsync(Socks5Server, ctx);
+            Log.Information("Testing HTTP connectivity through {SocksServer}...", Socks5Server?.Hostname);
+            var result = await Socks5ServerTestUtils.HttpConnectAsync(Socks5Server, ctx);
+            Log.Information("HTTP connectivity test result: {Latency}ms", result);
+            return result;
         }
         catch (OperationCanceledException)
         {
@@ -204,6 +222,6 @@ public static class MainController
             Log.Warning(e, "Unhandled Socks5ServerTestUtils.HttpConnectAsync Exception");
         }
 
-        return Task.FromResult<int?>(null);
+        return null;
     }
 }

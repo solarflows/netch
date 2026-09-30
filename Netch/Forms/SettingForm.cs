@@ -199,6 +199,8 @@ public partial class SettingForm : BindingForm
 
         BindCheckBox(UpdateServersWhenOpenedCheckBox, b => Global.Settings.UpdateServersWhenOpened = b, Global.Settings.UpdateServersWhenOpened);
 
+        BindCheckBox(NotifyOnMinimizeCheckBox, b => Global.Settings.NotifyOnMinimize = b, Global.Settings.NotifyOnMinimize);
+
         BindCheckBox(NoSupportDialogCheckBox, b => Global.Settings.NoSupportDialog = b, Global.Settings.NoSupportDialog);
 
         BindListComboBox(ThemeComboBox, o =>
@@ -209,7 +211,7 @@ public partial class SettingForm : BindingForm
 
         #endregion
 
-        #region AioDNS
+        #region DNS
 
         BindTextBox(ChinaDNSTextBox, _ => true, s => Global.Settings.AioDNS.ChinaDNS = s, Global.Settings.AioDNS.ChinaDNS);
 
@@ -222,6 +224,10 @@ public partial class SettingForm : BindingForm
 
     private void SettingForm_Load(object sender, EventArgs e)
     {
+        if (TabControl.TabCount > 0)
+        {
+            TabControl.ItemSize = new Size(Math.Max(66, (TabControl.Width - 6) / TabControl.TabCount), 32);
+        }
         ThemeService.Apply(this);
     }
 
@@ -312,6 +318,10 @@ public partial class SettingForm : BindingForm
 
         var headerRect = tabControl.GetTabRect(e.Index);
 
+        // 如果是最后一个标签，把右侧多出来的空白区域也一并填满，彻底消除白色空隙
+        int rightEdge = (e.Index == tabControl.TabCount - 1) ? Math.Max(headerRect.Right, tabControl.Width) : headerRect.Right;
+        var fillRect = new Rectangle(headerRect.X - 1, headerRect.Y - 1, rightEdge - headerRect.X + 2, headerRect.Height + 3);
+
         // 背景填充
         var bgColor = isDark
             ? (isSelected ? ThemeService.DarkCard : ThemeService.DarkBg)
@@ -319,7 +329,7 @@ public partial class SettingForm : BindingForm
 
         using (var bgBrush = new SolidBrush(bgColor))
         {
-            e.Graphics.FillRectangle(bgBrush, headerRect);
+            e.Graphics.FillRectangle(bgBrush, fillRect);
         }
 
         // 选中项底部强调色横条 (Fluent Accent Bar)
