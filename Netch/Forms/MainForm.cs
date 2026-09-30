@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.UI.WindowsAndMessaging;
@@ -196,11 +197,11 @@ public partial class MainForm : Form
             case ListControl:
                 break;
             case Control c:
-                if (!string.IsNullOrEmpty(c.Name))
+                if (!string.IsNullOrEmpty(c.Name) && !_mainFormText.ContainsKey(c.Name))
                     _mainFormText[c.Name] = c.Text ?? string.Empty;
                 break;
             case ToolStripItem c:
-                if (!string.IsNullOrEmpty(c.Name))
+                if (!string.IsNullOrEmpty(c.Name) && !_mainFormText.ContainsKey(c.Name))
                     _mainFormText[c.Name] = c.Text ?? string.Empty;
                 break;
         }
@@ -760,6 +761,7 @@ public partial class MainForm : Form
         State = State.Started;
 
         Task.Run(Bandwidth.NetTraffic).Forget();
+        UpdateDnsStatusLabel();
         DiscoveryNatTypeAsync().Forget();
         HttpConnectAsync().Forget();
 
@@ -1331,7 +1333,7 @@ public partial class MainForm : Form
             else
                 NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{text} [{country}]";
 
-            UpdateNatTypeLight(int.TryParse(text, out var natType) ? natType : -1);
+            UpdateNatTypeLight(text);
         }
         else
         {
@@ -1341,38 +1343,106 @@ public partial class MainForm : Form
         NatTypeStatusLabel.Visible = true;
     }
 
-    private void ConnectivityStatusVisible(bool visible)
+    private void UpdateNatTypeStatusLabel(NatTypeTestResult res, string? country = null)
     {
-        if (!visible)
-            HttpStatusLabel.Text = NatTypeStatusLabel.Text = "";
-
-        HttpStatusLabel.Visible = NatTypeStatusLabel.Visible = NatTypeStatusLightLabel.Visible = visible;
-    }
-
-    /// <summary>
-    ///     更新 NAT指示灯颜色
-    /// </summary>
-    /// <param name="natType">NAT Type. keep default(-1) to Hide Light</param>
-    private void UpdateNatTypeLight(int natType = -1)
-    {
-        if (natType > 0 && natType < 5)
+        var text = res.Result;
+        if (!string.IsNullOrEmpty(text))
         {
-            NatTypeStatusLightLabel.Visible = Flags.IsWindows10Upper;
-            var c = natType switch
-            {
-                1 => Color.LimeGreen,
-                2 => Color.Yellow,
-                3 => Color.Red,
-                4 => Color.Black,
-                _ => throw new ArgumentOutOfRangeException(nameof(natType), natType, null)
-            };
+            var natDisplay = res.ClassicNatType ?? (int.TryParse(text, out var t) ? $"NAT {t}" : text);
+            if (country == null)
+                NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{natDisplay} ";
+            else
+                NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{natDisplay} [{country}]";
 
-            NatTypeStatusLightLabel.ForeColor = c;
+            UpdateNatTypeLight(text, res.ClassicNatType);
+
+            var sb = new StringBuilder();
+            sb.AppendLine($"RFC 3489: {res.ClassicNatType ?? natDisplay}");
+            if (!string.IsNullOrEmpty(res.MappingBehavior))
+                sb.AppendLine($"RFC 4787 Mapping: {res.MappingBehavior}");
+            if (!string.IsNullOrEmpty(res.FilteringBehavior))
+                sb.AppendLine($"RFC 4787 Filtering: {res.FilteringBehavior}");
+            if (!string.IsNullOrEmpty(res.LocalEnd))
+                sb.AppendLine($"Local: {res.LocalEnd}");
+            if (!string.IsNullOrEmpty(res.PublicEnd))
+                sb.AppendLine($"Public: {res.PublicEnd}{(country != null ? $" [{country}]" : "")}");
+            sb.AppendLine($"STUN Server: {Global.Settings.STUN_Server}:{Global.Settings.STUN_Server_Port}");
+            sb.Append(i18N.Translate("Click to test again"));
+
+            var tip = sb.ToString().TrimEnd();
+            NatTypeStatusLabel.ToolTipText = tip;
+            NatTypeStatusLightLabel.ToolTipText = tip;
         }
         else
         {
-            NatTypeStatusLightLabel.Visible = false;
+            NatTypeStatusLabel.Text = $@"NAT{i18N.Translate(": ", "Test failed")}";
+            UpdateNatTypeLight(null);
+            NatTypeStatusLabel.ToolTipText = "";
+            NatTypeStatusLightLabel.ToolTipText = "";
         }
+
+        NatTypeStatusLabel.Visible = true;
+    }
+
+    private void ConnectivityStatusVisible(bool visible)
+    {
+        if (!visible)
+            HttpStatusLabel.Text = NatTypeStatusLabel.Text = DnsStatusLabel.Text = "";
+
+        DnsStatusLabel.Visible = HttpStatusLabel.Visible = NatTypeStatusLabel.Visible = NatTypeStatusLightLabel.Visible = visible;
+        if (visible)
+            UpdateDnsStatusLabel();
+    }
+
+    /// <summary>
+    ///     更新 NAT指示灯颜色与样式
+    /// </summary>
+    private void UpdateNatTypeLight(string? text, string? classicType = null)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            NatTypeStatusLightLabel.Visible = false;
+            return;
+        }
+
+        NatTypeStatusLightLabel.Visible = Flags.IsWindows10Upper;
+        var c = (text, classicType) switch
+        {
+            ("1", _) or (_, "Full Cone") => Color.LimeGreen,
+            ("2", _) or (_, "Restricted Cone") => Color.Gold,
+            ("3", _) or (_, "Port Restricted Cone") => Color.DarkOrange,
+            ("4", _) or (_, "Symmetric") => Color.Red,
+            _ => Color.Gray
+        };
+
+        NatTypeStatusLightLabel.ForeColor = c;
+    }
+
+    private void UpdateDnsStatusLabel()
+    {
+        if (State == State.Started)
+        {
+            var isDnsRunning = Services.DnsService.IsRunning;
+            var dnsName = isDnsRunning ? i18N.Translate("In-Process DNS") : i18N.Translate("Direct/System");
+            DnsStatusLabel.Text = $"DNS{i18N.Translate(": ")}{dnsName}";
+            DnsStatusLabel.ToolTipText = isDnsRunning
+                ? $"DNS: 127.0.0.1:53\nChinaDNS: {Global.Settings.AioDNS.ChinaDNS}\nOtherDNS: {Global.Settings.AioDNS.OtherDNS}\n({i18N.Translate("Click to open DNS settings")})"
+                : i18N.Translate("Click to open DNS settings");
+            DnsStatusLabel.Visible = true;
+        }
+        else
+        {
+            DnsStatusLabel.Visible = false;
+            DnsStatusLabel.Text = "";
+            DnsStatusLabel.ToolTipText = "";
+        }
+    }
+
+    private void DnsStatusLabel_Click(object? sender, EventArgs e)
+    {
+        Hide();
+        new SettingForm("DNS").ShowDialog();
+        Show();
     }
 
     private async void TcpStatusLabel_Click(object sender, EventArgs e)
@@ -1403,17 +1473,11 @@ public partial class MainForm : Form
             if (!string.IsNullOrEmpty(res.PublicEnd))
             {
                 var country = await Utils.Utils.GetCityCodeAsync(res.PublicEnd);
-
-                UpdateNatTypeStatusLabelText(res.Result, country);
-                if (int.TryParse(res.Result, out var natType))
-                    UpdateNatTypeLight(natType);
-                else
-                    UpdateNatTypeLight();
+                UpdateNatTypeStatusLabel(res, country);
             }
             else
             {
-                UpdateNatTypeStatusLabelText(res.Result ?? "Error");
-                NatTypeStatusLightLabel.Visible = false;
+                UpdateNatTypeStatusLabel(res, null);
             }
         }
         finally

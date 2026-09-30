@@ -105,6 +105,7 @@
   "Options": "选项",
   "NF Service": "NF 服务",
   "TUN/TAP driver": "TUN/TAP 驱动",
+  "Uninstall NF Service": "卸载 NF 服务",
   "Uninstall {0}": "卸载 {0}",
   "Uninstalling {0}": "正在卸载 {0} 中",
   "{0} has been uninstalled": "{0} 已卸载",
@@ -263,5 +264,12 @@
   "Redirector start failed.": "Redirector 启动失败",
 
   "{0} won't get developers' support, Please do not report any issues or seek help from developers.": "{0} 将不会得到开发者的支持，请不要报告任何问题或寻求开发人员的帮助。",
-  "No Support": "不受支持"
+  "No Support": "不受支持",
+  "DNS Mode": "DNS 模式",
+  "In-Process DNS": "内置分流",
+  "Direct/System": "直连/系统",
+  "Full Cone": "全锥型 (Full Cone)",
+  "Restricted Cone": "受限锥型 (Restricted Cone)",
+  "Port Restricted Cone": "端口受限锥型 (Port Restricted)",
+  "Symmetric": "对称型 (Symmetric)"
 }

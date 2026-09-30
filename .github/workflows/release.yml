@@ -152,6 +152,35 @@ jobs:
           $hash=(Get-FileHash $pkg -Algorithm SHA256).Hash.ToLower()
           echo "NETCH_SHA256=$hash" | Out-File -Append -Encoding UTF8 -FilePath $Env:GITHUB_ENV
 
+      - name: Generate Changelog
+        shell: pwsh
+        run: |
+          Write-Host "Extracting previous version tag..."
+          $prevTag = git describe --tags --abbrev=0 HEAD^ 2>$null
+          if (-not $prevTag) {
+            $prevTag = $(git rev-list --max-parents=0 HEAD)
+          }
+          Write-Host "Previous tag: $prevTag, Current ref: ${{ github.ref_name }}"
+
+          $commits = git log "$prevTag..HEAD" --pretty=format:"* %s ([%h](https://github.com/${{ github.repository }}/commit/%H))" --no-merges
+          if ([string]::IsNullOrWhiteSpace($commits)) {
+            $commits = "* Updates and maintenance for ${{ github.ref_name }}"
+          }
+
+          $body = @"
+          [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)
+
+          ## Changelog / 更新日志 (${{ github.ref_name }})
+          $commits
+
+          ## Checksums / 校验和
+          | 文件名 | SHA256 |
+          | :- | :- |
+          | $env:PACKAGE_NAME | $env:NETCH_SHA256 |
+          "@
+
+          Set-Content -Path "release_body.md" -Value $body -Encoding UTF8
+
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
@@ -162,15 +191,4 @@ jobs:
           draft: false
           files: |
             ${{ env.PACKAGE_NAME }}
-          body: |
-            [![](https://img.shields.io/badge/Telegram-Channel-blue)](https://t.me/netch_channel) [![](https://img.shields.io/badge/Telegram-Group-green)](https://t.me/netch_group)
-            ## Changelogs
-            * Automated deployment of ${{ github.ref_name }}
-
-            ## 更新日志
-            * 自动化发布构建：${{ github.ref_name }}
-
-            ## 校验和
-            | 文件名 | SHA256 |
-            | :- | :- |
-            | ${{ env.PACKAGE_NAME }} | ${{ env.NETCH_SHA256 }} |
+          body_path: release_body.md

@@ -125,6 +125,7 @@ public static class ThemeService
                 case GroupBox gb:
                     gb.BackColor = dark ? DarkCard : Color.Transparent;
                     gb.ForeColor = dark ? DarkText : SystemColors.ControlText;
+                    gb.FlatStyle = dark ? FlatStyle.Flat : FlatStyle.Standard;
                     ApplyToControls(gb.Controls, dark);
                     break;
 
@@ -150,6 +151,7 @@ public static class ThemeService
                 case TextBox tb:
                     tb.BackColor = dark ? DarkInput : SystemColors.Window;
                     tb.ForeColor = dark ? DarkText : SystemColors.WindowText;
+                    tb.BorderStyle = dark ? BorderStyle.FixedSingle : BorderStyle.Fixed3D;
                     break;
 
                 case ComboBox cb:

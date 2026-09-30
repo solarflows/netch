@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -198,14 +199,49 @@ public static class Program
         }
     }
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
+
+    [DllImport("user32.dll")]
+    private static extern bool DeleteMenu(IntPtr hMenu, uint uPosition, uint uFlags);
+
+    [DllImport("kernel32.dll")]
+    private static extern bool SetConsoleCtrlHandler(ConsoleCtrlDelegate? handlerRoutine, bool add);
+
+    private delegate bool ConsoleCtrlDelegate(int ctrlType);
+    private static ConsoleCtrlDelegate? _consoleCtrlHandler;
+
+    private const uint SC_CLOSE = 0xF060;
+    private const uint MF_BYCOMMAND = 0x00000000;
+
     private static void InitConsole()
     {
         PInvoke.AllocConsole();
 
         ConsoleHwnd = PInvoke.GetConsoleWindow();
+
+        // 1. 禁用控制台右上角的 [X] 关闭按钮，防止用户误触直接关闭整个 Netch 主程序
+        var hMenu = GetSystemMenu((IntPtr)ConsoleHwnd.Value, false);
+        if (hMenu != IntPtr.Zero)
+        {
+            DeleteMenu(hMenu, SC_CLOSE, MF_BYCOMMAND);
+        }
+
+        // 2. 注册控制台关闭事件处理程序：若收到 CTRL_CLOSE_EVENT，转为隐藏控制台，阻止进程被 Windows 强制终止
+        _consoleCtrlHandler = ctrlType =>
+        {
+            if (ctrlType == 2) // CTRL_CLOSE_EVENT
+            {
+                PInvoke.ShowWindow(ConsoleHwnd, Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_HIDE);
+                return true; // 返回 true 表示已拦截处理，严禁退出进程
+            }
+            return false;
+        };
+        SetConsoleCtrlHandler(_consoleCtrlHandler, true);
+
 #if RELEASE
         // hide console window
-        PInvoke.ShowWindow(ConsoleHwnd, SHOW_WINDOW_CMD.SW_HIDE);
+        PInvoke.ShowWindow(ConsoleHwnd, Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_HIDE);
 #endif
     }
 

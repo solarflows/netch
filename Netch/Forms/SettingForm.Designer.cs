@@ -33,7 +33,7 @@ namespace Netch.Forms
         {
             this.components = new System.ComponentModel.Container();
             this.TabStrip = new Netch.Forms.ModernTabStrip();
-            this.TabControl = new System.Windows.Forms.TabControl();
+            this.TabControl = new Netch.Forms.BorderlessTabControl();
             this.GeneralTabPage = new System.Windows.Forms.TabPage();
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
             this.Socks5PortLabel = new System.Windows.Forms.Label();
@@ -149,7 +149,7 @@ namespace Netch.Forms
             //
             this.TabStrip.Location = new System.Drawing.Point(3, 3);
             this.TabStrip.Name = "TabStrip";
-            this.TabStrip.Size = new System.Drawing.Size(488, 36);
+            this.TabStrip.Size = new System.Drawing.Size(608, 36);
             this.TabStrip.TabIndex = 0;
             this.TabStrip.TargetTabControl = this.TabControl;
             //
@@ -168,7 +168,7 @@ namespace Netch.Forms
             this.TabControl.Location = new System.Drawing.Point(3, 42);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(488, 350);
+            this.TabControl.Size = new System.Drawing.Size(608, 410);
             this.TabControl.TabIndex = 1;
             //
             // GeneralTabPage
@@ -1136,9 +1136,10 @@ namespace Netch.Forms
             // ControlButton
             //
             this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ControlButton.Location = new System.Drawing.Point(400, 395);
+            this.ControlButton.Location = new System.Drawing.Point(525, 455);
+            this.ControlButton.Margin = new System.Windows.Forms.Padding(525, 6, 3, 3);
             this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(75, 27);
+            this.ControlButton.Size = new System.Drawing.Size(80, 30);
             this.ControlButton.TabIndex = 1;
             this.ControlButton.Text = "Save";
             this.ControlButton.UseVisualStyleBackColor = true;
@@ -1155,7 +1156,7 @@ namespace Netch.Forms
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(500, 440);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(620, 500);
             this.flowLayoutPanel1.TabIndex = 0;
             //
             // errorProvider
@@ -1169,7 +1170,8 @@ namespace Netch.Forms
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(500, 440);
+            this.ClientSize = new System.Drawing.Size(620, 500);
+            this.MinimumSize = new System.Drawing.Size(620, 500);
             this.Controls.Add(this.flowLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
@@ -1207,7 +1209,7 @@ namespace Netch.Forms
         #endregion
 
         private Netch.Forms.ModernTabStrip TabStrip;
-        private System.Windows.Forms.TabControl TabControl;
+        private Netch.Forms.BorderlessTabControl TabControl;
         private System.Windows.Forms.TabPage GeneralTabPage;
         private System.Windows.Forms.TabPage NFTabPage;
         private System.Windows.Forms.TabPage WinTUNTabPage;

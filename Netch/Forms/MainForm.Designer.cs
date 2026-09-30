@@ -75,6 +75,7 @@
             this.DownloadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.UploadSpeedLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.blankToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.DnsStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.HttpStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.NatTypeStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.NatTypeStatusLightLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -540,6 +541,7 @@
             this.DownloadSpeedLabel,
             this.UploadSpeedLabel,
             this.blankToolStripStatusLabel,
+            this.DnsStatusLabel,
             this.HttpStatusLabel,
             this.NatTypeStatusLabel,
             this.NatTypeStatusLightLabel});
@@ -582,7 +584,16 @@
             this.blankToolStripStatusLabel.Name = "blankToolStripStatusLabel";
             this.blankToolStripStatusLabel.Size = new System.Drawing.Size(494, 17);
             this.blankToolStripStatusLabel.Spring = true;
-            // 
+            //
+            // DnsStatusLabel
+            //
+            this.DnsStatusLabel.Name = "DnsStatusLabel";
+            this.DnsStatusLabel.Size = new System.Drawing.Size(60, 17);
+            this.DnsStatusLabel.Text = "DNS";
+            this.DnsStatusLabel.TextAlign = System.Drawing.ContentAlignment.BottomLeft;
+            this.DnsStatusLabel.Visible = false;
+            this.DnsStatusLabel.Click += new System.EventHandler(this.DnsStatusLabel_Click);
+            //
             // HttpStatusLabel
             // 
             this.HttpStatusLabel.Name = "HttpStatusLabel";
@@ -815,6 +826,7 @@
         private System.Windows.Forms.ToolStripLabel VersionLabel;
         private System.Windows.Forms.ToolStripStatusLabel NatTypeStatusLightLabel;
         private System.Windows.Forms.ToolStripStatusLabel blankToolStripStatusLabel;
+        private System.Windows.Forms.ToolStripStatusLabel DnsStatusLabel;
         private System.Windows.Forms.ToolStripMenuItem FAQToolStripMenuItem;
 
         #endregion

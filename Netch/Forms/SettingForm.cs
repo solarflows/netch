@@ -9,11 +9,24 @@ namespace Netch.Forms;
 [Fody.ConfigureAwait(true)]
 public partial class SettingForm : BindingForm
 {
-    public SettingForm()
+    public SettingForm(string? initialTab = null)
     {
         InitializeComponent();
         Icon = Resources.icon;
         i18N.TranslateForm(this);
+
+        if (!string.IsNullOrEmpty(initialTab))
+        {
+            foreach (TabPage page in TabControl.TabPages)
+            {
+                if (page.Text.Contains(initialTab, StringComparison.OrdinalIgnoreCase) ||
+                    page.Name.Contains(initialTab, StringComparison.OrdinalIgnoreCase))
+                {
+                    TabControl.SelectedTab = page;
+                    break;
+                }
+            }
+        }
 
         #region General
 

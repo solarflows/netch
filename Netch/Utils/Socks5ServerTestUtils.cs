@@ -63,12 +63,27 @@ public static class Socks5ServerTestUtils
 
         var res = client.State;
         var result = GetSimpleResult(res);
+        var mapping = res.MappingBehavior.ToString();
+        var filtering = res.FilteringBehavior.ToString();
+        string classic = (res.BindingTestResult, res.MappingBehavior, res.FilteringBehavior) switch
+        {
+            (BindingTestResult.Fail, _, _) => "UdpBlocked",
+            (not BindingTestResult.Success, _, _) => res.BindingTestResult.ToString(),
+            (_, MappingBehavior.Direct or MappingBehavior.EndpointIndependent, FilteringBehavior.EndpointIndependent) => "Full Cone",
+            (_, MappingBehavior.Direct or MappingBehavior.EndpointIndependent, FilteringBehavior.AddressDependent) => "Restricted Cone",
+            (_, MappingBehavior.Direct or MappingBehavior.EndpointIndependent, FilteringBehavior.AddressAndPortDependent) => "Port Restricted Cone",
+            (_, MappingBehavior.AddressDependent or MappingBehavior.AddressAndPortDependent, _) => "Symmetric",
+            _ => res.FilteringBehavior.ToString()
+        };
 
         return new NatTypeTestResult
         {
             Result = result,
             LocalEnd = res.LocalEndPoint?.ToString(),
-            PublicEnd = res.PublicEndPoint?.ToString()
+            PublicEnd = res.PublicEndPoint?.ToString(),
+            MappingBehavior = mapping,
+            FilteringBehavior = filtering,
+            ClassicNatType = classic
         };
     }
 
