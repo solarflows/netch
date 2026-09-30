@@ -457,6 +457,7 @@ public class SmokeTests
 
         Assert.IsTrue(typeNames.Contains("XrayServerForm"), "XrayServerForm must exist");
         Assert.IsTrue(typeNames.Contains("SingboxServerForm"), "SingboxServerForm must exist");
+        Assert.IsTrue(typeNames.Contains("ModernTabStrip"), "ModernTabStrip must exist");
     }
 
     [TestMethod]

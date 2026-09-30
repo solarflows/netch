@@ -112,10 +112,14 @@ public static class ThemeService
                     foreach (TabPage page in tc.TabPages)
                     {
                         page.UseVisualStyleBackColor = !dark;
-                        page.BackColor = dark ? DarkCard : SystemColors.ButtonFace;
+                        page.BackColor = dark ? DarkBg : SystemColors.Control;
                         page.ForeColor = dark ? DarkText : SystemColors.ControlText;
                         ApplyToControls(page.Controls, dark);
                     }
+                    break;
+
+                case Forms.ModernTabStrip mts:
+                    mts.Invalidate();
                     break;
 
                 case GroupBox gb:

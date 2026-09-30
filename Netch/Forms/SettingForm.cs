@@ -224,11 +224,9 @@ public partial class SettingForm : BindingForm
 
     private void SettingForm_Load(object sender, EventArgs e)
     {
-        if (TabControl.TabCount > 0)
-        {
-            TabControl.ItemSize = new Size(Math.Max(66, (TabControl.Width - 6) / TabControl.TabCount), 32);
-        }
+        TabControl.ItemSize = new Size(0, 1);
         ThemeService.Apply(this);
+        TabStrip.Invalidate();
     }
 
     protected new void BindComboBox(ComboBox control, Func<string, bool> check, Action<string> save, string value, object[]? values = null)
@@ -305,53 +303,5 @@ public partial class SettingForm : BindingForm
         await Configuration.SaveAsync();
         MessageBoxX.Show(i18N.Translate("Saved"));
         Close();
-    }
-
-    private void TabControl_DrawItem(object? sender, DrawItemEventArgs e)
-    {
-        if (sender is not TabControl tabControl || e.Index < 0 || e.Index >= tabControl.TabCount)
-            return;
-
-        var tabPage = tabControl.TabPages[e.Index];
-        bool isSelected = tabControl.SelectedIndex == e.Index;
-        bool isDark = ThemeService.IsDarkMode;
-
-        var headerRect = tabControl.GetTabRect(e.Index);
-
-        // 如果是最后一个标签，把右侧多出来的空白区域也一并填满，彻底消除白色空隙
-        int rightEdge = (e.Index == tabControl.TabCount - 1) ? Math.Max(headerRect.Right, tabControl.Width) : headerRect.Right;
-        var fillRect = new Rectangle(headerRect.X - 1, headerRect.Y - 1, rightEdge - headerRect.X + 2, headerRect.Height + 3);
-
-        // 背景填充
-        var bgColor = isDark
-            ? (isSelected ? ThemeService.DarkCard : ThemeService.DarkBg)
-            : (isSelected ? SystemColors.Window : SystemColors.Control);
-
-        using (var bgBrush = new SolidBrush(bgColor))
-        {
-            e.Graphics.FillRectangle(bgBrush, fillRect);
-        }
-
-        // 选中项底部强调色横条 (Fluent Accent Bar)
-        if (isSelected)
-        {
-            var accentColor = isDark ? Color.FromArgb(0, 120, 215) : Color.FromArgb(0, 102, 204);
-            using var accentBrush = new SolidBrush(accentColor);
-            var lineRect = new Rectangle(headerRect.X, headerRect.Bottom - 3, headerRect.Width, 3);
-            e.Graphics.FillRectangle(accentBrush, lineRect);
-        }
-
-        // 文本绘制
-        var textColor = isDark
-            ? (isSelected ? ThemeService.DarkText : ThemeService.DarkTextDim)
-            : (isSelected ? SystemColors.ControlText : SystemColors.GrayText);
-
-        using var textFont = isSelected ? new Font(tabControl.Font, FontStyle.Bold) : new Font(tabControl.Font, FontStyle.Regular);
-        TextRenderer.DrawText(e.Graphics,
-            tabPage.Text,
-            textFont,
-            headerRect,
-            textColor,
-            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
     }
 }

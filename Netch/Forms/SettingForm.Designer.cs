@@ -32,6 +32,7 @@ namespace Netch.Forms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            this.TabStrip = new Netch.Forms.ModernTabStrip();
             this.TabControl = new System.Windows.Forms.TabControl();
             this.GeneralTabPage = new System.Windows.Forms.TabPage();
             this.PortGroupBox = new System.Windows.Forms.GroupBox();
@@ -144,11 +145,18 @@ namespace Netch.Forms
             ((System.ComponentModel.ISupportInitialize)(this.errorProvider)).BeginInit();
             this.SuspendLayout();
             //
+            // TabStrip
+            //
+            this.TabStrip.Location = new System.Drawing.Point(3, 3);
+            this.TabStrip.Name = "TabStrip";
+            this.TabStrip.Size = new System.Drawing.Size(488, 36);
+            this.TabStrip.TabIndex = 0;
+            this.TabStrip.TargetTabControl = this.TabControl;
+            //
             // TabControl
             //
-            this.TabControl.Appearance = System.Windows.Forms.TabAppearance.Normal;
-            this.TabControl.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
-            this.TabControl.ItemSize = new System.Drawing.Size(68, 30);
+            this.TabControl.Appearance = System.Windows.Forms.TabAppearance.FlatButtons;
+            this.TabControl.ItemSize = new System.Drawing.Size(0, 1);
             this.TabControl.SizeMode = System.Windows.Forms.TabSizeMode.Fixed;
             this.TabControl.Controls.Add(this.GeneralTabPage);
             this.TabControl.Controls.Add(this.NFTabPage);
@@ -157,12 +165,11 @@ namespace Netch.Forms
             this.TabControl.Controls.Add(this.singboxTabPage);
             this.TabControl.Controls.Add(this.OtherTabPage);
             this.TabControl.Controls.Add(this.DNSTabPage);
-            this.TabControl.Location = new System.Drawing.Point(3, 3);
+            this.TabControl.Location = new System.Drawing.Point(3, 42);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(488, 385);
-            this.TabControl.TabIndex = 0;
-            this.TabControl.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.TabControl_DrawItem);
+            this.TabControl.Size = new System.Drawing.Size(488, 350);
+            this.TabControl.TabIndex = 1;
             //
             // GeneralTabPage
             //
@@ -1141,6 +1148,7 @@ namespace Netch.Forms
             //
             this.flowLayoutPanel1.AutoSize = true;
             this.flowLayoutPanel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.flowLayoutPanel1.Controls.Add(this.TabStrip);
             this.flowLayoutPanel1.Controls.Add(this.TabControl);
             this.flowLayoutPanel1.Controls.Add(this.ControlButton);
             this.flowLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1198,6 +1206,7 @@ namespace Netch.Forms
 
         #endregion
 
+        private Netch.Forms.ModernTabStrip TabStrip;
         private System.Windows.Forms.TabControl TabControl;
         private System.Windows.Forms.TabPage GeneralTabPage;
         private System.Windows.Forms.TabPage NFTabPage;

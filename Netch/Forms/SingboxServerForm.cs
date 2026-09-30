@@ -39,58 +39,96 @@ public class SingboxServerForm : Form
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
-        ClientSize = new Size(540, 520);
-        AutoScroll = true;
+        ClientSize = new Size(550, 560);
 
-        var mainLayout = new TableLayoutPanel
+        // 1. 底部常驻操作栏 (永远吸底，绝不丢失)
+        var bottomPanel = new Panel
+        {
+            Dock = DockStyle.Bottom,
+            Height = 52,
+            Padding = new Padding(0, 8, 16, 10)
+        };
+        var btnFlow = new FlowLayoutPanel
         {
             Dock = DockStyle.Fill,
-            ColumnCount = 1,
-            RowCount = 4,
-            Padding = new Padding(12),
-            AutoSize = true
+            FlowDirection = FlowDirection.RightToLeft,
+            WrapContents = false
         };
-        mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
-        mainLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 100));
-        mainLayout.RowStyles.Add(new RowStyle(SizeType.AutoSize));
+        var cancelBtn = new Button { Text = i18N.Translate("Cancel"), Size = new Size(88, 32), DialogResult = DialogResult.Cancel };
+        var saveBtn = new Button { Text = i18N.Translate("Save"), Size = new Size(88, 32) };
+        saveBtn.Click += SaveButton_Click;
+        btnFlow.Controls.Add(cancelBtn);
+        btnFlow.Controls.Add(saveBtn);
+        bottomPanel.Controls.Add(btnFlow);
 
-        // 1. 顶部友好提示横幅 (Banner)
-        var bannerBox = new GroupBox
+        bottomPanel.Paint += (_, e) =>
+        {
+            bool isDark = ThemeService.IsDarkMode;
+            using var pen = new Pen(isDark ? Color.FromArgb(48, 48, 48) : Color.FromArgb(220, 220, 220));
+            e.Graphics.DrawLine(pen, 0, 0, bottomPanel.Width, 0);
+        };
+
+        // 2. 内容自适应可滚动区域
+        var scrollPanel = new Panel
+        {
+            Dock = DockStyle.Fill,
+            AutoScroll = true,
+            Padding = new Padding(16, 12, 16, 12)
+        };
+
+        var mainContentTable = new TableLayoutPanel
         {
             Dock = DockStyle.Top,
-            Text = i18N.Translate("Notice"),
+            ColumnCount = 1,
             AutoSize = true,
-            Padding = new Padding(10),
-            Margin = new Padding(0, 0, 0, 10)
+            Padding = new Padding(0)
+        };
+        mainContentTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+        // 提示横幅 (自适应宽度，防右侧裁切)
+        var bannerBox = new Panel
+        {
+            Dock = DockStyle.Top,
+            AutoSize = true,
+            Padding = new Padding(12, 10, 12, 10),
+            Margin = new Padding(0, 0, 0, 14)
+        };
+        bannerBox.Paint += (_, e) =>
+        {
+            bool isDark = ThemeService.IsDarkMode;
+            var bg = isDark ? Color.FromArgb(38, 44, 54) : Color.FromArgb(240, 246, 255);
+            var border = isDark ? Color.FromArgb(50, 70, 95) : Color.FromArgb(205, 225, 250);
+            using var bgBrush = new SolidBrush(bg);
+            using var borderPen = new Pen(border);
+            var rect = new Rectangle(0, 0, bannerBox.Width - 1, bannerBox.Height - 1);
+            e.Graphics.FillRectangle(bgBrush, rect);
+            e.Graphics.DrawRectangle(borderPen, rect);
         };
         var bannerLabel = new Label
         {
-            Dock = DockStyle.Fill,
+            Dock = DockStyle.Top,
             AutoSize = true,
+            MaximumSize = new Size(490, 0),
             ForeColor = Color.FromArgb(0, 120, 215),
             Text = i18N.Translate("💡 Manual configuration only provides essential client parameters.\r\nFor complex routing, chain proxies, or full advanced features, we recommend importing via Subscription URL or Clipboard.")
         };
         bannerBox.Controls.Add(bannerLabel);
-        mainLayout.Controls.Add(bannerBox, 0, 0);
+        mainContentTable.Controls.Add(bannerBox, 0, 0);
 
-        // 2. 基础信息组
-        var basicGroup = new GroupBox
-        {
-            Dock = DockStyle.Top,
-            Text = i18N.Translate("Basic Configuration"),
-            AutoSize = true,
-            Padding = new Padding(10),
-            Margin = new Padding(0, 0, 0, 10)
-        };
+        // 基础配置小标题
+        var basicHeader = CreateSectionHeader(i18N.Translate("Basic Configuration"));
+        mainContentTable.Controls.Add(basicHeader, 0, 1);
+
+        // 基础配置表单 (第一列放宽至 150px)
         var basicTable = new TableLayoutPanel
         {
-            Dock = DockStyle.Fill,
+            Dock = DockStyle.Top,
             ColumnCount = 2,
             RowCount = 4,
-            AutoSize = true
+            AutoSize = true,
+            Margin = new Padding(0, 0, 0, 14)
         };
-        basicTable.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
+        basicTable.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
         basicTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
         AddRow(basicTable, 0, i18N.Translate("Remark"), _remarkTextBox);
@@ -112,41 +150,49 @@ public class SingboxServerForm : Form
         _protocolComboBox.SelectedIndexChanged += (_, _) => SwitchProtocolFields(_protocolComboBox.SelectedItem?.ToString());
 
         AddRow(basicTable, 3, i18N.Translate("Protocol"), _protocolComboBox);
-        basicGroup.Controls.Add(basicTable);
-        mainLayout.Controls.Add(basicGroup, 0, 1);
+        mainContentTable.Controls.Add(basicTable, 0, 2);
 
-        // 3. 动态协议参数面板
-        _dynamicPanel.Dock = DockStyle.Fill;
+        // 动态协议参数面板
+        _dynamicPanel.Dock = DockStyle.Top;
         _dynamicPanel.AutoSize = true;
-        mainLayout.Controls.Add(_dynamicPanel, 0, 2);
+        _dynamicPanel.Margin = new Padding(0);
+        mainContentTable.Controls.Add(_dynamicPanel, 0, 3);
 
-        // 4. 底部按钮
-        var btnPanel = new FlowLayoutPanel
-        {
-            Dock = DockStyle.Bottom,
-            FlowDirection = FlowDirection.RightToLeft,
-            AutoSize = true,
-            Padding = new Padding(0, 10, 0, 0)
-        };
-        var cancelBtn = new Button { Text = i18N.Translate("Cancel"), Size = new Size(88, 30), DialogResult = DialogResult.Cancel };
-        var saveBtn = new Button { Text = i18N.Translate("Save"), Size = new Size(88, 30) };
-        saveBtn.Click += SaveButton_Click;
+        scrollPanel.Controls.Add(mainContentTable);
 
-        btnPanel.Controls.Add(cancelBtn);
-        btnPanel.Controls.Add(saveBtn);
-        mainLayout.Controls.Add(btnPanel, 0, 3);
+        // 先添加 scrollPanel 再添加 bottomPanel，确保 bottomPanel 始终固定贴底
+        Controls.Add(scrollPanel);
+        Controls.Add(bottomPanel);
 
-        Controls.Add(mainLayout);
         SwitchProtocolFields(_protocolComboBox.SelectedItem?.ToString());
 
         Load += (_, _) => ThemeService.Apply(this);
     }
 
+    private static Label CreateSectionHeader(string title)
+    {
+        return new Label
+        {
+            Text = title,
+            Font = new Font(Control.DefaultFont, FontStyle.Bold),
+            ForeColor = Color.FromArgb(0, 120, 215),
+            AutoSize = true,
+            Margin = new Padding(0, 6, 0, 8)
+        };
+    }
+
     private static void AddRow(TableLayoutPanel table, int row, string labelText, Control input)
     {
-        var lbl = new Label { Text = labelText, AutoSize = true, Anchor = AnchorStyles.Left, Margin = new Padding(3, 6, 3, 6) };
+        var lbl = new Label
+        {
+            Text = labelText,
+            AutoSize = true,
+            TextAlign = ContentAlignment.MiddleLeft,
+            Anchor = AnchorStyles.Left,
+            Margin = new Padding(2, 6, 8, 6)
+        };
         input.Dock = DockStyle.Fill;
-        input.Margin = new Padding(3, 3, 3, 3);
+        input.Margin = new Padding(2, 3, 2, 4);
         table.Controls.Add(lbl, 0, row);
         table.Controls.Add(input, 1, row);
     }
@@ -157,21 +203,26 @@ public class SingboxServerForm : Form
         _dynamicPanel.Controls.Clear();
         _fields.Clear();
 
-        var group = new GroupBox
+        var container = new TableLayoutPanel
         {
-            Dock = DockStyle.Fill,
-            Text = i18N.TranslateFormat("{0} Options", protocol ?? ""),
+            Dock = DockStyle.Top,
+            ColumnCount = 1,
             AutoSize = true,
-            Padding = new Padding(10)
+            Padding = new Padding(0)
         };
+        container.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+        var header = CreateSectionHeader(i18N.TranslateFormat("{0} Options", protocol ?? ""));
+        container.Controls.Add(header, 0, 0);
 
         var table = new TableLayoutPanel
         {
-            Dock = DockStyle.Fill,
+            Dock = DockStyle.Top,
             ColumnCount = 2,
-            AutoSize = true
+            AutoSize = true,
+            Margin = new Padding(0, 0, 0, 14)
         };
-        table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 120));
+        table.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 150));
         table.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
 
         int row = 0;
@@ -286,8 +337,8 @@ public class SingboxServerForm : Form
             }
         }
 
-        group.Controls.Add(table);
-        _dynamicPanel.Controls.Add(group);
+        container.Controls.Add(table, 0, 1);
+        _dynamicPanel.Controls.Add(container);
         _dynamicPanel.ResumeLayout(true);
 
         ThemeService.Apply(this);
