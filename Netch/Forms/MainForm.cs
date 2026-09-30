@@ -1326,18 +1326,18 @@ public partial class MainForm : Form
 
     private void UpdateNatTypeStatusLabelText(string? text, string? country = null)
     {
+        NatTypeStatusLabel.Text = "NAT: ";
         if (!string.IsNullOrEmpty(text))
         {
-            if (country == null)
-                NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{text} ";
-            else
-                NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{text} [{country}]";
-
             UpdateNatTypeLight(text);
+            NatTypeStatusLabel.ToolTipText = text;
+            NatTypeStatusLightLabel.ToolTipText = text;
         }
         else
         {
-            NatTypeStatusLabel.Text = $@"NAT{i18N.Translate(": ", "Test failed")}";
+            UpdateNatTypeLight(null);
+            NatTypeStatusLabel.ToolTipText = i18N.Translate("Test failed");
+            NatTypeStatusLightLabel.ToolTipText = i18N.Translate("Test failed");
         }
 
         NatTypeStatusLabel.Visible = true;
@@ -1345,18 +1345,17 @@ public partial class MainForm : Form
 
     private void UpdateNatTypeStatusLabel(NatTypeTestResult res, string? country = null)
     {
+        NatTypeStatusLabel.Text = "NAT: ";
         var text = res.Result;
         if (!string.IsNullOrEmpty(text))
         {
             var natDisplay = res.ClassicNatType ?? (int.TryParse(text, out var t) ? $"NAT {t}" : text);
-            if (country == null)
-                NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{natDisplay} ";
-            else
-                NatTypeStatusLabel.Text = $"NAT{i18N.Translate(": ")}{natDisplay} [{country}]";
 
             UpdateNatTypeLight(text, res.ClassicNatType);
 
             var sb = new StringBuilder();
+            sb.AppendLine($"NAT: {natDisplay}{(country != null ? $" [{country}]" : "")}");
+            sb.AppendLine("─────────────────────────────");
             sb.AppendLine($"RFC 3489: {res.ClassicNatType ?? natDisplay}");
             if (!string.IsNullOrEmpty(res.MappingBehavior))
                 sb.AppendLine($"RFC 4787 Mapping: {res.MappingBehavior}");
@@ -1367,18 +1366,19 @@ public partial class MainForm : Form
             if (!string.IsNullOrEmpty(res.PublicEnd))
                 sb.AppendLine($"Public: {res.PublicEnd}{(country != null ? $" [{country}]" : "")}");
             sb.AppendLine($"STUN Server: {Global.Settings.STUN_Server}:{Global.Settings.STUN_Server_Port}");
+            sb.AppendLine("─────────────────────────────");
             sb.Append(i18N.Translate("Click to test again"));
 
-            var tip = sb.ToString().TrimEnd();
+            var tip = sb.ToString();
             NatTypeStatusLabel.ToolTipText = tip;
             NatTypeStatusLightLabel.ToolTipText = tip;
         }
         else
         {
-            NatTypeStatusLabel.Text = $@"NAT{i18N.Translate(": ", "Test failed")}";
             UpdateNatTypeLight(null);
-            NatTypeStatusLabel.ToolTipText = "";
-            NatTypeStatusLightLabel.ToolTipText = "";
+            var tip = $@"NAT{i18N.Translate(": ", "Test failed")}";
+            NatTypeStatusLabel.ToolTipText = tip;
+            NatTypeStatusLightLabel.ToolTipText = tip;
         }
 
         NatTypeStatusLabel.Visible = true;
@@ -1401,7 +1401,8 @@ public partial class MainForm : Form
     {
         if (string.IsNullOrEmpty(text))
         {
-            NatTypeStatusLightLabel.Visible = false;
+            NatTypeStatusLightLabel.Visible = true;
+            NatTypeStatusLightLabel.ForeColor = Color.Gray;
             return;
         }
 

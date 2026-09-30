@@ -537,11 +537,11 @@
             this.StatusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.StatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.StatusLabel,
+            this.DnsStatusLabel,
             this.UsedBandwidthLabel,
             this.DownloadSpeedLabel,
             this.UploadSpeedLabel,
             this.blankToolStripStatusLabel,
-            this.DnsStatusLabel,
             this.HttpStatusLabel,
             this.NatTypeStatusLabel,
             this.NatTypeStatusLightLabel});

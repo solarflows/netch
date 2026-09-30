@@ -130,7 +130,7 @@ public static class ThemeService
                     break;
 
                 case Panel p:
-                    p.BackColor = dark ? DarkCard : Color.Transparent;
+                    p.BackColor = (p.Name == "tabWrapperPanel") ? (dark ? DarkBg : SystemColors.Control) : (dark ? DarkCard : Color.Transparent);
                     p.ForeColor = dark ? DarkText : SystemColors.ControlText;
                     ApplyToControls(p.Controls, dark);
                     break;

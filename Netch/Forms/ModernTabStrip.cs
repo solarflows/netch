@@ -83,24 +83,22 @@ public class ModernTabStrip : Control
 
         int tabHeight = Height - 2;
 
-        // 1. 先统计所有 Tab 的宽度，实现动态居中布局
+        // 1. 采用加粗字体统一度量所有 Tab 槽位宽度，使各 Tab 物理槽位与起始居中坐标绝对恒定，彻底杜绝切换抖动
         var tabWidths = new int[_tabControl.TabCount];
         int totalTabsWidth = 0;
-        for (int i = 0; i < _tabControl.TabCount; i++)
+        using (var measureFont = new Font(Font, FontStyle.Bold))
         {
-            var page = _tabControl.TabPages[i];
-            bool isSelected = _tabControl.SelectedIndex == i;
-            using var textFont = isSelected
-                ? new Font(Font, FontStyle.Bold)
-                : new Font(Font, FontStyle.Regular);
-
-            var textSize = TextRenderer.MeasureText(page.Text, textFont);
-            int tabWidth = Math.Max(textSize.Width + 16, 44);
-            tabWidths[i] = tabWidth;
-            totalTabsWidth += tabWidth + (i > 0 ? 2 : 0);
+            for (int i = 0; i < _tabControl.TabCount; i++)
+            {
+                var page = _tabControl.TabPages[i];
+                var textSize = TextRenderer.MeasureText(page.Text, measureFont);
+                int tabWidth = Math.Max(textSize.Width + 16, 46);
+                tabWidths[i] = tabWidth;
+                totalTabsWidth += tabWidth + (i > 0 ? 2 : 0);
+            }
         }
 
-        // 居中起始 X 坐标
+        // 居中起始 X 坐标 (因总宽度恒定，此坐标永远锁死，绝对不发生任何横向晃动)
         int currentX = Math.Max(4, (Width - totalTabsWidth) / 2);
 
         for (int i = 0; i < _tabControl.TabCount; i++)
