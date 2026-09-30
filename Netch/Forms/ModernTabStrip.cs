@@ -81,21 +81,39 @@ public class ModernTabStrip : Control
         if (_tabControl == null || _tabControl.TabCount == 0)
             return;
 
-        int currentX = 4;
         int tabHeight = Height - 2;
+
+        // 1. 先统计所有 Tab 的宽度，实现动态居中布局
+        var tabWidths = new int[_tabControl.TabCount];
+        int totalTabsWidth = 0;
+        for (int i = 0; i < _tabControl.TabCount; i++)
+        {
+            var page = _tabControl.TabPages[i];
+            bool isSelected = _tabControl.SelectedIndex == i;
+            using var textFont = isSelected
+                ? new Font(Font, FontStyle.Bold)
+                : new Font(Font, FontStyle.Regular);
+
+            var textSize = TextRenderer.MeasureText(page.Text, textFont);
+            int tabWidth = Math.Max(textSize.Width + 16, 44);
+            tabWidths[i] = tabWidth;
+            totalTabsWidth += tabWidth + (i > 0 ? 2 : 0);
+        }
+
+        // 居中起始 X 坐标
+        int currentX = Math.Max(4, (Width - totalTabsWidth) / 2);
 
         for (int i = 0; i < _tabControl.TabCount; i++)
         {
             var page = _tabControl.TabPages[i];
             bool isSelected = _tabControl.SelectedIndex == i;
             bool isHover = _hoverIndex == i && !isSelected;
+            int tabWidth = tabWidths[i];
 
             using var textFont = isSelected
                 ? new Font(Font, FontStyle.Bold)
                 : new Font(Font, FontStyle.Regular);
 
-            var textSize = TextRenderer.MeasureText(page.Text, textFont);
-            int tabWidth = Math.Max(textSize.Width + 24, 48);
             var rect = new Rectangle(currentX, 1, tabWidth, tabHeight);
             _tabRects.Add(rect);
 

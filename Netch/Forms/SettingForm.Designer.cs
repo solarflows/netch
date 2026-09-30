@@ -149,7 +149,7 @@ namespace Netch.Forms
             //
             this.TabStrip.Location = new System.Drawing.Point(3, 3);
             this.TabStrip.Name = "TabStrip";
-            this.TabStrip.Size = new System.Drawing.Size(608, 36);
+            this.TabStrip.Size = new System.Drawing.Size(502, 36);
             this.TabStrip.TabIndex = 0;
             this.TabStrip.TargetTabControl = this.TabControl;
             //
@@ -168,7 +168,7 @@ namespace Netch.Forms
             this.TabControl.Location = new System.Drawing.Point(3, 42);
             this.TabControl.Name = "TabControl";
             this.TabControl.SelectedIndex = 0;
-            this.TabControl.Size = new System.Drawing.Size(608, 410);
+            this.TabControl.Size = new System.Drawing.Size(502, 365);
             this.TabControl.TabIndex = 1;
             //
             // GeneralTabPage
@@ -1093,7 +1093,7 @@ namespace Netch.Forms
             //
             this.ChinaDNSTextBox.Location = new System.Drawing.Point(150, 20);
             this.ChinaDNSTextBox.Name = "ChinaDNSTextBox";
-            this.ChinaDNSTextBox.Size = new System.Drawing.Size(201, 23);
+            this.ChinaDNSTextBox.Size = new System.Drawing.Size(312, 23);
             this.ChinaDNSTextBox.TabIndex = 1;
             this.ChinaDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             //
@@ -1110,7 +1110,7 @@ namespace Netch.Forms
             //
             this.OtherDNSTextBox.Location = new System.Drawing.Point(150, 60);
             this.OtherDNSTextBox.Name = "OtherDNSTextBox";
-            this.OtherDNSTextBox.Size = new System.Drawing.Size(201, 23);
+            this.OtherDNSTextBox.Size = new System.Drawing.Size(312, 23);
             this.OtherDNSTextBox.TabIndex = 3;
             this.OtherDNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             //
@@ -1136,10 +1136,10 @@ namespace Netch.Forms
             // ControlButton
             //
             this.ControlButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ControlButton.Location = new System.Drawing.Point(525, 455);
-            this.ControlButton.Margin = new System.Windows.Forms.Padding(525, 6, 3, 3);
+            this.ControlButton.Location = new System.Drawing.Point(418, 410);
+            this.ControlButton.Margin = new System.Windows.Forms.Padding(418, 6, 3, 3);
             this.ControlButton.Name = "ControlButton";
-            this.ControlButton.Size = new System.Drawing.Size(80, 30);
+            this.ControlButton.Size = new System.Drawing.Size(80, 28);
             this.ControlButton.TabIndex = 1;
             this.ControlButton.Text = "Save";
             this.ControlButton.UseVisualStyleBackColor = true;
@@ -1156,7 +1156,7 @@ namespace Netch.Forms
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(620, 500);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(516, 450);
             this.flowLayoutPanel1.TabIndex = 0;
             //
             // errorProvider
@@ -1170,8 +1170,9 @@ namespace Netch.Forms
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.ClientSize = new System.Drawing.Size(620, 500);
-            this.MinimumSize = new System.Drawing.Size(620, 500);
+            this.ClientSize = new System.Drawing.Size(516, 450);
+            this.MinimumSize = new System.Drawing.Size(516, 450);
+            this.MaximumSize = new System.Drawing.Size(516, 450);
             this.Controls.Add(this.flowLayoutPanel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.MaximizeBox = false;
