@@ -1,0 +1,25 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "NodeJS / NVM",
+    "en": "NodeJS With NVM"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "nvm.exe",
+    "unins000.exe",
+    "node64.exe",
+    "node.exe"
+  ]
+}

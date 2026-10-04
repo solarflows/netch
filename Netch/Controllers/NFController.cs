@@ -47,21 +47,30 @@ public class NFController : IModeController
         Dial(NameList.AIO_FILTERUDP, _mode.FilterUDP ?? _rdrConfig.FilterUDP);
 
         // DNS
-        Dial(NameList.AIO_FILTERDNS, _mode.FilterDNS ?? _rdrConfig.FilterDNS);
+        bool filterDns = _mode.FilterDNS ?? _rdrConfig.FilterDNS;
+        Dial(NameList.AIO_FILTERDNS, filterDns);
         Dial(NameList.AIO_DNSONLY, _mode.HandleOnlyDNS ?? _rdrConfig.HandleOnlyDNS);
         Dial(NameList.AIO_DNSPROX, _mode.DNSProxy ?? _rdrConfig.DNSProxy);
-        if (_mode.FilterDNS ?? _rdrConfig.FilterDNS)
+        if (filterDns)
         {
             var dnsStr = _mode.FilterDNS != null ? _mode.DNSHost : _rdrConfig.DNSHost;
 
-            dnsStr = dnsStr.ValueOrDefault() ?? $"{Constants.DefaultPrimaryDNS}:53";
+            // 若用户未指定特定外部 DNS，或者使用的是默认 DNS，自动接入本地原生 DnsService 享受 0ms 缓存与分流
+            if (string.IsNullOrWhiteSpace(dnsStr) || dnsStr.StartsWith("127.0.0.1") || dnsStr.StartsWith("1.1.1.1"))
+            {
+                await DNSController.StartAsync();
+                Dial(NameList.AIO_DNSHOST, IPAddress.Loopback.ToString());
+                Dial(NameList.AIO_DNSPORT, Global.Settings.AioDNS.ListenPort.ToString());
+            }
+            else
+            {
+                var dns = IPEndPoint.Parse(dnsStr);
+                if (dns.Port == 0)
+                    dns.Port = 53;
 
-            var dns = IPEndPoint.Parse(dnsStr);
-            if (dns.Port == 0)
-                dns.Port = 53;
-
-            Dial(NameList.AIO_DNSHOST, dns.Address.ToString());
-            Dial(NameList.AIO_DNSPORT, dns.Port.ToString());
+                Dial(NameList.AIO_DNSHOST, dns.Address.ToString());
+                Dial(NameList.AIO_DNSPORT, dns.Port.ToString());
+            }
         }
 
         // Server
@@ -77,9 +86,14 @@ public class NFController : IModeController
             throw new MessageException("Redirector start failed.");
     }
 
-    public Task StopAsync()
+    public async Task StopAsync()
     {
-        return FreeAsync();
+        await FreeAsync();
+        if (Services.DnsService.IsRunning)
+        {
+            var dnsController = new DNSController();
+            await dnsController.StopAsync();
+        }
     }
 
     #region CheckRule

@@ -1,0 +1,30 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "战舰世界",
+    "en": "World of Warships"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "wgc_api.exe",
+    "wgc.exe",
+    "WorldOfWarships.exe",
+    "WGCheck.exe",
+    "WargamingErrorMonitor.exe",
+    "WorldOfWarships64.exe",
+    "cef_browser_process.exe",
+    "cef_subprocess.exe",
+    "WorldOfWarships32.exe"
+  ]
+}

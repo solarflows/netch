@@ -1,0 +1,24 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "逃离塔科夫",
+    "en": "Escape From Tarkov"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "EscapeFromTarkov.exe",
+    "EscapeFromTarkov_BE.exe",
+    "BsgLauncher.exe"
+  ]
+}

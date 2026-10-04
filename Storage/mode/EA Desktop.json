@@ -1,0 +1,36 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "EA Desktop (包含游戏)",
+    "en": "EA Desktop (with Games)"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "\\\\EA Games\\\\",
+    "EABackgroundService.exe",
+    "EAConnect_microsoft.exe",
+    "EACrashReporter.exe",
+    "EADesktop.exe",
+    "EAGEP.exe",
+    "EALauncher.exe",
+    "EALaunchHelper.exe",
+    "EALocalHostSvc.exe",
+    "ErrorReporter.exe",
+    "GetGameToken32.exe",
+    "GetGameToken64.exe",
+    "IGOProxy32.exe",
+    "OriginLegacyCompatibility.exe",
+    "QtWebEngineProcess.exe"
+  ]
+}

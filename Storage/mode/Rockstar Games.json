@@ -1,0 +1,22 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "Rockstar 启动器",
+    "en": "Rockstar Games Launcher"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "\\\\Rockstar Games\\\\Launcher\\\\"
+  ]
+}

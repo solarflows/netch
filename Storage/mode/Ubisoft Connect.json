@@ -1,0 +1,28 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "育碧 Ubisoft Connect",
+    "en": "Ubisoft Connect"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "UbisoftConnect.exe",
+    "UbisoftGameLauncher.exe",
+    "UbisoftGameLauncher64.exe",
+    "upc.exe",
+    "UplayCrashReporter.exe",
+    "UplayService.exe",
+    "UplayWebCore.exe"
+  ]
+}

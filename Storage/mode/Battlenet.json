@@ -1,0 +1,27 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "暴雪战网",
+    "en": "Battle.net"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "Battle.net Launcher.exe",
+    "BlizzardError.exe",
+    "Loader64.exe",
+    "SystemSurvey.exe",
+    "Battle.net.exe",
+    "Agent.exe"
+  ]
+}

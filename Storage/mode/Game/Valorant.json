@@ -1,0 +1,29 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "无畏契约 (Valorant)",
+    "en": "Valorant"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "RiotClientCrashHandler.exe",
+    "RiotClientServices.exe",
+    "RiotClientUx.exe",
+    "RiotClientUxRender.exe",
+    "VALORANT.exe",
+    "VALORANT-Win64-Shipping.exe",
+    "CrashReportClient.exe",
+    "UnrealCEFSubProcess.exe"
+  ]
+}

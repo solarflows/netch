@@ -489,5 +489,36 @@ public class SmokeTests
         Assert.IsFalse(Netch.Services.DnsService.IsRunning);
     }
 
+    [TestMethod]
+    public void Smoke_DnsService_ProtocolParsing()
+    {
+        var udp = Netch.Services.DnsService.ParseDnsConfig("223.5.5.5:53", "1.1.1.1", 53);
+        Assert.AreEqual(Netch.Services.DnsService.DnsProtocol.Udp, udp.Protocol);
+        Assert.AreEqual("223.5.5.5", udp.Host);
+        Assert.AreEqual(53, udp.Port);
+
+        var tcp = Netch.Services.DnsService.ParseDnsConfig("tcp://1.1.1.1:53", "1.1.1.1", 53);
+        Assert.AreEqual(Netch.Services.DnsService.DnsProtocol.Tcp, tcp.Protocol);
+        Assert.AreEqual("1.1.1.1", tcp.Host);
+        Assert.AreEqual(53, tcp.Port);
+
+        var doh = Netch.Services.DnsService.ParseDnsConfig("https://1.1.1.1/dns-query", "1.1.1.1", 53);
+        Assert.AreEqual(Netch.Services.DnsService.DnsProtocol.Doh, doh.Protocol);
+        Assert.AreEqual("https://1.1.1.1/dns-query", doh.DohUrl);
+    }
+
+    [TestMethod]
+    public void Smoke_Mode_JsonLoadingAntigravity()
+    {
+        var antigravityPath = Path.Combine(Global.NetchDir, "mode", "Other", "Antigravity.json");
+        if (File.Exists(antigravityPath))
+        {
+            var mode = ModeHelper.LoadMode(antigravityPath);
+            Assert.IsNotNull(mode);
+            Assert.AreEqual("Antigravity", mode.i18NRemark);
+            Assert.AreEqual(ModeType.ProcessMode, mode.Type);
+        }
+    }
+
     #endregion
 }

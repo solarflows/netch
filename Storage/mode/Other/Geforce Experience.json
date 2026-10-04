@@ -1,0 +1,25 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "GeForce Experience",
+    "en": "GeForce Experience"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "courgette.exe",
+    "NVIDIA GeForce Experience.exe",
+    "NVIDIA Notification.exe",
+    "NVIDIA Share.exe"
+  ]
+}

@@ -1,0 +1,22 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "Discord",
+    "en": "Discord"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "Discord"
+  ]
+}

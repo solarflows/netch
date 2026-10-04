@@ -1,0 +1,33 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "英雄联盟 (美服)",
+    "en": "League of Legends"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "BsSndRpt.exe",
+    "jpatch.exe",
+    "LeagueClient.exe",
+    "LeagueClientUx.exe",
+    "LeagueClientUxRender.exe",
+    "Uninstall League of Legends.exe",
+    "League of Legends.exe",
+    "LeagueCrashHandler.exe",
+    "RiotClientServices.exe",
+    "RiotClientUx.exe",
+    "RiotClientUxRender.exe",
+    "RiotClientCrashHandler.exe"
+  ]
+}

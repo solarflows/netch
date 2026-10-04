@@ -1,0 +1,22 @@
+﻿{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "NAT 类型测试器",
+    "en": "NatTypeTester"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "NatTypeTester.exe"
+  ]
+}

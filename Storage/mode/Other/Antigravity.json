@@ -1,0 +1,40 @@
+{
+  "type": "ProcessMode",
+  "remark": {
+    "zh-CN": "Antigravity",
+    "en": "Antigravity"
+  },
+  "filterParent": true,
+  "filterIntranet": true,
+  "filterLoopback": false,
+  "filterTCP": null,
+  "filterUDP": null,
+  "filterDNS": null,
+  "filterICMP": null,
+  "dnsProxy": null,
+  "handleOnlyDNS": null,
+  "dnsHost": null,
+  "icmpDelay": 10,
+  "bypass": [],
+  "handle": [
+    "Antigravity.exe",
+    "Antigravity IDE.exe",
+    "Antigravity",
+    "Antigravity.app",
+    "Antigravity IDE.app",
+    "Antigravity Helper.*",
+    "Antigravity IDE Helper.*",
+    "language_server.exe",
+    "language_server_windows_x64.exe",
+    "language_server.*",
+    "Gemini.exe",
+    "Gemini.app",
+    "Gemini",
+    "agy",
+    "agy.*",
+    "agentapi",
+    "com.google.antigravity",
+    "com.google.antigravity-ide",
+    "com.google.GeminiMacOS"
+  ]
+}
