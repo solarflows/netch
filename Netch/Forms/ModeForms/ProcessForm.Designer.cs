@@ -200,12 +200,11 @@ namespace Netch.Forms.ModeForms
             this.ModeSpecificOptionsLabel.Size = new System.Drawing.Size(138, 17);
             this.ModeSpecificOptionsLabel.TabIndex = 13;
             this.ModeSpecificOptionsLabel.Text = "Mode specific options";
-            // 
+            //
             // HandleTCPCheckBox
-            // 
+            //
             this.HandleTCPCheckBox.AutoCheck = false;
             this.HandleTCPCheckBox.AutoSize = true;
-            this.HandleTCPCheckBox.BackColor = System.Drawing.Color.Yellow;
             this.HandleTCPCheckBox.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point);
             this.HandleTCPCheckBox.GlobalValue = false;
             this.HandleTCPCheckBox.Location = new System.Drawing.Point(8, 24);
@@ -217,12 +216,11 @@ namespace Netch.Forms.ModeForms
             this.HandleTCPCheckBox.ThreeState = true;
             this.HandleTCPCheckBox.UseVisualStyleBackColor = true;
             this.HandleTCPCheckBox.Value = false;
-            // 
+            //
             // HandleUDPCheckBox
-            // 
+            //
             this.HandleUDPCheckBox.AutoCheck = false;
             this.HandleUDPCheckBox.AutoSize = true;
-            this.HandleUDPCheckBox.BackColor = System.Drawing.Color.Yellow;
             this.HandleUDPCheckBox.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point);
             this.HandleUDPCheckBox.GlobalValue = false;
             this.HandleUDPCheckBox.Location = new System.Drawing.Point(8, 56);
@@ -234,12 +232,11 @@ namespace Netch.Forms.ModeForms
             this.HandleUDPCheckBox.ThreeState = true;
             this.HandleUDPCheckBox.UseVisualStyleBackColor = true;
             this.HandleUDPCheckBox.Value = false;
-            // 
+            //
             // HandleDNSCheckBox
-            // 
+            //
             this.HandleDNSCheckBox.AutoCheck = false;
             this.HandleDNSCheckBox.AutoSize = true;
-            this.HandleDNSCheckBox.BackColor = System.Drawing.Color.Yellow;
             this.HandleDNSCheckBox.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point);
             this.HandleDNSCheckBox.GlobalValue = false;
             this.HandleDNSCheckBox.Location = new System.Drawing.Point(8, 88);
@@ -268,12 +265,11 @@ namespace Netch.Forms.ModeForms
             this.DNSTextBox.Size = new System.Drawing.Size(184, 23);
             this.DNSTextBox.TabIndex = 4;
             this.DNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
+            //
             // HandleProcDNSCheckBox
-            // 
+            //
             this.HandleProcDNSCheckBox.AutoCheck = false;
             this.HandleProcDNSCheckBox.AutoSize = true;
-            this.HandleProcDNSCheckBox.BackColor = System.Drawing.Color.Yellow;
             this.HandleProcDNSCheckBox.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point);
             this.HandleProcDNSCheckBox.GlobalValue = false;
             this.HandleProcDNSCheckBox.Location = new System.Drawing.Point(8, 120);
@@ -285,12 +281,11 @@ namespace Netch.Forms.ModeForms
             this.HandleProcDNSCheckBox.ThreeState = true;
             this.HandleProcDNSCheckBox.UseVisualStyleBackColor = true;
             this.HandleProcDNSCheckBox.Value = false;
-            // 
+            //
             // ProxyDNSCheckBox
-            // 
+            //
             this.ProxyDNSCheckBox.AutoCheck = false;
             this.ProxyDNSCheckBox.AutoSize = true;
-            this.ProxyDNSCheckBox.BackColor = System.Drawing.Color.Yellow;
             this.ProxyDNSCheckBox.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point);
             this.ProxyDNSCheckBox.GlobalValue = false;
             this.ProxyDNSCheckBox.Location = new System.Drawing.Point(240, 120);
@@ -302,12 +297,11 @@ namespace Netch.Forms.ModeForms
             this.ProxyDNSCheckBox.ThreeState = true;
             this.ProxyDNSCheckBox.UseVisualStyleBackColor = true;
             this.ProxyDNSCheckBox.Value = false;
-            // 
+            //
             // HandleICMPCheckBox
-            // 
+            //
             this.HandleICMPCheckBox.AutoCheck = false;
             this.HandleICMPCheckBox.AutoSize = true;
-            this.HandleICMPCheckBox.BackColor = System.Drawing.Color.Yellow;
             this.HandleICMPCheckBox.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point);
             this.HandleICMPCheckBox.GlobalValue = false;
             this.HandleICMPCheckBox.Location = new System.Drawing.Point(8, 152);
@@ -356,12 +350,11 @@ namespace Netch.Forms.ModeForms
             this.HandleLANCheckBox.TabIndex = 11;
             this.HandleLANCheckBox.Text = "Handle LAN";
             this.HandleLANCheckBox.UseVisualStyleBackColor = true;
-            // 
+            //
             // HandleChildProcCheckBox
-            // 
+            //
             this.HandleChildProcCheckBox.AutoCheck = false;
             this.HandleChildProcCheckBox.AutoSize = true;
-            this.HandleChildProcCheckBox.BackColor = System.Drawing.Color.Yellow;
             this.HandleChildProcCheckBox.Font = new System.Drawing.Font("Microsoft YaHei UI", 9F, ((System.Drawing.FontStyle)((System.Drawing.FontStyle.Bold | System.Drawing.FontStyle.Italic))), System.Drawing.GraphicsUnit.Point);
             this.HandleChildProcCheckBox.GlobalValue = false;
             this.HandleChildProcCheckBox.Location = new System.Drawing.Point(496, 24);

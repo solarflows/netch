@@ -362,6 +362,22 @@ public class SmokeTests
         };
         var vmessConfig = await SingboxConfigUtils.GenerateClientConfigAsync(vmess);
         ValidateSingboxConfig(vmessConfig, "vmess");
+
+        // 6. UrlTest with candidate Socks5 bare node (automatic socks encapsulation)
+        var candidateS5 = new Socks5Server { Hostname = "1.2.3.4", Port = 1080, Remark = "CandidateS5" };
+        Global.Settings.Server.Clear();
+        Global.Settings.Server.Add(candidateS5);
+
+        var urlTest = new UrlTestServer
+        {
+            Remark = "AutoURLTest",
+            Url = "https://www.gstatic.com/generate_204",
+            Interval = "3m",
+            Tolerance = 50,
+            Outbounds = new List<string> { "CandidateS5" }
+        };
+        var urlTestConfig = await SingboxConfigUtils.GenerateClientConfigAsync(urlTest);
+        ValidateSingboxConfig(urlTestConfig, "urltest");
     }
 
     private static void ValidateSingboxConfig(Dictionary<string, object> config, string expectedOutboundType)
@@ -442,7 +458,7 @@ public class SmokeTests
     public void Smoke_Settings_SingboxAndThemeProperties()
     {
         var setting = new Netch.Models.Setting();
-        Assert.AreEqual("Xray", setting.CoreType);
+        Assert.AreEqual("sing-box", setting.CoreType);
         Assert.AreEqual("System", setting.Theme);
         Assert.IsFalse(setting.NotifyOnMinimize);
         Assert.IsNotNull(setting.SingboxConfig);
@@ -457,6 +473,8 @@ public class SmokeTests
 
         Assert.IsTrue(typeNames.Contains("XrayServerForm"), "XrayServerForm must exist");
         Assert.IsTrue(typeNames.Contains("SingboxServerForm"), "SingboxServerForm must exist");
+        Assert.IsTrue(typeNames.Contains("UrlTestServerForm"), "UrlTestServerForm must exist");
+        Assert.IsTrue(typeNames.Contains("UrlTestServer"), "UrlTestServer must exist");
         Assert.IsTrue(typeNames.Contains("ModernTabStrip"), "ModernTabStrip must exist");
     }
 

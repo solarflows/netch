@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Netch.JsonConverter;
@@ -51,8 +52,57 @@ public static class ModeHelper
 
     public static void WriteFile(this Mode mode)
     {
+        if (mode.FullName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+        {
+            WriteTxtMode(mode);
+            return;
+        }
+
         using var fs = new FileStream(mode.FullName, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
         JsonSerializer.Serialize(fs, mode, JsonSerializerOptions);
+    }
+
+    private static void WriteTxtMode(Mode mode)
+    {
+        var lines = new List<string>();
+        int typeNum = (int)mode.Type;
+        lines.Add($"# {mode.i18NRemark}, {typeNum}");
+
+        switch (mode)
+        {
+            case Redirector pMode:
+                foreach (var b in pMode.Bypass)
+                {
+                    if (!string.IsNullOrWhiteSpace(b))
+                        lines.Add(b.StartsWith("!") ? b : "!" + b);
+                }
+                foreach (var h in pMode.Handle)
+                {
+                    if (!string.IsNullOrWhiteSpace(h))
+                        lines.Add(h);
+                }
+                break;
+
+            case TunMode tMode:
+                foreach (var h in tMode.Handle)
+                {
+                    if (!string.IsNullOrWhiteSpace(h))
+                        lines.Add(h);
+                }
+                foreach (var b in tMode.Bypass)
+                {
+                    if (!string.IsNullOrWhiteSpace(b))
+                        lines.Add(b);
+                }
+                break;
+
+            case ShareMode sMode:
+                if (!string.IsNullOrWhiteSpace(sMode.Argument))
+                    lines.Add(sMode.Argument);
+                break;
+        }
+
+        File.WriteAllLines(mode.FullName, lines, Encoding.UTF8);
     }
 
     private static Mode ReadTxtMode(string file)

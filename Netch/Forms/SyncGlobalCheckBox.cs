@@ -73,15 +73,18 @@ public class SyncGlobalCheckBox : CheckBox
 
     private void OnSyncGlobalChanged()
     {
+        bool dark = Services.ThemeService.IsDarkMode;
         if (_syncGlobal)
         {
             Font = new Font(Font, FontStyle.Regular);
-            BackColor = SystemColors.Control;
+            ForeColor = dark ? Services.ThemeService.DarkTextDim : SystemColors.ControlText;
+            BackColor = Color.Transparent;
         }
         else
         {
-            Font = new Font(Font, FontStyle.Bold | FontStyle.Italic);
-            BackColor = Color.Yellow;
+            Font = new Font(Font, FontStyle.Bold);
+            ForeColor = dark ? Color.FromArgb(100, 185, 255) : Color.FromArgb(0, 102, 204);
+            BackColor = Color.Transparent;
         }
     }
 }

@@ -36,20 +36,71 @@ public static class SingboxConfigUtils
             });
         }
 
-        var outbounds = new List<object>
+        List<object> outbounds;
+        if (server is UrlTestServer urlTest)
         {
-            await GenerateOutboundAsync(server),
-            new Dictionary<string, object>
+            var candidateTags = new List<string>();
+            var candidateOutbounds = new List<object>();
+
+            int nodeIndex = 0;
+            foreach (var remark in urlTest.Outbounds)
+            {
+                var candidate = Global.Settings.Server.FirstOrDefault(s => s.Remark == remark);
+                if (candidate != null && candidate is not UrlTestServer)
+                {
+                    nodeIndex++;
+                    var tag = $"node-{nodeIndex}";
+                    candidateTags.Add(tag);
+                    var nodeOutbound = await GenerateOutboundAsync(candidate, tag);
+                    candidateOutbounds.Add(nodeOutbound);
+                }
+            }
+
+            var urltestOutbound = new Dictionary<string, object>
+            {
+                { "type", "urltest" },
+                { "tag", "proxy" },
+                { "outbounds", candidateTags },
+                { "url", urlTest.Url },
+                { "interval", urlTest.Interval },
+                { "tolerance", urlTest.Tolerance },
+                { "idle_timeout", urlTest.IdleTimeout },
+                { "interrupt_exist_connections", urlTest.InterruptExistConnections }
+            };
+
+            outbounds = new List<object>
+            {
+                urltestOutbound
+            };
+            outbounds.AddRange(candidateOutbounds);
+            outbounds.Add(new Dictionary<string, object>
             {
                 { "type", "direct" },
                 { "tag", "direct" }
-            },
-            new Dictionary<string, object>
+            });
+            outbounds.Add(new Dictionary<string, object>
             {
                 { "type", "block" },
                 { "tag", "block" }
-            }
-        };
+            });
+        }
+        else
+        {
+            outbounds = new List<object>
+            {
+                await GenerateOutboundAsync(server, "proxy"),
+                new Dictionary<string, object>
+                {
+                    { "type", "direct" },
+                    { "tag", "direct" }
+                },
+                new Dictionary<string, object>
+                {
+                    { "type", "block" },
+                    { "tag", "block" }
+                }
+            };
+        }
 
         var config = new Dictionary<string, object>
         {
@@ -74,11 +125,11 @@ public static class SingboxConfigUtils
         return config;
     }
 
-    private static async Task<Dictionary<string, object>> GenerateOutboundAsync(Server server)
+    private static async Task<Dictionary<string, object>> GenerateOutboundAsync(Server server, string tag = "proxy")
     {
         var outbound = new Dictionary<string, object>
         {
-            { "tag", "proxy" }
+            { "tag", tag }
         };
 
         var resolvedAddress = await server.AutoResolveHostnameAsync();
@@ -374,6 +425,7 @@ public static class SingboxConfigUtils
             ShadowsocksServer => true,
             WireGuardServer => true,
             Socks5Server => true,
+            UrlTestServer => true,
             _ => false
         };
     }

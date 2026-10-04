@@ -8,9 +8,9 @@ namespace Netch.Models;
 public class Setting
 {
     /// <summary>
-    ///     核心类型 (Xray / sing-box)
+    ///     核心类型 (sing-box / Xray)
     /// </summary>
-    public string CoreType { get; set; } = "Xray";
+    public string CoreType { get; set; } = "sing-box";
 
     /// <summary>
     ///     界面主题 (System / Light / Dark)

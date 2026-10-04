@@ -271,5 +271,8 @@
   "Full Cone": "全锥型 (Full Cone)",
   "Restricted Cone": "受限锥型 (Restricted Cone)",
   "Port Restricted Cone": "端口受限锥型 (Port Restricted)",
-  "Symmetric": "对称型 (Symmetric)"
+  "Symmetric": "对称型 (Symmetric)",
+  "Add [sing-box URLTest] Server": "添加 [sing-box URLTest] 节点",
+  "Edit [sing-box URLTest] Server": "修改 [sing-box URLTest] 节点",
+  "Please select at least one candidate node for URLTest": "请至少勾选一个参与 URLTest 测速优选的候选节点"
 }

@@ -547,6 +547,7 @@
             this.NatTypeStatusLightLabel});
             this.StatusStrip.Location = new System.Drawing.Point(0, 272);
             this.StatusStrip.Name = "StatusStrip";
+            this.StatusStrip.ShowItemToolTips = true;
             this.StatusStrip.Size = new System.Drawing.Size(740, 22);
             this.StatusStrip.SizingGrip = false;
             this.StatusStrip.TabIndex = 2;

@@ -101,6 +101,23 @@ public partial class MainForm : Form
             Show();
         };
         ServerToolStripMenuItem.DropDownItems.Add(singboxItem);
+
+        var urlTestItem = new ToolStripMenuItem
+        {
+            Name = "AddUrlTestServerToolStripMenuItem",
+            Size = new Size(259, 22),
+            Text = i18N.Translate("Add [sing-box URLTest] Server")
+        };
+        _mainFormText[urlTestItem.Name] = "Add [sing-box URLTest] Server";
+        urlTestItem.Click += (_, _) =>
+        {
+            Hide();
+            new UrlTestServerForm().ShowDialog();
+            LoadServers();
+            Utils.Configuration.SaveAsync().Forget();
+            Show();
+        };
+        ServerToolStripMenuItem.DropDownItems.Add(urlTestItem);
     }
 
     private void MainForm_Load(object sender, EventArgs e)
@@ -137,6 +154,7 @@ public partial class MainForm : Form
 
         // 应用界面主题
         ThemeService.Apply(this);
+        UpdateControlButtonTheme(State == State.Started);
 
         Program.SingleInstance.StartListenServer();
     }
@@ -867,7 +885,11 @@ public partial class MainForm : Form
         }
 
         Hide();
-        if (server is Socks5Server s5 && s5.Group != "Xray" && s5.Group != "sing-box")
+        if (server is UrlTestServer ut)
+        {
+            new UrlTestServerForm(ut).ShowDialog();
+        }
+        else if (server is Socks5Server s5 && s5.Group != "Xray" && s5.Group != "sing-box")
         {
             new Socks5Form(s5).ShowDialog();
         }
@@ -1226,7 +1248,7 @@ public partial class MainForm : Form
                 case State.Waiting:
                     ControlButton.Enabled = true;
                     ControlButton.Text = i18N.Translate("Start");
-
+                    UpdateControlButtonTheme(false);
                     break;
                 case State.Starting:
                     ControlButton.Enabled = false;
@@ -1238,6 +1260,7 @@ public partial class MainForm : Form
                 case State.Started:
                     ControlButton.Enabled = true;
                     ControlButton.Text = i18N.Translate("Stop");
+                    UpdateControlButtonTheme(true);
 
                     ProfileGroupBox.Enabled = true;
 
@@ -1253,6 +1276,7 @@ public partial class MainForm : Form
                 case State.Stopped:
                     ControlButton.Enabled = true;
                     ControlButton.Text = i18N.Translate("Start");
+                    UpdateControlButtonTheme(false);
 
                     LastUploadBandwidth = 0;
                     LastDownloadBandwidth = 0;
@@ -1262,6 +1286,31 @@ public partial class MainForm : Form
                     StartDisableItems(true);
                     break;
             }
+        }
+    }
+
+    private void UpdateControlButtonTheme(bool isStarted)
+    {
+        if (ThemeService.IsDarkMode)
+        {
+            ControlButton.FlatStyle = FlatStyle.Flat;
+            if (isStarted)
+            {
+                ControlButton.BackColor = Color.FromArgb(196, 43, 28);
+                ControlButton.ForeColor = Color.White;
+                ControlButton.FlatAppearance.BorderColor = Color.FromArgb(220, 60, 45);
+            }
+            else
+            {
+                ControlButton.BackColor = Color.FromArgb(16, 124, 65);
+                ControlButton.ForeColor = Color.White;
+                ControlButton.FlatAppearance.BorderColor = Color.FromArgb(20, 140, 75);
+            }
+        }
+        else
+        {
+            ControlButton.FlatStyle = FlatStyle.Standard;
+            ControlButton.UseVisualStyleBackColor = true;
         }
     }
 

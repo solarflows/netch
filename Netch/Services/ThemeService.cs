@@ -123,9 +123,14 @@ public static class ThemeService
                     break;
 
                 case GroupBox gb:
-                    gb.BackColor = dark ? DarkCard : Color.Transparent;
+                    gb.BackColor = dark ? (gb.Parent is TabPage or Form ? DarkBg : DarkCard) : Color.Transparent;
                     gb.ForeColor = dark ? DarkText : SystemColors.ControlText;
                     gb.FlatStyle = dark ? FlatStyle.Flat : FlatStyle.Standard;
+                    if (dark)
+                    {
+                        gb.Paint -= GroupBox_DarkPaint;
+                        gb.Paint += GroupBox_DarkPaint;
+                    }
                     ApplyToControls(gb.Controls, dark);
                     break;
 
@@ -148,10 +153,22 @@ public static class ThemeService
                     }
                     break;
 
-                case TextBox tb:
+                case TextBoxBase tb:
                     tb.BackColor = dark ? DarkInput : SystemColors.Window;
                     tb.ForeColor = dark ? DarkText : SystemColors.WindowText;
                     tb.BorderStyle = dark ? BorderStyle.FixedSingle : BorderStyle.Fixed3D;
+                    break;
+
+                case ListBox lb:
+                    lb.BackColor = dark ? DarkInput : SystemColors.Window;
+                    lb.ForeColor = dark ? DarkText : SystemColors.WindowText;
+                    lb.BorderStyle = dark ? BorderStyle.FixedSingle : BorderStyle.Fixed3D;
+                    break;
+
+                case ListView lv:
+                    lv.BackColor = dark ? DarkInput : SystemColors.Window;
+                    lv.ForeColor = dark ? DarkText : SystemColors.WindowText;
+                    lv.BorderStyle = dark ? BorderStyle.FixedSingle : BorderStyle.Fixed3D;
                     break;
 
                 case ComboBox cb:
@@ -206,6 +223,29 @@ public static class ThemeService
             {
                 ApplyToToolStripItems(dropDown.DropDownItems, dark);
             }
+        }
+    }
+
+    private static void GroupBox_DarkPaint(object? sender, PaintEventArgs e)
+    {
+        if (sender is not GroupBox gb || !IsDarkMode)
+            return;
+
+        var g = e.Graphics;
+        var tSize = TextRenderer.MeasureText(gb.Text, gb.Font);
+        var borderRect = new Rectangle(0, tSize.Height / 2, gb.Width - 1, gb.Height - tSize.Height / 2 - 1);
+
+        using var bgBrush = new SolidBrush(gb.BackColor);
+        g.FillRectangle(bgBrush, gb.ClientRectangle);
+
+        using var borderPen = new Pen(Color.FromArgb(60, 60, 60), 1);
+        g.DrawRectangle(borderPen, borderRect);
+
+        if (!string.IsNullOrEmpty(gb.Text))
+        {
+            var textRect = new Rectangle(8, 0, tSize.Width, tSize.Height);
+            g.FillRectangle(bgBrush, textRect);
+            TextRenderer.DrawText(g, gb.Text, gb.Font, new Point(8, 0), DarkText);
         }
     }
 

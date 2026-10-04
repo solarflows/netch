@@ -76,12 +76,10 @@ public partial class ProcessForm : BindingForm
             RemarkTextBox.TextChanged -= RemarkTextBox_TextChanged;
             RemarkTextBox.Text = _mode.i18NRemark;
             FilenameTextBox.Text = ModeService.GetRelativePath(_mode.FullName);
-
-            if (!_mode.FullName.EndsWith(".json"))
-                ControlButton.Enabled = false;
         }
 
         i18N.TranslateForm(this);
+        ThemeService.Apply(this);
     }
 
     private void SelectButton_Click(object sender, EventArgs e)
