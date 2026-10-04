@@ -248,21 +248,21 @@ namespace Netch.Forms.ModeForms
             this.HandleDNSCheckBox.ThreeState = true;
             this.HandleDNSCheckBox.UseVisualStyleBackColor = true;
             this.HandleDNSCheckBox.Value = false;
-            // 
+            //
             // DNSLabel
-            // 
+            //
             this.DNSLabel.AutoSize = true;
-            this.DNSLabel.Location = new System.Drawing.Point(248, 88);
+            this.DNSLabel.Location = new System.Drawing.Point(232, 88);
             this.DNSLabel.Name = "DNSLabel";
             this.DNSLabel.Size = new System.Drawing.Size(34, 17);
             this.DNSLabel.TabIndex = 3;
             this.DNSLabel.Text = "DNS";
-            // 
+            //
             // DNSTextBox
-            // 
-            this.DNSTextBox.Location = new System.Drawing.Point(296, 88);
+            //
+            this.DNSTextBox.Location = new System.Drawing.Point(315, 88);
             this.DNSTextBox.Name = "DNSTextBox";
-            this.DNSTextBox.Size = new System.Drawing.Size(184, 23);
+            this.DNSTextBox.Size = new System.Drawing.Size(165, 23);
             this.DNSTextBox.TabIndex = 4;
             this.DNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             //
@@ -325,7 +325,7 @@ namespace Netch.Forms.ModeForms
             // 
             // ICMPDelayTextBox
             // 
-            this.ICMPDelayTextBox.Location = new System.Drawing.Point(296, 152);
+            this.ICMPDelayTextBox.Location = new System.Drawing.Point(315, 152);
             this.ICMPDelayTextBox.Name = "ICMPDelayTextBox";
             this.ICMPDelayTextBox.Size = new System.Drawing.Size(80, 23);
             this.ICMPDelayTextBox.TabIndex = 9;

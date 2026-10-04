@@ -62,13 +62,13 @@
             this.ModeComboBox = new System.Windows.Forms.ComboBox();
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.EditServerPictureBox = new System.Windows.Forms.PictureBox();
-            this.CopyLinkPictureBox = new System.Windows.Forms.PictureBox();
-            this.DeleteServerPictureBox = new System.Windows.Forms.PictureBox();
-            this.SpeedPictureBox = new System.Windows.Forms.PictureBox();
+            this.EditServerPictureBox = new System.Windows.Forms.Label();
+            this.CopyLinkPictureBox = new System.Windows.Forms.Label();
+            this.DeleteServerPictureBox = new System.Windows.Forms.Label();
+            this.SpeedPictureBox = new System.Windows.Forms.Label();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
-            this.EditModePictureBox = new System.Windows.Forms.PictureBox();
-            this.DeleteModePictureBox = new System.Windows.Forms.PictureBox();
+            this.EditModePictureBox = new System.Windows.Forms.Label();
+            this.DeleteModePictureBox = new System.Windows.Forms.Label();
             this.StatusStrip = new System.Windows.Forms.StatusStrip();
             this.StatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.UsedBandwidthLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -93,13 +93,7 @@
             this.ConfigurationGroupBox.SuspendLayout();
             this.configLayoutPanel.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.EditServerPictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeleteServerPictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.EditModePictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeleteModePictureBox)).BeginInit();
             this.StatusStrip.SuspendLayout();
             this.NotifyMenu.SuspendLayout();
             this.ProfileGroupBox.SuspendLayout();
@@ -442,58 +436,61 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(94, 24);
             this.tableLayoutPanel2.TabIndex = 12;
-            // 
+            //
             // EditServerPictureBox
-            // 
-            this.EditServerPictureBox.BackColor = System.Drawing.SystemColors.Control;
+            //
             this.EditServerPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.EditServerPictureBox.Image = global::Netch.Properties.Resources.edit;
-            this.EditServerPictureBox.Location = new System.Drawing.Point(3, 3);
+            this.EditServerPictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.EditServerPictureBox.Location = new System.Drawing.Point(0, 0);
+            this.EditServerPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.EditServerPictureBox.Name = "EditServerPictureBox";
-            this.EditServerPictureBox.Size = new System.Drawing.Size(16, 16);
-            this.EditServerPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.EditServerPictureBox.Size = new System.Drawing.Size(23, 24);
             this.EditServerPictureBox.TabIndex = 7;
-            this.EditServerPictureBox.TabStop = false;
+            this.EditServerPictureBox.Text = "✏️";
+            this.EditServerPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.EditServerPictureBox.Click += new System.EventHandler(this.EditServerPictureBox_Click);
-            // 
+            //
             // CopyLinkPictureBox
-            // 
+            //
             this.CopyLinkPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.CopyLinkPictureBox.Image = global::Netch.Properties.Resources.CopyLink;
-            this.CopyLinkPictureBox.Location = new System.Drawing.Point(72, 3);
+            this.CopyLinkPictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.CopyLinkPictureBox.Location = new System.Drawing.Point(69, 0);
+            this.CopyLinkPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.CopyLinkPictureBox.Name = "CopyLinkPictureBox";
-            this.CopyLinkPictureBox.Size = new System.Drawing.Size(18, 18);
-            this.CopyLinkPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.CopyLinkPictureBox.Size = new System.Drawing.Size(23, 24);
             this.CopyLinkPictureBox.TabIndex = 14;
-            this.CopyLinkPictureBox.TabStop = false;
+            this.CopyLinkPictureBox.Text = "📋";
+            this.CopyLinkPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.CopyLinkPictureBox.Click += new System.EventHandler(this.CopyLinkPictureBox_Click);
-            // 
+            //
             // DeleteServerPictureBox
-            // 
+            //
             this.DeleteServerPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.DeleteServerPictureBox.Image = global::Netch.Properties.Resources.delete;
-            this.DeleteServerPictureBox.Location = new System.Drawing.Point(26, 3);
+            this.DeleteServerPictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.DeleteServerPictureBox.Location = new System.Drawing.Point(23, 0);
+            this.DeleteServerPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.DeleteServerPictureBox.Name = "DeleteServerPictureBox";
-            this.DeleteServerPictureBox.Size = new System.Drawing.Size(16, 16);
-            this.DeleteServerPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.DeleteServerPictureBox.Size = new System.Drawing.Size(23, 24);
             this.DeleteServerPictureBox.TabIndex = 8;
-            this.DeleteServerPictureBox.TabStop = false;
+            this.DeleteServerPictureBox.Text = "🗑️";
+            this.DeleteServerPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.DeleteServerPictureBox.Click += new System.EventHandler(this.DeleteServerPictureBox_Click);
-            // 
+            //
             // SpeedPictureBox
-            // 
+            //
             this.SpeedPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.SpeedPictureBox.Image = global::Netch.Properties.Resources.speed;
-            this.SpeedPictureBox.Location = new System.Drawing.Point(49, 3);
+            this.SpeedPictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.SpeedPictureBox.Location = new System.Drawing.Point(46, 0);
+            this.SpeedPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.SpeedPictureBox.Name = "SpeedPictureBox";
-            this.SpeedPictureBox.Size = new System.Drawing.Size(16, 16);
-            this.SpeedPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.SpeedPictureBox.Size = new System.Drawing.Size(23, 24);
             this.SpeedPictureBox.TabIndex = 9;
-            this.SpeedPictureBox.TabStop = false;
+            this.SpeedPictureBox.Text = "⚡";
+            this.SpeedPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.SpeedPictureBox.Click += new System.EventHandler(this.SpeedPictureBox_Click);
-            // 
+            //
             // tableLayoutPanel3
-            // 
+            //
             this.tableLayoutPanel3.ColumnCount = 4;
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
@@ -507,29 +504,31 @@
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel3.Size = new System.Drawing.Size(94, 24);
             this.tableLayoutPanel3.TabIndex = 13;
-            // 
+            //
             // EditModePictureBox
-            // 
+            //
             this.EditModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.EditModePictureBox.Image = global::Netch.Properties.Resources.edit;
-            this.EditModePictureBox.Location = new System.Drawing.Point(3, 3);
+            this.EditModePictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.EditModePictureBox.Location = new System.Drawing.Point(0, 0);
+            this.EditModePictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.EditModePictureBox.Name = "EditModePictureBox";
-            this.EditModePictureBox.Size = new System.Drawing.Size(16, 16);
-            this.EditModePictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.EditModePictureBox.Size = new System.Drawing.Size(23, 24);
             this.EditModePictureBox.TabIndex = 12;
-            this.EditModePictureBox.TabStop = false;
+            this.EditModePictureBox.Text = "✏️";
+            this.EditModePictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.EditModePictureBox.Click += new System.EventHandler(this.EditModePictureBox_Click);
-            // 
+            //
             // DeleteModePictureBox
-            // 
+            //
             this.DeleteModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.DeleteModePictureBox.Image = global::Netch.Properties.Resources.delete;
-            this.DeleteModePictureBox.Location = new System.Drawing.Point(26, 3);
+            this.DeleteModePictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.DeleteModePictureBox.Location = new System.Drawing.Point(23, 0);
+            this.DeleteModePictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.DeleteModePictureBox.Name = "DeleteModePictureBox";
-            this.DeleteModePictureBox.Size = new System.Drawing.Size(16, 16);
-            this.DeleteModePictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
+            this.DeleteModePictureBox.Size = new System.Drawing.Size(23, 24);
             this.DeleteModePictureBox.TabIndex = 13;
-            this.DeleteModePictureBox.TabStop = false;
+            this.DeleteModePictureBox.Text = "🗑️";
+            this.DeleteModePictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.DeleteModePictureBox.Click += new System.EventHandler(this.DeleteModePictureBox_Click);
             // 
             // StatusStrip
@@ -753,13 +752,7 @@
             this.configLayoutPanel.ResumeLayout(false);
             this.configLayoutPanel.PerformLayout();
             this.tableLayoutPanel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.EditServerPictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.CopyLinkPictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeleteServerPictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.SpeedPictureBox)).EndInit();
             this.tableLayoutPanel3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.EditModePictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.DeleteModePictureBox)).EndInit();
             this.StatusStrip.ResumeLayout(false);
             this.StatusStrip.PerformLayout();
             this.NotifyMenu.ResumeLayout(false);
@@ -781,13 +774,13 @@
         private System.Windows.Forms.TableLayoutPanel configLayoutPanel;
         private System.Windows.Forms.GroupBox ConfigurationGroupBox;
         private System.Windows.Forms.Button ControlButton;
-        private System.Windows.Forms.PictureBox CopyLinkPictureBox;
+        private System.Windows.Forms.Label CopyLinkPictureBox;
         private System.Windows.Forms.ToolStripMenuItem CreateProcessModeToolStripMenuItem;
-        private System.Windows.Forms.PictureBox DeleteModePictureBox;
-        private System.Windows.Forms.PictureBox DeleteServerPictureBox;
+        private System.Windows.Forms.Label DeleteModePictureBox;
+        private System.Windows.Forms.Label DeleteServerPictureBox;
         private System.Windows.Forms.ToolStripStatusLabel DownloadSpeedLabel;
-        private System.Windows.Forms.PictureBox EditModePictureBox;
-        private System.Windows.Forms.PictureBox EditServerPictureBox;
+        private System.Windows.Forms.Label EditModePictureBox;
+        private System.Windows.Forms.Label EditServerPictureBox;
         private System.Windows.Forms.ToolStripMenuItem ExitToolStripButton;
         private System.Windows.Forms.ToolStripMenuItem ForceExitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem ImportServersFromClipboardToolStripMenuItem;
@@ -812,7 +805,7 @@
         private System.Windows.Forms.ToolStripMenuItem ServerToolStripMenuItem;
         private System.Windows.Forms.Button SettingsButton;
         private System.Windows.Forms.ToolStripMenuItem ShowMainFormToolStripButton;
-        private System.Windows.Forms.PictureBox SpeedPictureBox;
+        private System.Windows.Forms.Label SpeedPictureBox;
         private System.Windows.Forms.ToolStripStatusLabel StatusLabel;
         private System.Windows.Forms.StatusStrip StatusStrip;
         private System.Windows.Forms.ToolStripMenuItem SubscriptionToolStripMenuItem;

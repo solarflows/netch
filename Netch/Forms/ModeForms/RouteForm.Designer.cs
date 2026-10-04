@@ -191,9 +191,9 @@ namespace Netch.Forms.ModeForms
             // DNSTextBox
             // 
             this.DNSTextBox.DataBindings.Add(new System.Windows.Forms.Binding("Enabled", this.UseCustomDNSCheckBox, "Checked", true));
-            this.DNSTextBox.Location = new System.Drawing.Point(224, 56);
+            this.DNSTextBox.Location = new System.Drawing.Point(260, 56);
             this.DNSTextBox.Name = "DNSTextBox";
-            this.DNSTextBox.Size = new System.Drawing.Size(184, 23);
+            this.DNSTextBox.Size = new System.Drawing.Size(150, 23);
             this.DNSTextBox.TabIndex = 4;
             this.DNSTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
