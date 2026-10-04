@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Netch;
 using Netch.Models;
+using Netch.Models.Modes;
 using Netch.Servers;
 using Netch.Servers.Singbox;
 using Netch.Utils;
