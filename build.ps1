@@ -33,13 +33,14 @@ Push-Location $OutputPath
 New-Item -ItemType Directory -Name 'bin'  | Out-Null
 cp -Recurse -Force '..\Storage\i18n' '.'  | Out-Null
 
-# 模式文件归一化部署：优先全量同步纯净 JSON 规范规则 (含 Antigravity, Steam, 常用平台与工具)
+# 模式文件归一化部署：全量同步纯净 JSON 规范规则 (含 Antigravity, Steam, 常用平台与工具)
 New-Item -ItemType Directory -Path 'mode' -Force | Out-Null
 New-Item -ItemType Directory -Path 'mode\Game' -Force | Out-Null
 New-Item -ItemType Directory -Path 'mode\Other' -Force | Out-Null
 New-Item -ItemType Directory -Path 'mode\Custom' -Force | Out-Null
+$baseModePath = (Resolve-Path '..\Storage\mode').Path
 Get-ChildItem -Path '..\Storage\mode' -Recurse -Filter '*.json' | ForEach-Object {
-    $rel = Resolve-Path -Relative -BasePath '..\Storage\mode' $_.FullName
+    $rel = $_.FullName.Substring($baseModePath.Length).TrimStart('\', '/')
     $dest = Join-Path 'mode' $rel
     $destDir = Split-Path $dest -Parent
     if (-not (Test-Path $destDir)) { New-Item -ItemType Directory -Path $destDir -Force | Out-Null }
