@@ -893,7 +893,7 @@ public partial class MainForm : Form
         {
             new Socks5Form(s5).ShowDialog();
         }
-        else if (server.Group == "sing-box" || server is WireGuardServer)
+        else if (server.Group == "sing-box" || server is WireGuardServer || server is SSHServer)
         {
             new SingboxServerForm(server).ShowDialog();
         }

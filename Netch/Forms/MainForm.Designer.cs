@@ -440,46 +440,47 @@
             // EditServerPictureBox
             //
             this.EditServerPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.EditServerPictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.EditServerPictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.EditServerPictureBox.Location = new System.Drawing.Point(0, 0);
             this.EditServerPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.EditServerPictureBox.Name = "EditServerPictureBox";
             this.EditServerPictureBox.Size = new System.Drawing.Size(23, 24);
             this.EditServerPictureBox.TabIndex = 7;
-            this.EditServerPictureBox.Text = "✏️";
+            this.EditServerPictureBox.Text = "✎";
             this.EditServerPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.EditServerPictureBox.Click += new System.EventHandler(this.EditServerPictureBox_Click);
             //
             // CopyLinkPictureBox
             //
             this.CopyLinkPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.CopyLinkPictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.CopyLinkPictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.CopyLinkPictureBox.Location = new System.Drawing.Point(69, 0);
             this.CopyLinkPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.CopyLinkPictureBox.Name = "CopyLinkPictureBox";
             this.CopyLinkPictureBox.Size = new System.Drawing.Size(23, 24);
             this.CopyLinkPictureBox.TabIndex = 14;
-            this.CopyLinkPictureBox.Text = "📋";
+            this.CopyLinkPictureBox.Text = "⎘";
             this.CopyLinkPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.CopyLinkPictureBox.Click += new System.EventHandler(this.CopyLinkPictureBox_Click);
             //
             // DeleteServerPictureBox
             //
             this.DeleteServerPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.DeleteServerPictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.DeleteServerPictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.DeleteServerPictureBox.Location = new System.Drawing.Point(23, 0);
             this.DeleteServerPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.DeleteServerPictureBox.Name = "DeleteServerPictureBox";
             this.DeleteServerPictureBox.Size = new System.Drawing.Size(23, 24);
             this.DeleteServerPictureBox.TabIndex = 8;
-            this.DeleteServerPictureBox.Text = "🗑️";
+            this.DeleteServerPictureBox.Text = "✕";
             this.DeleteServerPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.DeleteServerPictureBox.Click += new System.EventHandler(this.DeleteServerPictureBox_Click);
             //
             // SpeedPictureBox
             //
             this.SpeedPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.SpeedPictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.SpeedPictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
+            this.SpeedPictureBox.ForeColor = System.Drawing.Color.FromArgb(245, 195, 35);
             this.SpeedPictureBox.Location = new System.Drawing.Point(46, 0);
             this.SpeedPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.SpeedPictureBox.Name = "SpeedPictureBox";
@@ -508,26 +509,26 @@
             // EditModePictureBox
             //
             this.EditModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.EditModePictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.EditModePictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.EditModePictureBox.Location = new System.Drawing.Point(0, 0);
             this.EditModePictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.EditModePictureBox.Name = "EditModePictureBox";
             this.EditModePictureBox.Size = new System.Drawing.Size(23, 24);
             this.EditModePictureBox.TabIndex = 12;
-            this.EditModePictureBox.Text = "✏️";
+            this.EditModePictureBox.Text = "✎";
             this.EditModePictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.EditModePictureBox.Click += new System.EventHandler(this.EditModePictureBox_Click);
             //
             // DeleteModePictureBox
             //
             this.DeleteModePictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.DeleteModePictureBox.Font = new System.Drawing.Font("Segoe UI Emoji", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.DeleteModePictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.DeleteModePictureBox.Location = new System.Drawing.Point(23, 0);
             this.DeleteModePictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.DeleteModePictureBox.Name = "DeleteModePictureBox";
             this.DeleteModePictureBox.Size = new System.Drawing.Size(23, 24);
             this.DeleteModePictureBox.TabIndex = 13;
-            this.DeleteModePictureBox.Text = "🗑️";
+            this.DeleteModePictureBox.Text = "✕";
             this.DeleteModePictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.DeleteModePictureBox.Click += new System.EventHandler(this.DeleteModePictureBox_Click);
             // 

@@ -274,5 +274,6 @@
   "Symmetric": "对称型 (Symmetric)",
   "Add [sing-box URLTest] Server": "添加 [sing-box URLTest] 节点",
   "Edit [sing-box URLTest] Server": "修改 [sing-box URLTest] 节点",
-  "Please select at least one candidate node for URLTest": "请至少勾选一个参与 URLTest 测速优选的候选节点"
+  "Please select at least one candidate node for URLTest": "请至少勾选一个参与 URLTest 测速优选的候选节点",
+  "Host Public Key": "主机公钥 (HostKey)"
 }

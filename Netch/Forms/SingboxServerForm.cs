@@ -144,7 +144,8 @@ public class SingboxServerForm : Form
             "Trojan",
             "Shadowsocks",
             "WireGuard",
-            "Socks5"
+            "Socks5",
+            "SSH"
         });
         _protocolComboBox.SelectedIndex = 0;
         _protocolComboBox.SelectedIndexChanged += (_, _) => SwitchProtocolFields(_protocolComboBox.SelectedItem?.ToString());
@@ -335,6 +336,20 @@ public class SingboxServerForm : Form
                 AddRow(table, row++, i18N.Translate("Password"), passBox);
                 break;
             }
+
+            case "SSH":
+            {
+                var userBox = CreateField("User", "root");
+                var passBox = CreateField("Password", "");
+                var privKeyBox = CreateField("PrivateKey", "");
+                var pubKeyBox = CreateField("PublicKey", "");
+
+                AddRow(table, row++, i18N.Translate("User"), userBox);
+                AddRow(table, row++, i18N.Translate("Password"), passBox);
+                AddRow(table, row++, i18N.Translate("Private Key"), privKeyBox);
+                AddRow(table, row++, i18N.Translate("Host Public Key"), pubKeyBox);
+                break;
+            }
         }
 
         container.Controls.Add(table, 0, 1);
@@ -430,6 +445,14 @@ public class SingboxServerForm : Form
                 _protocolComboBox.SelectedItem = "Socks5";
                 SetFieldValue("Username", s5.Username);
                 SetFieldValue("Password", s5.Password);
+                break;
+
+            case SSHServer ssh:
+                _protocolComboBox.SelectedItem = "SSH";
+                SetFieldValue("User", ssh.User);
+                SetFieldValue("Password", ssh.Password);
+                SetFieldValue("PrivateKey", ssh.PrivateKey);
+                SetFieldValue("PublicKey", ssh.PublicKey);
                 break;
         }
     }
@@ -550,6 +573,16 @@ public class SingboxServerForm : Form
                 {
                     Username = GetFieldValue("Username").ValueOrDefault(),
                     Password = GetFieldValue("Password").ValueOrDefault()
+                };
+                break;
+
+            case "SSH":
+                resultServer = new SSHServer
+                {
+                    User = GetFieldValue("User").ValueOrDefault() ?? "root",
+                    Password = GetFieldValue("Password"),
+                    PrivateKey = GetFieldValue("PrivateKey").ValueOrDefault(),
+                    PublicKey = GetFieldValue("PublicKey").ValueOrDefault()
                 };
                 break;
 

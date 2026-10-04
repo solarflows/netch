@@ -379,6 +379,18 @@ public class SmokeTests
         };
         var urlTestConfig = await SingboxConfigUtils.GenerateClientConfigAsync(urlTest);
         ValidateSingboxConfig(urlTestConfig, "urltest");
+
+        // 7. SSH tunnel client node
+        var ssh = new SSHServer
+        {
+            Hostname = "1.2.3.4",
+            Port = 22,
+            User = "root",
+            Password = "password123",
+            Remark = "SSH-Node"
+        };
+        var sshConfig = await SingboxConfigUtils.GenerateClientConfigAsync(ssh);
+        ValidateSingboxConfig(sshConfig, "ssh");
     }
 
     private static void ValidateSingboxConfig(Dictionary<string, object> config, string expectedOutboundType)

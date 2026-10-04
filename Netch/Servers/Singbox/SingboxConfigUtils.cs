@@ -349,6 +349,27 @@ public static class SingboxConfigUtils
                 break;
             }
 
+            case SSHServer ssh:
+            {
+                outbound["type"] = "ssh";
+                outbound["server"] = resolvedAddress;
+                outbound["server_port"] = ssh.Port > 0 ? ssh.Port : 22;
+                outbound["user"] = !string.IsNullOrWhiteSpace(ssh.User) ? ssh.User : "root";
+                if (!string.IsNullOrWhiteSpace(ssh.Password))
+                {
+                    outbound["password"] = ssh.Password;
+                }
+                if (!string.IsNullOrWhiteSpace(ssh.PrivateKey))
+                {
+                    outbound["private_key"] = ssh.PrivateKey;
+                }
+                if (!string.IsNullOrWhiteSpace(ssh.PublicKey))
+                {
+                    outbound["host_key"] = new[] { ssh.PublicKey };
+                }
+                break;
+            }
+
             default:
                 throw new NotSupportedException($"Server type {server.Type} is not supported by sing-box.");
         }
@@ -425,6 +446,7 @@ public static class SingboxConfigUtils
             ShadowsocksServer => true,
             WireGuardServer => true,
             Socks5Server => true,
+            SSHServer => true,
             UrlTestServer => true,
             _ => false
         };
