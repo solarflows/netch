@@ -238,16 +238,38 @@ public partial class MainForm : Form
         // 应用界面主题
         ThemeService.Apply(this);
         UpdateControlButtonTheme(State == State.Started);
+        AdjustConfigurationGroupBoxHeight();
+        Shown += (_, _) => AdjustConfigurationGroupBoxHeight();
 
         Program.SingleInstance.StartListenServer();
     }
 
+    private void AdjustConfigurationGroupBoxHeight()
+    {
+        configLayoutPanel.PerformLayout();
+
+        var maxControlBottom = 0;
+        foreach (Control c in configLayoutPanel.Controls)
+        {
+            if (c.Visible && c.Bottom > maxControlBottom)
+            {
+                maxControlBottom = c.Bottom;
+            }
+        }
+
+        var contentHeight = Math.Max(maxControlBottom, configLayoutPanel.PreferredSize.Height);
+        var targetHeight = configLayoutPanel.Top + contentHeight + 16;
+        var minHeight = (ProfileNameText != null && ProfileNameText.Visible) ? 152 : 108;
+        ConfigurationGroupBox.Height = Math.Max(minHeight, targetHeight);
+    }
+
     private void RecordSize()
     {
-        _configurationGroupBoxHeight = ConfigurationGroupBox.Height;
-        _profileConfigurationHeight = ConfigurationGroupBox.Controls[0].Height / 3; // 因为 AutoSize, 所以得到的是Controls的总高度
+        _profileConfigurationHeight = ProfileNameText.Height + 8;
         _profileGroupBoxPaddingHeight = ProfileGroupBox.Height - ProfileTable.Height;
-        _profileTableHeight = ProfileTable.Height;
+        _profileTableHeight = Math.Max(26, ProfileTable.Height);
+
+        AdjustConfigurationGroupBoxHeight();
     }
 
     private void TranslateControls()
@@ -949,7 +971,7 @@ public partial class MainForm : Form
     private void SelectLastServer()
     {
         // 如果值合法，选中该位置
-        if (Global.Settings.ServerComboBoxSelectedIndex > 0 && Global.Settings.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
+        if (Global.Settings.ServerComboBoxSelectedIndex >= 0 && Global.Settings.ServerComboBoxSelectedIndex < ServerComboBox.Items.Count)
             ServerComboBox.SelectedIndex = Global.Settings.ServerComboBoxSelectedIndex;
         // 如果值非法，且当前 ServerComboBox 中有元素，选择第一个位置
         else if (ServerComboBox.Items.Count > 0)
@@ -969,14 +991,20 @@ public partial class MainForm : Form
             var targetIndex = -1;
             for (int i = 0; i < ServerComboBox.Items.Count; i++)
             {
-                if (ServerComboBox.Items[i] is Server s &&
-                    s.Remark == server.Remark &&
-                    s.Hostname == server.Hostname &&
-                    s.Port == server.Port)
+                if (ServerComboBox.Items[i] is Server s)
                 {
-                    targetIndex = i;
-                    break;
+                    if (s == server ||
+                        (s.Remark == server.Remark && s.Hostname == server.Hostname && s.Port == server.Port))
+                    {
+                        targetIndex = i;
+                        break;
+                    }
                 }
+            }
+
+            if (targetIndex == -1)
+            {
+                targetIndex = Global.Settings.Server.IndexOf(server);
             }
 
             if (targetIndex >= 0 && targetIndex < ServerComboBox.Items.Count)
@@ -1036,9 +1064,17 @@ public partial class MainForm : Form
         }
 
         SetSelectedServerSafely(newServer);
-        StatusText(i18N.Translate("Started"));
-        UpdateControlButtonTheme(true);
-        NotifyTip(i18N.TranslateFormat("Switched to {0}", newServer.Remark));
+        if (State == State.Started)
+        {
+            StatusText(i18N.Translate("Started"));
+            UpdateControlButtonTheme(true);
+            NotifyTip(i18N.TranslateFormat("Switched to {0}", newServer.Remark));
+        }
+        else
+        {
+            StatusText();
+            UpdateControlButtonTheme(false);
+        }
     }
 
     private async void EditServerPictureBox_Click(object sender, EventArgs e)
@@ -1264,15 +1300,20 @@ public partial class MainForm : Form
         if (profileCount == 0)
         {
             // Hide Profile GroupBox, Change window size
-            configLayoutPanel.RowStyles[2].SizeType = SizeType.Percent;
+            ProfileLabel.Visible = false;
+            ProfileNameText.Visible = false;
+            configLayoutPanel.RowStyles[2].SizeType = SizeType.Absolute;
             configLayoutPanel.RowStyles[2].Height = 0;
             ProfileGroupBox.Visible = false;
 
-            ConfigurationGroupBox.Height = _configurationGroupBoxHeight - _profileConfigurationHeight;
+            AdjustConfigurationGroupBoxHeight();
         }
         else
         {
             // Load Profiles
+            ProfileLabel.Visible = true;
+            ProfileNameText.Visible = true;
+            configLayoutPanel.RowStyles[2].SizeType = SizeType.AutoSize;
 
             if (Global.Settings.ProfileTableColumnCount == 0)
                 Global.Settings.ProfileTableColumnCount = 5;
@@ -1303,10 +1344,9 @@ public partial class MainForm : Form
             for (var i = 1; i <= ProfileTable.ColumnCount; i++)
                 ProfileTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 1));
 
-            configLayoutPanel.RowStyles[2].SizeType = SizeType.AutoSize;
             ProfileGroupBox.Visible = true;
             ProfileGroupBox.Height = ProfileTable.RowCount * _profileTableHeight + _profileGroupBoxPaddingHeight;
-            ConfigurationGroupBox.Height = _configurationGroupBoxHeight;
+            AdjustConfigurationGroupBoxHeight();
         }
     }
 

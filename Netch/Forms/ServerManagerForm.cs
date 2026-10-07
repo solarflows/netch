@@ -318,15 +318,20 @@ public class ServerManagerForm : Form
 
     private void PopulateGrid()
     {
-        _grid.Rows.Clear();
-
         var activeServer = MainController.Server ?? (Global.Settings.ServerComboBoxSelectedIndex >= 0 && Global.Settings.ServerComboBoxSelectedIndex < Global.Settings.Server.Count
             ? Global.Settings.Server[Global.Settings.ServerComboBoxSelectedIndex]
             : null);
 
-        foreach (var s in _filteredServers)
+        int targetSelectIndex = -1;
+        _grid.Rows.Clear();
+
+        for (int i = 0; i < _filteredServers.Count; i++)
         {
-            bool isActive = s == activeServer;
+            var s = _filteredServers[i];
+            bool isActive = activeServer != null && (s == activeServer || (s.Remark == activeServer.Remark && s.Hostname == activeServer.Hostname && s.Port == activeServer.Port));
+            if (isActive)
+                targetSelectIndex = i;
+
             int rowIndex = _grid.Rows.Add(
                 isActive ? "🟢" : "",
                 s.Type,
@@ -336,6 +341,17 @@ public class ServerManagerForm : Form
                 s.Group
             );
             _grid.Rows[rowIndex].Tag = s;
+        }
+
+        if (targetSelectIndex >= 0 && targetSelectIndex < _grid.Rows.Count)
+        {
+            _grid.ClearSelection();
+            _grid.Rows[targetSelectIndex].Selected = true;
+            _grid.CurrentCell = _grid.Rows[targetSelectIndex].Cells[1];
+            if (_grid.DisplayedRowCount(false) > 0)
+            {
+                _grid.FirstDisplayedScrollingRowIndex = Math.Max(0, targetSelectIndex - _grid.DisplayedRowCount(false) / 2);
+            }
         }
 
         _statusLabel.Text = i18N.TranslateFormat("Total: {0} servers (Filtered: {1}). Double click row to switch.",
@@ -392,6 +408,30 @@ public class ServerManagerForm : Form
         }
     }
 
+    private void UpdateActiveIndicator(Server active)
+    {
+        int targetIndex = -1;
+        for (int i = 0; i < _grid.Rows.Count; i++)
+        {
+            if (_grid.Rows[i].Tag is Server s)
+            {
+                bool isActive = s == active || (s.Remark == active.Remark && s.Hostname == active.Hostname && s.Port == active.Port);
+                _grid.Rows[i].Cells["Active"].Value = isActive ? "🟢" : "";
+                if (isActive)
+                {
+                    targetIndex = i;
+                }
+            }
+        }
+
+        if (targetIndex >= 0 && targetIndex < _grid.Rows.Count)
+        {
+            _grid.ClearSelection();
+            _grid.Rows[targetIndex].Selected = true;
+            _grid.CurrentCell = _grid.Rows[targetIndex].Cells[1];
+        }
+    }
+
     private async Task SwitchToServerAsync(Server server)
     {
         if (Global.MainForm.State == State.Started)
@@ -416,7 +456,7 @@ public class ServerManagerForm : Form
             _statusLabel.Text = i18N.TranslateFormat("Selected {0}", server.Remark);
         }
 
-        PopulateGrid();
+        UpdateActiveIndicator(server);
     }
 
     private void OnServerTested(Server server)
