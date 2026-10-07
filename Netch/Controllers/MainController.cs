@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.VisualStudio.Threading;
+using Netch.Enums;
 using Netch.Interfaces;
 using Netch.Models;
 using Netch.Models.Modes;

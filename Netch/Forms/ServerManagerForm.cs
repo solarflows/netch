@@ -1,4 +1,5 @@
 using System.Reflection;
+using Microsoft.VisualStudio.Threading;
 using Netch.Controllers;
 using Netch.Enums;
 using Netch.Models;
@@ -296,7 +297,7 @@ public class ServerManagerForm : Form
             return;
 
         // 延迟列着色
-        if (_grid.Columns[e.ColumnIndex].Name == "Delay")
+        if (_grid.Columns[e.ColumnIndex].Name == "Delay" && e.CellStyle != null)
         {
             if (server.Delay >= 0)
             {

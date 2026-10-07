@@ -68,7 +68,7 @@ public static class DelayTestHelper
         {
             try
             {
-                existingCts.Cancel();
+                await existingCts.CancelAsync();
                 existingCts.Dispose();
             }
             catch
