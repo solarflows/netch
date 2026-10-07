@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text;
 using Windows.Win32;
 using Windows.Win32.Foundation;
@@ -51,6 +52,20 @@ public partial class MainForm : Form
 
     private void AddAddServerToolStripMenuItems()
     {
+        var managerItem = new ToolStripMenuItem
+        {
+            Name = "OpenServerManagerToolStripMenuItem",
+            Size = new Size(259, 22),
+            Text = i18N.Translate("Server Manager Panel...")
+        };
+        _mainFormText[managerItem.Name] = "Server Manager Panel...";
+        managerItem.Click += (_, _) =>
+        {
+            new ServerManagerForm().Show();
+        };
+        ServerToolStripMenuItem.DropDownItems.Add(managerItem);
+        ServerToolStripMenuItem.DropDownItems.Add(new ToolStripSeparator());
+
         var socks5Item = new ToolStripMenuItem
         {
             Name = "AddSocks5BareServerToolStripMenuItem",
@@ -120,13 +135,41 @@ public partial class MainForm : Form
         ServerToolStripMenuItem.DropDownItems.Add(urlTestItem);
     }
 
+    private static void EnableDoubleBuffering(Control control)
+    {
+        typeof(Control).GetProperty("DoubleBuffered", BindingFlags.NonPublic | BindingFlags.Instance)?
+            .SetValue(control, true);
+    }
+
     private void MainForm_Load(object sender, EventArgs e)
     {
+        // 开启 ComboBox 双缓冲，消除重绘闪烁与掉帧
+        EnableDoubleBuffering(ServerComboBox);
+        EnableDoubleBuffering(ModeComboBox);
+
         // 计算 ComboBox绘制 目标宽度
         RecordSize();
 
         LoadServers();
         SelectLastServer();
+
+        DelayTestHelper.ServerTested += server =>
+        {
+            if (IsDisposed) return;
+            if (InvokeRequired)
+            {
+                BeginInvoke(() =>
+                {
+                    if (!ServerComboBox.DroppedDown && ServerComboBox.SelectedItem == server)
+                        ServerComboBox.Refresh();
+                });
+                return;
+            }
+
+            if (!ServerComboBox.DroppedDown && ServerComboBox.SelectedItem == server)
+                ServerComboBox.Refresh();
+        };
+
         DelayTestHelper.UpdateTick(true);
 
         ModeService.Instance.Load();
@@ -794,7 +837,8 @@ public partial class MainForm : Form
                 if (Global.Settings.StartedPingInterval >= 0)
                 {
                     await server.PingAsync();
-                    ServerComboBox.Refresh();
+                    if (!ServerComboBox.DroppedDown)
+                        ServerComboBox.Refresh();
 
                     await Task.Delay(Global.Settings.StartedPingInterval * 1000);
                 }
@@ -849,9 +893,17 @@ public partial class MainForm : Form
 
     private void LoadServers()
     {
-        ServerComboBox.Items.Clear();
-        ServerComboBox.Items.AddRange(Global.Settings.Server.Cast<object>().ToArray());
-        SelectLastServer();
+        ServerComboBox.BeginUpdate();
+        try
+        {
+            ServerComboBox.Items.Clear();
+            ServerComboBox.Items.AddRange(Global.Settings.Server.Cast<object>().ToArray());
+            SelectLastServer();
+        }
+        finally
+        {
+            ServerComboBox.EndUpdate();
+        }
     }
 
     private void SelectLastServer()
@@ -872,7 +924,25 @@ public partial class MainForm : Form
         if (ServerComboBox.SelectedItem is Server s)
         {
             Log.Information("Selected server changed: [{Type}] {Remark} ({Hostname}:{Port})", s.Type, s.Remark, s.Hostname, s.Port);
+            if (State == State.Started)
+            {
+                MainController.HotSwitchServerAsync(s).Forget();
+            }
         }
+    }
+
+    public void OnServerHotSwitched(Server newServer)
+    {
+        if (InvokeRequired)
+        {
+            BeginInvoke(() => OnServerHotSwitched(newServer));
+            return;
+        }
+
+        ServerComboBox.SelectedItem = newServer;
+        StatusText(i18N.Translate("Started"));
+        UpdateControlButtonTheme(true);
+        NotifyTip(i18N.TranslateFormat("Switched to {0}", newServer.Remark));
     }
 
     private async void EditServerPictureBox_Click(object sender, EventArgs e)
@@ -921,7 +991,10 @@ public partial class MainForm : Form
 
         if (!IsWaiting() || ModifierKeys == Keys.Control)
         {
-            (ServerComboBox.SelectedItem as Server)?.PingAsync();
+            if (ServerComboBox.SelectedItem is Server selectedServer)
+            {
+                await DelayTestHelper.TestServerAsync(selectedServer);
+            }
             Enable();
         }
         else
@@ -1761,33 +1834,51 @@ public partial class MainForm : Form
 
     #region ComboBox_DrawItem
 
-    private readonly SolidBrush _greenBrush = new(Color.FromArgb(50, 255, 56));
+    private static readonly SolidBrush GreenBrush = new(Color.FromArgb(50, 255, 56));
+    private static readonly SolidBrush DarkInputBrush = new(ThemeService.DarkInput);
+    private static readonly SolidBrush SelectedLightBrush = new(Color.FromArgb(204, 232, 255));
+    private static readonly SolidBrush SelectedDarkBrush = new(Color.FromArgb(60, 60, 60));
 
     private void ComboBox_DrawItem(object sender, DrawItemEventArgs e)
     {
-        if (sender is not ComboBox cbx)
+        if (sender is not ComboBox cbx || e.Index < 0 || e.Index >= cbx.Items.Count)
             return;
 
-        // 绘制背景颜色
-        var backBrush = ThemeService.IsDarkMode ? new SolidBrush(ThemeService.DarkInput) : Brushes.White;
-        var textColor = ThemeService.IsDarkMode ? ThemeService.DarkText : Color.Black;
+        bool isSelected = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+
+        // 1. 绘制背景：区分正常底色与悬停高亮底色，使用静态缓存笔刷彻底消灭每帧 GDI 堆分配
+        Brush backBrush;
+        if (isSelected)
+        {
+            backBrush = ThemeService.IsDarkMode ? SelectedDarkBrush : SelectedLightBrush;
+        }
+        else
+        {
+            backBrush = ThemeService.IsDarkMode ? DarkInputBrush : Brushes.White;
+        }
         e.Graphics.FillRectangle(backBrush, e.Bounds);
 
-        if (e.Index < 0)
-            return;
-
-        var isServer = cbx.Items[e.Index] is Server;
+        var itemObj = cbx.Items[e.Index];
+        var isServer = itemObj is Server;
         int boxWidth = isServer ? Math.Max(48, (int)(cbx.Font.Height * 2.2)) : 0;
         int textWidth = isServer ? Math.Max(0, e.Bounds.Width - boxWidth - 8) : e.Bounds.Width;
         var textRect = new Rectangle(e.Bounds.X + 2, e.Bounds.Y, textWidth, e.Bounds.Height);
 
-        // 绘制 备注/名称 字符串
-        TextRenderer.DrawText(e.Graphics, cbx.Items[e.Index]?.ToString() ?? string.Empty, cbx.Font, textRect, textColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+        // 2. 绘制 备注/名称 字符串 (启用 SingleLine, WordEllipsis, NoPrefix 极速文本布局)
+        var textColor = ThemeService.IsDarkMode ? ThemeService.DarkText : Color.Black;
+        const TextFormatFlags textFlags = TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.WordEllipsis | TextFormatFlags.NoPrefix;
+        TextRenderer.DrawText(e.Graphics, itemObj?.ToString() ?? string.Empty, cbx.Font, textRect, textColor, textFlags);
 
-        if (cbx.Items[e.Index] is Server item)
+        // 3. 绘制延迟小色块与数值
+        if (itemObj is Server item)
         {
-            // 计算延迟底色
-            var numBoxBackBrush = item.Delay switch { > 200 => Brushes.Red, > 80 => Brushes.Yellow, >= 0 => _greenBrush, _ => Brushes.Gray };
+            var numBoxBackBrush = item.Delay switch
+            {
+                > 200 => Brushes.Red,
+                > 80 => Brushes.Yellow,
+                >= 0 => GreenBrush,
+                _ => Brushes.Gray
+            };
 
             // 关键：永远在 e.Bounds 内部靠右计算，并保留安全边距，绝对不遮盖原生下拉箭头
             int boxX = e.Bounds.Right - boxWidth - 3;
@@ -1797,13 +1888,13 @@ public partial class MainForm : Form
 
             e.Graphics.FillRectangle(numBoxBackBrush, numBoxRect);
 
-            // 绘制延迟字符串 (居中显示)
+            const TextFormatFlags delayFlags = TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine | TextFormatFlags.NoPrefix;
             TextRenderer.DrawText(e.Graphics,
                 item.Delay.ToString(),
                 cbx.Font,
                 numBoxRect,
                 Color.Black,
-                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                delayFlags);
         }
     }
 

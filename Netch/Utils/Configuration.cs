@@ -88,6 +88,12 @@ public static class Configuration
 
         settings.AioDNS.ChinaDNS = DnsUtils.AppendPort(settings.AioDNS.ChinaDNS);
         settings.AioDNS.OtherDNS = DnsUtils.AppendPort(settings.AioDNS.OtherDNS);
+
+        // 平滑升级：将历史过小的检测周期 (如原默认 10s) 提升至更合理安全的 30s，消除频繁测速造成的线程池争抢
+        if (settings.DetectionTick > 0 && settings.DetectionTick < 30)
+        {
+            settings.DetectionTick = 30;
+        }
     }
 
     /// <summary>

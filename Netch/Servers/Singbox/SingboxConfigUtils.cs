@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Sockets;
 using System.Text.Json;
 using Netch.Models;
 using Netch.Servers;
@@ -102,6 +104,38 @@ public static class SingboxConfigUtils
             };
         }
 
+        var dns = new Dictionary<string, object>
+        {
+            {
+                "servers", new List<object>
+                {
+                    new Dictionary<string, object>
+                    {
+                        { "tag", "dns-remote" },
+                        { "address", "tcp://1.1.1.1" },
+                        { "detour", "proxy" }
+                    },
+                    new Dictionary<string, object>
+                    {
+                        { "tag", "dns-local" },
+                        { "address", "local" },
+                        { "detour", "direct" }
+                    }
+                }
+            },
+            {
+                "rules", new List<object>
+                {
+                    new Dictionary<string, object>
+                    {
+                        { "outbound", "any" },
+                        { "server", "dns-local" }
+                    }
+                }
+            },
+            { "strategy", "prefer_ipv4" }
+        };
+
         var config = new Dictionary<string, object>
         {
             {
@@ -111,6 +145,7 @@ public static class SingboxConfigUtils
                     { "timestamp", true }
                 }
             },
+            { "dns", dns },
             { "inbounds", inbounds },
             { "outbounds", outbounds },
             {
@@ -132,8 +167,25 @@ public static class SingboxConfigUtils
             { "tag", tag }
         };
 
-        var resolvedAddress = await server.AutoResolveHostnameAsync();
+        string resolvedAddress = server.Hostname;
+        try
+        {
+            var res = await server.AutoResolveHostnameAsync();
+            if (!string.IsNullOrWhiteSpace(res))
+            {
+                resolvedAddress = res;
+            }
+        }
+        catch
+        {
+            resolvedAddress = server.Hostname;
+        }
+
+        // sing-box 的 server 字段若是纯 IPv6 地址，必须是不带方括号的纯地址
+        resolvedAddress = resolvedAddress.Trim('[', ']');
+
         var sboxCfg = Global.Settings.SingboxConfig;
+        bool allowInsecure = sboxCfg.AllowInsecure || server.AllowInsecure == true;
 
         if (sboxCfg.TCPFastOpen)
         {
@@ -154,7 +206,7 @@ public static class SingboxConfigUtils
                 var tls = new Dictionary<string, object>
                 {
                     { "enabled", vision.TLSSecureType != "none" },
-                    { "insecure", sboxCfg.AllowInsecure }
+                    { "insecure", allowInsecure }
                 };
 
                 var serverName = vision.ServerName.ValueOrDefault() ?? vision.Host.SplitOrDefault()?[0] ?? vision.Hostname;
@@ -197,7 +249,7 @@ public static class SingboxConfigUtils
                     var tls = new Dictionary<string, object>
                     {
                         { "enabled", true },
-                        { "insecure", sboxCfg.AllowInsecure }
+                        { "insecure", allowInsecure }
                     };
 
                     var serverName = vless.ServerName.ValueOrDefault() ?? vless.Host.SplitOrDefault()?[0] ?? vless.Hostname;
@@ -212,7 +264,7 @@ public static class SingboxConfigUtils
                     ApplyMultiplex(outbound);
                 }
 
-                AttachTransport(outbound, vless);
+                AttachTransport(outbound, vless.TransferProtocol, vless.Path, vless.Host, vless.Hostname);
                 break;
             }
 
@@ -231,7 +283,7 @@ public static class SingboxConfigUtils
                     var tls = new Dictionary<string, object>
                     {
                         { "enabled", true },
-                        { "insecure", sboxCfg.AllowInsecure }
+                        { "insecure", allowInsecure }
                     };
 
                     var serverName = vmess.ServerName.ValueOrDefault() ?? vmess.Host.SplitOrDefault()?[0] ?? vmess.Hostname;
@@ -246,7 +298,7 @@ public static class SingboxConfigUtils
                     ApplyMultiplex(outbound);
                 }
 
-                AttachTransport(outbound, vmess);
+                AttachTransport(outbound, vmess.TransferProtocol, vmess.Path, vmess.Host, vmess.Hostname);
                 break;
             }
 
@@ -260,7 +312,7 @@ public static class SingboxConfigUtils
                 var tls = new Dictionary<string, object>
                 {
                     { "enabled", trojan.TLSSecureType != "none" },
-                    { "insecure", sboxCfg.AllowInsecure }
+                    { "insecure", allowInsecure }
                 };
 
                 var serverName = trojan.Host.ValueOrDefault() ?? trojan.Hostname;
@@ -274,15 +326,7 @@ public static class SingboxConfigUtils
                     ApplyMultiplex(outbound);
                 }
 
-                if (trojan.Mode?.Equals("grpc", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    outbound["transport"] = new Dictionary<string, object>
-                    {
-                        { "type", "grpc" },
-                        { "service_name", trojan.ServiceName ?? "" }
-                    };
-                }
-
+                AttachTransport(outbound, trojan.TransferProtocol, trojan.Path, trojan.Host, trojan.Hostname, trojan.ServiceName);
                 break;
             }
 
@@ -387,23 +431,48 @@ public static class SingboxConfigUtils
         };
     }
 
-    private static void AttachTransport(Dictionary<string, object> outbound, VMessServer server)
+    /// <summary>
+    ///     格式化 HTTP / WebSocket 请求头中的 Host 字段。
+    ///     根据 RFC 3986 规范，若目标为 IPv6 地址，必须包裹方括号 [IPv6]，杜绝 Nginx 404
+    /// </summary>
+    private static string FormatHostHeader(string? host, string fallbackHostname)
     {
-        switch (server.TransferProtocol)
+        var raw = !string.IsNullOrWhiteSpace(host) ? host.Trim() : fallbackHostname.Trim();
+
+        // 已包含方括号则直接返回
+        if (raw.StartsWith('[') && raw.EndsWith(']'))
+            return raw;
+
+        // 若为纯 IPv6 地址，包裹为 [IPv6]
+        if (IPAddress.TryParse(raw, out var ip) && ip.AddressFamily == AddressFamily.InterNetworkV6)
+        {
+            return $"[{ip}]";
+        }
+
+        return raw;
+    }
+
+    private static void AttachTransport(Dictionary<string, object> outbound, string? protocol, string? path, string? host, string hostname, string? serviceName = null)
+    {
+        var proto = protocol?.ToLowerInvariant() ?? "tcp";
+
+        switch (proto)
         {
             case "ws":
+            case "websocket":
             {
                 var transport = new Dictionary<string, object>
                 {
                     { "type", "ws" },
-                    { "path", server.Path.ValueOrDefault() ?? "/" }
+                    { "path", !string.IsNullOrWhiteSpace(path) ? path : "/" }
                 };
 
-                if (!server.Host.IsNullOrWhiteSpace())
+                var hostHeader = FormatHostHeader(host, hostname);
+                if (!string.IsNullOrWhiteSpace(hostHeader))
                 {
                     transport["headers"] = new Dictionary<string, string>
                     {
-                        { "Host", server.Host! }
+                        { "Host", hostHeader }
                     };
                 }
 
@@ -416,7 +485,7 @@ public static class SingboxConfigUtils
                 outbound["transport"] = new Dictionary<string, object>
                 {
                     { "type", "grpc" },
-                    { "service_name", server.Path ?? "" }
+                    { "service_name", serviceName ?? path ?? "" }
                 };
                 break;
             }
@@ -424,11 +493,15 @@ public static class SingboxConfigUtils
             case "http":
             case "h2":
             {
+                var hostList = !string.IsNullOrWhiteSpace(host)
+                    ? host.SplitOrDefault() ?? new[] { FormatHostHeader(host, hostname) }
+                    : new[] { FormatHostHeader(host, hostname) };
+
                 outbound["transport"] = new Dictionary<string, object>
                 {
                     { "type", "http" },
-                    { "path", server.Path.ValueOrDefault() ?? "/" },
-                    { "host", server.Host.SplitOrDefault() ?? Array.Empty<string>() }
+                    { "path", !string.IsNullOrWhiteSpace(path) ? path : "/" },
+                    { "host", hostList }
                 };
                 break;
             }

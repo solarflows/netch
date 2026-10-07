@@ -24,9 +24,23 @@ public class TrojanServer : Server
     public string? Host { get; set; }
 
     /// <summary>
-    ///     传输模式 (如 grpc)
+    ///     传输模式 (如 tcp, ws, grpc)
     /// </summary>
     public string? Mode { get; set; }
+
+    /// <summary>
+    ///     传输协议 (统一映射至 Mode)
+    /// </summary>
+    public string TransferProtocol
+    {
+        get => !string.IsNullOrEmpty(Mode) ? Mode : "tcp";
+        set => Mode = value;
+    }
+
+    /// <summary>
+    ///     WebSocket 请求路径
+    /// </summary>
+    public string? Path { get; set; } = "/";
 
     /// <summary>
     ///     GRPC Service Name

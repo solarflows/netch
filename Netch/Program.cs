@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
@@ -136,8 +137,16 @@ public static class Program
 
         TaskScheduler.UnobservedTaskException += (_, e) =>
         {
-            Log.Error(e.Exception, "Unobserved Task Exception");
             e.SetObserved();
+            var baseEx = e.Exception.GetBaseException();
+            if (baseEx is SocketException or OperationCanceledException or TaskCanceledException)
+            {
+                // 忽略底层网络断开或取消导致的非致命任务异常，避免刷爆日志
+                Log.Debug(baseEx, "Ignored unobserved network cancellation exception");
+                return;
+            }
+
+            Log.Error(e.Exception, "Unobserved Task Exception");
         };
 
         Application.SetHighDpiMode(HighDpiMode.DpiUnawareGdiScaled);

@@ -42,9 +42,9 @@ public class Setting
     public bool CheckUpdateWhenOpened { get; set; } = true;
 
     /// <summary>
-    ///     测试所有服务器心跳/秒
+    ///     测试所有服务器心跳/秒 (默认 30 秒，避免高频测速引起网络阻塞与界面卡顿)
     /// </summary>
-    public int DetectionTick { get; set; } = 10;
+    public int DetectionTick { get; set; } = 30;
 
     /// <summary>
     ///     是否关闭窗口时退出

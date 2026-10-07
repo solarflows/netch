@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Text.Json;
 using Netch.Models;
 using Netch.Servers;
@@ -34,7 +35,16 @@ public static class ClashSubParser
 
         var inProxies = false;
         var currentDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        string currentParentPrefix = "";
+
+        // 缩进栈：维护多层 YAML 对象的复合前缀 (例如 ws-opts -> headers -> Host)
+        var indentStack = new Stack<(int Indent, string Key)>();
+
+        string GetCurrentPrefix()
+        {
+            if (indentStack.Count == 0)
+                return "";
+            return string.Join("-", indentStack.Reverse().Select(x => x.Key)) + "-";
+        }
 
         void FlushCurrent()
         {
@@ -45,7 +55,7 @@ public static class ClashSubParser
                     servers.Add(s);
 
                 currentDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-                currentParentPrefix = "";
+                indentStack.Clear();
             }
         }
 
@@ -66,14 +76,17 @@ public static class ClashSubParser
                 continue;
             }
 
-            // If we hit another root key (no leading whitespace), proxies section has ended
-            if (!char.IsWhiteSpace(line[0]))
+            // 遇到非缩进的顶级键（无前导空格且非列表项），说明 proxies 区块已结束
+            if (!char.IsWhiteSpace(line[0]) && !trimmed.StartsWith("-"))
             {
                 FlushCurrent();
                 break;
             }
 
-            // Check if this line starts a new proxy item (- ...)
+            // 计算当前行的缩进空格数
+            int lineIndent = line.TakeWhile(char.IsWhiteSpace).Count();
+
+            // 检查是否开始新的节点 (- ...)
             if (trimmed.StartsWith("- ") || trimmed.Equals("-"))
             {
                 FlushCurrent();
@@ -81,20 +94,26 @@ public static class ClashSubParser
                 var content = trimmed[2..].Trim();
                 if (content.StartsWith('{') && content.EndsWith('}'))
                 {
-                    // Flow style inline dictionary: - { name: "...", type: ss, ... }
-                    ParseInlineDict(content, currentDict);
+                    // Flow style 单行字典: - { name: "...", type: vmess, ... }
+                    ParseFlowStyleDict(content, "", currentDict);
                     FlushCurrent();
                     continue;
                 }
 
                 if (!string.IsNullOrEmpty(content) && content.Contains(':'))
                 {
-                    ParseKeyValue(content, currentParentPrefix, currentDict);
+                    ParseKeyValue(content, "", currentDict);
                 }
                 continue;
             }
 
-            // Continuation of current proxy in block style
+            // 根据缩进深度管理前缀栈：当前行缩进小于或等于栈顶缩进时，回退退出深层对象
+            while (indentStack.Count > 0 && lineIndent <= indentStack.Peek().Indent)
+            {
+                indentStack.Pop();
+            }
+
+            // 处理块级键值对
             if (trimmed.Contains(':'))
             {
                 var colonIndex = trimmed.IndexOf(':');
@@ -103,17 +122,18 @@ public static class ClashSubParser
 
                 if (string.IsNullOrEmpty(val))
                 {
-                    // Sub-object header (e.g. ws-opts:, reality-opts:, plugin-opts:)
-                    currentParentPrefix = key + "-";
+                    // 子字典对象头 (例如 ws-opts:, headers:, reality-opts:, grpc-opts:)
+                    indentStack.Push((lineIndent, key));
+                }
+                else if (val.StartsWith('{') && val.EndsWith('}'))
+                {
+                    // 行内复合子字典 (例如 headers: { Host: "example.com" })
+                    ParseFlowStyleDict(val, GetCurrentPrefix() + key + "-", currentDict);
                 }
                 else
                 {
-                    var fullKey = currentParentPrefix + key;
-                    currentDict[fullKey] = Unquote(val);
-                    if (!string.IsNullOrEmpty(currentParentPrefix) && !currentDict.ContainsKey(key))
-                    {
-                        currentDict[key] = Unquote(val);
-                    }
+                    var prefix = GetCurrentPrefix();
+                    StoreKeyValue(key, val, prefix, currentDict);
                 }
             }
         }
@@ -122,18 +142,26 @@ public static class ClashSubParser
         return servers;
     }
 
-    private static void ParseInlineDict(string inline, Dictionary<string, string> dict)
+    private static void ParseFlowStyleDict(string inline, string prefix, Dictionary<string, string> dict)
     {
         var content = inline.Trim('{', '}').Trim();
         var parts = SplitFlowStyle(content);
         foreach (var part in parts)
         {
             var colonIndex = part.IndexOf(':');
-            if (colonIndex > 0)
+            if (colonIndex <= 0)
+                continue;
+
+            var key = part[..colonIndex].Trim();
+            var val = part[(colonIndex + 1)..].Trim();
+
+            if (val.StartsWith('{') && val.EndsWith('}'))
             {
-                var key = part[..colonIndex].Trim();
-                var val = part[(colonIndex + 1)..].Trim();
-                dict[key] = Unquote(val);
+                ParseFlowStyleDict(val, prefix + key + "-", dict);
+            }
+            else
+            {
+                StoreKeyValue(key, val, prefix, dict);
             }
         }
     }
@@ -143,6 +171,7 @@ public static class ClashSubParser
         var list = new List<string>();
         var inQuotes = false;
         var quoteChar = '\0';
+        int braceDepth = 0;
         int start = 0;
 
         for (int i = 0; i < content.Length; i++)
@@ -155,12 +184,21 @@ public static class ClashSubParser
             }
             else
             {
-                if (c == '"' || c == '\'')
+                if (c is '"' or '\'')
                 {
                     inQuotes = true;
                     quoteChar = c;
                 }
-                else if (c == ',')
+                else if (c is '{' or '[')
+                {
+                    braceDepth++;
+                }
+                else if (c is '}' or ']')
+                {
+                    if (braceDepth > 0)
+                        braceDepth--;
+                }
+                else if (c == ',' && braceDepth == 0)
                 {
                     list.Add(content[start..i].Trim());
                     start = i + 1;
@@ -183,11 +221,40 @@ public static class ClashSubParser
         {
             var key = text[..colonIndex].Trim();
             var val = text[(colonIndex + 1)..].Trim();
-            var fullKey = prefix + key;
-            dict[fullKey] = Unquote(val);
-            if (!string.IsNullOrEmpty(prefix) && !dict.ContainsKey(key))
+            StoreKeyValue(key, val, prefix, dict);
+        }
+    }
+
+    private static void StoreKeyValue(string key, string rawVal, string prefix, Dictionary<string, string> dict)
+    {
+        var cleanVal = Unquote(rawVal);
+        var fullKey = prefix + key;
+        dict[fullKey] = cleanVal;
+
+        // 建立关键字段别名，消除不同层级命名的差异
+        if (!string.IsNullOrEmpty(prefix))
+        {
+            // 写入去除最外层前缀后的直接键
+            if (!dict.ContainsKey(key))
+                dict[key] = cleanVal;
+
+            // 特别映射 Host / SNI / Path 常用别名
+            if (key.Equals("Host", StringComparison.OrdinalIgnoreCase))
             {
-                dict[key] = Unquote(val);
+                dict["ws-headers-host"] = cleanVal;
+                dict["headers-host"] = cleanVal;
+                dict["host"] = cleanVal;
+            }
+            else if (key.Equals("path", StringComparison.OrdinalIgnoreCase))
+            {
+                dict["ws-path"] = cleanVal;
+                dict["path"] = cleanVal;
+            }
+            else if (key.Equals("grpc-service-name", StringComparison.OrdinalIgnoreCase) ||
+                     key.Equals("service-name", StringComparison.OrdinalIgnoreCase) ||
+                     key.Equals("serviceName", StringComparison.OrdinalIgnoreCase))
+            {
+                dict["serviceName"] = cleanVal;
             }
         }
     }
@@ -213,6 +280,9 @@ public static class ClashSubParser
         if (string.IsNullOrWhiteSpace(type) || string.IsNullOrWhiteSpace(hostname) || !ushort.TryParse(portStr, out var port))
             return null;
 
+        var skipCert = dict.GetValueOrDefault("skip-cert-verify");
+        var allowInsecure = skipCert?.Equals("true", StringComparison.OrdinalIgnoreCase) == true || skipCert == "1";
+
         switch (type)
         {
             case "ss":
@@ -226,7 +296,8 @@ public static class ClashSubParser
                     Password = dict.GetValueOrDefault("password") ?? "",
                     Plugin = dict.GetValueOrDefault("plugin"),
                     PluginOption = dict.GetValueOrDefault("plugin-opts") ?? dict.GetValueOrDefault("plugin_opts"),
-                    Remark = remark
+                    Remark = remark,
+                    AllowInsecure = allowInsecure
                 };
             }
 
@@ -249,7 +320,22 @@ public static class ClashSubParser
 
             case "vmess":
             {
-                var tls = dict.GetValueOrDefault("tls")?.Equals("true", StringComparison.OrdinalIgnoreCase) == true;
+                var tls = dict.GetValueOrDefault("tls")?.Equals("true", StringComparison.OrdinalIgnoreCase) == true ||
+                          dict.GetValueOrDefault("tls") == "1";
+
+                var host = dict.GetValueOrDefault("ws-opts-headers-host") ??
+                           dict.GetValueOrDefault("headers-host") ??
+                           dict.GetValueOrDefault("ws-headers-host") ??
+                           dict.GetValueOrDefault("ws-host") ??
+                           dict.GetValueOrDefault("servername") ??
+                           dict.GetValueOrDefault("sni") ??
+                           dict.GetValueOrDefault("host") ?? "";
+
+                var path = dict.GetValueOrDefault("ws-opts-path") ??
+                           dict.GetValueOrDefault("ws-path") ??
+                           dict.GetValueOrDefault("path") ??
+                           dict.GetValueOrDefault("serviceName") ?? "/";
+
                 return new VMessServer
                 {
                     Hostname = hostname,
@@ -259,9 +345,11 @@ public static class ClashSubParser
                     EncryptMethod = dict.GetValueOrDefault("cipher") ?? "auto",
                     TransferProtocol = dict.GetValueOrDefault("network") ?? "tcp",
                     TLSSecureType = tls ? "tls" : "none",
-                    Host = dict.GetValueOrDefault("servername") ?? dict.GetValueOrDefault("sni") ?? dict.GetValueOrDefault("host") ?? "",
-                    Path = dict.GetValueOrDefault("ws-path") ?? dict.GetValueOrDefault("path") ?? dict.GetValueOrDefault("serviceName") ?? "/",
-                    Remark = remark
+                    Host = host,
+                    Path = path,
+                    ServerName = dict.GetValueOrDefault("servername") ?? dict.GetValueOrDefault("sni"),
+                    Remark = remark,
+                    AllowInsecure = allowInsecure
                 };
             }
 
@@ -272,6 +360,23 @@ public static class ClashSubParser
                                 dict.ContainsKey("reality-opts-public-key") ||
                                 dict.GetValueOrDefault("reality")?.Equals("true", StringComparison.OrdinalIgnoreCase) == true;
 
+                var isTls = isReality ||
+                            dict.GetValueOrDefault("tls")?.Equals("true", StringComparison.OrdinalIgnoreCase) == true ||
+                            dict.GetValueOrDefault("tls") == "1";
+
+                var host = dict.GetValueOrDefault("ws-opts-headers-host") ??
+                           dict.GetValueOrDefault("headers-host") ??
+                           dict.GetValueOrDefault("ws-headers-host") ??
+                           dict.GetValueOrDefault("ws-host") ??
+                           dict.GetValueOrDefault("servername") ??
+                           dict.GetValueOrDefault("sni") ??
+                           dict.GetValueOrDefault("host") ?? "";
+
+                var path = dict.GetValueOrDefault("ws-opts-path") ??
+                           dict.GetValueOrDefault("ws-path") ??
+                           dict.GetValueOrDefault("path") ??
+                           dict.GetValueOrDefault("serviceName") ?? "/";
+
                 if (flow.Contains("vision", StringComparison.OrdinalIgnoreCase) || isReality)
                 {
                     return new VisionServer
@@ -280,11 +385,14 @@ public static class ClashSubParser
                         Port = port,
                         UserID = dict.GetValueOrDefault("uuid") ?? "",
                         Flow = flow,
-                        TLSSecureType = isReality ? "reality" : (dict.GetValueOrDefault("tls")?.Equals("true", StringComparison.OrdinalIgnoreCase) == true ? "tls" : "none"),
+                        TLSSecureType = isReality ? "reality" : (isTls ? "tls" : "none"),
                         PublicKey = dict.GetValueOrDefault("public-key") ?? dict.GetValueOrDefault("reality-opts-public-key") ?? "",
                         ShortId = dict.GetValueOrDefault("short-id") ?? dict.GetValueOrDefault("reality-opts-short-id") ?? "",
                         ServerName = dict.GetValueOrDefault("servername") ?? dict.GetValueOrDefault("sni"),
-                        Remark = remark
+                        Host = host,
+                        Path = path,
+                        Remark = remark,
+                        AllowInsecure = allowInsecure
                     };
                 }
 
@@ -294,23 +402,47 @@ public static class ClashSubParser
                     Port = port,
                     UserID = dict.GetValueOrDefault("uuid") ?? "",
                     FlowControl = flow,
-                    TLSSecureType = dict.GetValueOrDefault("tls")?.Equals("true", StringComparison.OrdinalIgnoreCase) == true ? "tls" : "none",
+                    TLSSecureType = isTls ? "tls" : "none",
                     ServerName = dict.GetValueOrDefault("servername") ?? dict.GetValueOrDefault("sni"),
                     TransferProtocol = dict.GetValueOrDefault("network") ?? "tcp",
-                    Remark = remark
+                    Host = host,
+                    Path = path,
+                    Remark = remark,
+                    AllowInsecure = allowInsecure
                 };
             }
 
             case "trojan":
             {
+                var net = dict.GetValueOrDefault("network") ?? "tcp";
+                var host = dict.GetValueOrDefault("ws-opts-headers-host") ??
+                           dict.GetValueOrDefault("headers-host") ??
+                           dict.GetValueOrDefault("ws-headers-host") ??
+                           dict.GetValueOrDefault("ws-host") ??
+                           dict.GetValueOrDefault("sni") ??
+                           dict.GetValueOrDefault("servername") ??
+                           dict.GetValueOrDefault("host") ?? "";
+
+                var path = dict.GetValueOrDefault("ws-opts-path") ??
+                           dict.GetValueOrDefault("ws-path") ??
+                           dict.GetValueOrDefault("path") ?? "/";
+
+                var serviceName = dict.GetValueOrDefault("grpc-opts-grpc-service-name") ??
+                                  dict.GetValueOrDefault("grpc-service-name") ??
+                                  dict.GetValueOrDefault("serviceName");
+
                 return new TrojanServer
                 {
                     Hostname = hostname,
                     Port = port,
                     Password = dict.GetValueOrDefault("password") ?? "",
-                    Host = dict.GetValueOrDefault("sni") ?? dict.GetValueOrDefault("servername") ?? "",
+                    Host = host,
+                    Path = path,
+                    Mode = net,
+                    ServiceName = serviceName,
                     TLSSecureType = "tls",
-                    Remark = remark
+                    Remark = remark,
+                    AllowInsecure = allowInsecure
                 };
             }
 
@@ -415,6 +547,36 @@ public static class ClashSubParser
         if (string.IsNullOrWhiteSpace(hostname) || port == 0)
             return null;
 
+        bool allowInsecure = false;
+        string serverName = "";
+        if (outbound.TryGetProperty("tls", out var tlsElem))
+        {
+            if (tlsElem.TryGetProperty("insecure", out var ins))
+                allowInsecure = ins.GetBoolean();
+            if (tlsElem.TryGetProperty("server_name", out var sn))
+                serverName = sn.GetString() ?? "";
+        }
+
+        string transportType = "tcp";
+        string wsPath = "/";
+        string wsHost = "";
+        string serviceName = "";
+
+        if (outbound.TryGetProperty("transport", out var transElem))
+        {
+            if (transElem.TryGetProperty("type", out var tt))
+                transportType = tt.GetString()?.ToLowerInvariant() ?? "tcp";
+
+            if (transElem.TryGetProperty("path", out var p))
+                wsPath = p.GetString() ?? "/";
+
+            if (transElem.TryGetProperty("headers", out var headers) && headers.TryGetProperty("Host", out var h))
+                wsHost = h.GetString() ?? "";
+
+            if (transElem.TryGetProperty("service_name", out var snElem))
+                serviceName = snElem.GetString() ?? "";
+        }
+
         switch (type)
         {
             case "shadowsocks":
@@ -433,18 +595,18 @@ public static class ClashSubParser
 
             case "trojan":
             {
-                var serverName = "";
-                if (outbound.TryGetProperty("tls", out var tls) && tls.TryGetProperty("server_name", out var sn))
-                    serverName = sn.GetString() ?? "";
-
                 return new TrojanServer
                 {
                     Hostname = hostname,
                     Port = port,
                     Password = outbound.TryGetProperty("password", out var p) ? p.GetString() ?? "" : "",
-                    Host = serverName,
+                    Host = !string.IsNullOrEmpty(serverName) ? serverName : wsHost,
+                    Path = wsPath,
+                    Mode = transportType,
+                    ServiceName = serviceName,
                     TLSSecureType = "tls",
-                    Remark = tag
+                    Remark = tag,
+                    AllowInsecure = allowInsecure
                 };
             }
 
@@ -467,13 +629,9 @@ public static class ClashSubParser
                 var isReality = false;
                 var pubKey = "";
                 var shortId = "";
-                var serverName = "";
 
                 if (outbound.TryGetProperty("tls", out var tls))
                 {
-                    if (tls.TryGetProperty("server_name", out var sn))
-                        serverName = sn.GetString() ?? "";
-
                     if (tls.TryGetProperty("reality", out var reality))
                     {
                         isReality = true;
@@ -494,7 +652,10 @@ public static class ClashSubParser
                         PublicKey = pubKey,
                         ShortId = shortId,
                         ServerName = serverName,
-                        Remark = tag
+                        Host = wsHost,
+                        Path = wsPath,
+                        Remark = tag,
+                        AllowInsecure = allowInsecure
                     };
                 }
 
@@ -506,12 +667,17 @@ public static class ClashSubParser
                     FlowControl = flow,
                     TLSSecureType = !string.IsNullOrEmpty(serverName) ? "tls" : "none",
                     ServerName = serverName,
-                    Remark = tag
+                    TransferProtocol = transportType,
+                    Host = wsHost,
+                    Path = wsPath,
+                    Remark = tag,
+                    AllowInsecure = allowInsecure
                 };
             }
 
             case "vmess":
             {
+                var isTls = !string.IsNullOrEmpty(serverName) || (outbound.TryGetProperty("tls", out var t) && t.TryGetProperty("enabled", out var en) && en.GetBoolean());
                 return new VMessServer
                 {
                     Hostname = hostname,
@@ -519,7 +685,13 @@ public static class ClashSubParser
                     UserID = outbound.TryGetProperty("uuid", out var u) ? u.GetString() ?? "" : "",
                     AlterID = outbound.TryGetProperty("alter_id", out var a) ? a.GetInt32() : 0,
                     EncryptMethod = outbound.TryGetProperty("security", out var s) ? s.GetString() ?? "auto" : "auto",
-                    Remark = tag
+                    TransferProtocol = transportType,
+                    TLSSecureType = isTls ? "tls" : "none",
+                    ServerName = serverName,
+                    Host = wsHost,
+                    Path = wsPath,
+                    Remark = tag,
+                    AllowInsecure = allowInsecure
                 };
             }
 

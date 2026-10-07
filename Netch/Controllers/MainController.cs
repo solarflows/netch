@@ -154,6 +154,92 @@ public static class MainController
         ModeController = null;
     }
 
+    /// <summary>
+    ///     热切换节点（若处于已启动状态，保持驱动/网卡/路由完全不重启，仅毫秒级重载代理后端总线）
+    /// </summary>
+    public static async Task HotSwitchServerAsync(Server newServer)
+    {
+        using var releaser = await Lock.EnterAsync();
+
+        if (Global.MainForm.State != State.Started || ModeController == null)
+        {
+            Server = newServer;
+            Global.Settings.ServerComboBoxSelectedIndex = Global.Settings.Server.IndexOf(newServer);
+            return;
+        }
+
+        Log.Information("Hot-switching server: [{OldType}] {OldRemark} -> [{NewType}] {NewRemark}",
+            Server?.Type, Server?.Remark, newServer.Type, newServer.Remark);
+
+        Global.MainForm.StatusText(i18N.TranslateFormat("Switching to {0}", newServer.Remark));
+
+        try
+        {
+            var destination = await DnsUtils.LookupAsync(newServer.Hostname);
+            if (destination == null)
+            {
+                throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
+            }
+
+            bool oldIsDirectSocks = ServerController == null && Server is Socks5Server;
+            bool newIsDirectSocks = newServer is Socks5Server s5 && (!s5.Auth() || ModeController.Features.HasFlag(ModeFeature.SupportSocks5Auth)) && !Global.Settings.ShareLan && !Global.Settings.V2RayConfig.AllowHttp;
+
+            if (oldIsDirectSocks != newIsDirectSocks)
+            {
+                // 裸 Socks5 直连模式与微内核模式跨模式切换，需要驱动重新绑定目标，执行平滑重启
+                releaser.Dispose();
+                var currentMode = Mode;
+                await StopAsync();
+                await StartAsync(newServer, currentMode!);
+                return;
+            }
+
+            if (newIsDirectSocks)
+            {
+                Server = newServer;
+                Socks5Server = (Socks5Server)newServer;
+                await Task.Run(NativeMethods.RefreshDNSCache);
+                Log.Information("Direct Socks5 hot-switched to {Hostname}:{Port}", newServer.Hostname, newServer.Port);
+            }
+            else
+            {
+                // 保持驱动层 (nfdriver / wintun / 路由表) 完全不动，仅重启代理微内核
+                if (ServerController != null)
+                {
+                    await ServerController.StopAsync();
+                }
+
+                if (Global.Settings.CoreType.Equals("sing-box", StringComparison.OrdinalIgnoreCase) && SingboxConfigUtils.IsSupported(newServer))
+                {
+                    ServerController = new SingboxController();
+                }
+                else
+                {
+                    ServerController = new V2rayController();
+                }
+
+                TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");
+                Socks5Server = await ServerController.StartAsync(newServer);
+                Server = newServer;
+
+                StatusPortInfoText.Socks5Port = Socks5Server.Port;
+                StatusPortInfoText.UpdateShareLan();
+
+                await Task.Run(NativeMethods.RefreshDNSCache);
+                Log.Information("Proxy core hot-switched successfully to [{Type}] {Remark}", newServer.Type, newServer.Remark);
+            }
+
+            Global.Settings.ServerComboBoxSelectedIndex = Global.Settings.Server.IndexOf(newServer);
+            Global.MainForm.OnServerHotSwitched(newServer);
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, "Hot-switching server failed");
+            Global.MainForm.StatusText(i18N.Translate("Started"));
+            throw;
+        }
+    }
+
     public static void PortCheck(ushort port, string portName, PortType portType = PortType.Both)
     {
         try

@@ -12,22 +12,59 @@ public abstract class Server : ICloneable
     [JsonIgnore]
     public int Delay { get; private set; } = -1;
 
+    [JsonIgnore]
+    private string? _cachedDisplayText;
+
+    [JsonIgnore]
+    private string _group = Constants.DefaultGroup;
+
+    [JsonIgnore]
+    private string _hostname = string.Empty;
+
+    [JsonIgnore]
+    private ushort _port;
+
+    [JsonIgnore]
+    private string _remark = "";
+
     /// <summary>
     ///     组
     /// </summary>
-    public string Group { get; set; } = Constants.DefaultGroup;
+    public string Group
+    {
+        get => _group;
+        set
+        {
+            _group = value;
+            _cachedDisplayText = null;
+        }
+    }
 
     /// <summary>
     ///     地址
     /// </summary>
-    public string Hostname { get; set; } = string.Empty;
+    public string Hostname
+    {
+        get => _hostname;
+        set
+        {
+            _hostname = value;
+            _cachedDisplayText = null;
+        }
+    }
 
     /// <summary>
     ///     端口
     /// </summary>
-    public ushort Port { get; set; }
-//    public bool Sniffing { get; set; } = true;
-//    public bool AllowHttp { get; set; } = true;
+    public ushort Port
+    {
+        get => _port;
+        set
+        {
+            _port = value;
+            _cachedDisplayText = null;
+        }
+    }
 
     /// <summary>
     ///     倍率
@@ -37,7 +74,20 @@ public abstract class Server : ICloneable
     /// <summary>
     ///     备注
     /// </summary>
-    public string Remark { get; set; } = "";
+    public string Remark
+    {
+        get => _remark;
+        set
+        {
+            _remark = value;
+            _cachedDisplayText = null;
+        }
+    }
+
+    /// <summary>
+    ///     跳过证书验证 (针对伪装 SNI 或自签证书)
+    /// </summary>
+    public bool? AllowInsecure { get; set; }
 
     /// <summary>
     ///     代理类型
@@ -51,63 +101,68 @@ public abstract class Server : ICloneable
     }
 
     /// <summary>
-    ///     获取备注
+    ///     获取备注 (O(1) 高速缓存直读，彻底消除大量项滚动时的字符串格式化开销)
     /// </summary>
     /// <returns>备注</returns>
     public override string ToString()
     {
+        if (_cachedDisplayText != null)
+            return _cachedDisplayText;
+
         var remark = string.IsNullOrWhiteSpace(Remark) ? $"{Hostname}:{Port}" : Remark;
 
         var shortName = ServerHelper.GetUtilByTypeName(Type).ShortName;
 
-        return $"[{shortName}][{Group}] {remark}";
+        return _cachedDisplayText = $"[{shortName}][{Group}] {remark}";
     }
 
     public abstract string MaskedData();
+
+    [JsonIgnore]
+    public DateTime LastTestTime { get; set; } = DateTime.MinValue;
+
+    /// <summary>
+    ///     更新延迟并记入状态表
+    /// </summary>
+    public int SetDelay(int delay)
+    {
+        LastTestTime = DateTime.UtcNow;
+        return Delay = delay;
+    }
 
     /// <summary>
     ///     测试延迟
     /// </summary>
     /// <returns>延迟</returns>
-    public async Task<int> PingAsync()
+    public async Task<int> PingAsync(CancellationToken ct = default)
     {
         try
         {
             var destination = await DnsUtils.LookupAsync(Hostname);
             if (destination == null)
             {
-                Log.Debug("Ping failed for [{Type}] {Remark}: Hostname {Hostname} could not be resolved", Type, Remark, Hostname);
-                return Delay = -2;
+                return SetDelay(-2);
             }
 
-            var list = new Task<int>[3];
-            for (var i = 0; i < 3; i++)
+            int result;
+            if (Global.Settings.ServerTCPing)
             {
-                Task<int> PingCoreAsync()
-                {
-                    try
-                    {
-                        return Global.Settings.ServerTCPing ? Utils.Utils.TCPingAsync(destination, Port) : Utils.Utils.ICMPingAsync(destination);
-                    }
-                    catch (Exception)
-                    {
-                        return Task.FromResult(-4);
-                    }
-                }
-
-                list[i] = PingCoreAsync();
+                result = await Utils.Utils.TCPingAsync(destination, Port, 1000, ct);
+            }
+            else
+            {
+                result = await Utils.Utils.ICMPingAsync(destination);
             }
 
-            var resTask = await Task.WhenAny(list[0], list[1], list[2]);
-
-            Delay = await resTask;
-            Log.Debug("Ping result for [{Type}] {Remark} ({Hostname}:{Port}): {Delay}ms", Type, Remark, Hostname, Port, Delay);
-            return Delay;
+            return SetDelay(result);
         }
-        catch (Exception ex)
+        catch (OperationCanceledException)
         {
-            Log.Debug(ex, "Ping exception for [{Type}] {Remark}", Type, Remark);
-            return Delay = -4;
+            throw;
+        }
+        catch (Exception)
+        {
+            return SetDelay(-4);
         }
     }
 }

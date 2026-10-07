@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using Microsoft.VisualStudio.Threading;
@@ -7,68 +7,98 @@ namespace Netch.Utils;
 
 public static class DnsUtils
 {
-    private static readonly AsyncSemaphore Lock = new(1);
+    // 提升 DNS 并发信号量至 8，彻底消除单锁导致的全局串行堵塞
+    private static readonly AsyncSemaphore Lock = new(8);
 
     /// <summary>
-    ///     缓存
+    ///     线程安全高速缓存 (零锁直读)
     /// </summary>
-    private static readonly Hashtable Cache = new();
-    private static readonly Hashtable Cache6 = new();
+    private static readonly ConcurrentDictionary<string, IPAddress> Cache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly ConcurrentDictionary<string, IPAddress> Cache6 = new(StringComparer.OrdinalIgnoreCase);
 
     public static async Task<IPAddress?> LookupAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
     {
+        if (string.IsNullOrWhiteSpace(hostname))
+            return null;
+
+        var cleanHost = hostname.Trim('[', ']');
+
+        // 1. 若本身已是有效 IP 地址，0ms 直接短路返回，无需查缓存或进入信号量
+        if (IPAddress.TryParse(cleanHost, out var directIp))
+        {
+            if (inet == AddressFamily.Unspecified || directIp.AddressFamily == inet)
+                return directIp;
+
+            return null;
+        }
+
+        // 2. 线程安全缓存直读 (零锁)
+        IPAddress? cached = inet switch
+        {
+            AddressFamily.Unspecified => Cache.TryGetValue(cleanHost, out var v4) ? v4 : (Cache6.TryGetValue(cleanHost, out var v6) ? v6 : null),
+            AddressFamily.InterNetwork => Cache.TryGetValue(cleanHost, out var v4) ? v4 : null,
+            AddressFamily.InterNetworkV6 => Cache6.TryGetValue(cleanHost, out var v6) ? v6 : null,
+            _ => throw new ArgumentOutOfRangeException(nameof(inet))
+        };
+
+        if (cached != null)
+            return cached;
+
+        // 3. 限制并发数进行异步 DNS 解析
         using var _ = await Lock.EnterAsync();
+
+        // 二次双重检查
+        cached = inet switch
+        {
+            AddressFamily.Unspecified => Cache.TryGetValue(cleanHost, out var v4) ? v4 : (Cache6.TryGetValue(cleanHost, out var v6) ? v6 : null),
+            AddressFamily.InterNetwork => Cache.TryGetValue(cleanHost, out var v4) ? v4 : null,
+            AddressFamily.InterNetworkV6 => Cache6.TryGetValue(cleanHost, out var v6) ? v6 : null,
+            _ => null
+        };
+        if (cached != null)
+            return cached;
+
         try
         {
-            var cacheResult = inet switch
-            {
-                AddressFamily.Unspecified => (IPAddress?)(Cache[hostname] ?? Cache6[hostname]),
-                AddressFamily.InterNetwork => (IPAddress?)Cache[hostname],
-                AddressFamily.InterNetworkV6 => (IPAddress?)Cache6[hostname],
-                _ => throw new ArgumentOutOfRangeException(nameof(inet))
-            };
-
-            if (cacheResult != null)
-                return cacheResult;
-
-            return await LookupNoCacheAsync(hostname, inet, timeout);
+            return await LookupNoCacheAsync(cleanHost, inet, timeout);
         }
         catch (Exception e)
         {
-            Log.Verbose(e, "Lookup hostname {Hostname} failed", hostname);
+            Log.Verbose(e, "Lookup hostname {Hostname} failed", cleanHost);
             return null;
         }
     }
 
     private static async Task<IPAddress?> LookupNoCacheAsync(string hostname, AddressFamily inet = AddressFamily.Unspecified, int timeout = 3000)
     {
-        using var task = Dns.GetHostAddressesAsync(hostname);
-        using var resTask = await Task.WhenAny(task, Task.Delay(timeout));
-
-        if (resTask == task)
+        using var cts = new CancellationTokenSource(timeout);
+        try
         {
-            var addresses = await task;
+            var addresses = await Dns.GetHostAddressesAsync(hostname, cts.Token);
 
             var result = addresses.FirstOrDefault(i => inet == AddressFamily.Unspecified || inet == i.AddressFamily);
             if (result == null)
                 return null;
 
-            switch (result.AddressFamily)
-            {
-                case AddressFamily.InterNetwork:
-                    Cache.Add(hostname, result);
-                    break;
-                case AddressFamily.InterNetworkV6:
-                    Cache6.Add(hostname, result);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(inet));
-            }
+            if (result.AddressFamily == AddressFamily.InterNetwork)
+                Cache[hostname] = result;
+            else if (result.AddressFamily == AddressFamily.InterNetworkV6)
+                Cache6[hostname] = result;
 
             return result;
         }
-
-        return null;
+        catch (OperationCanceledException)
+        {
+            return null;
+        }
+        catch (SocketException)
+        {
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public static void ClearCache()

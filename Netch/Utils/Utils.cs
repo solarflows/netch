@@ -31,19 +31,33 @@ public static class Utils
 
     public static async Task<int> TCPingAsync(IPAddress ip, int port, int timeout = 1000, CancellationToken ct = default)
     {
-        using var client = new TcpClient(ip.AddressFamily);
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        cts.CancelAfter(timeout);
 
+        using var client = new TcpClient(ip.AddressFamily);
         var stopwatch = Stopwatch.StartNew();
 
-        var task = client.ConnectAsync(ip, port);
-
-        var resTask = await Task.WhenAny(task, Task.Delay(timeout, ct));
-
-        stopwatch.Stop();
-        if (resTask == task && client.Connected)
+        try
         {
-            var t = Convert.ToInt32(stopwatch.Elapsed.TotalMilliseconds);
-            return t;
+            await client.ConnectAsync(ip, port, cts.Token);
+            stopwatch.Stop();
+            if (client.Connected)
+            {
+                return Convert.ToInt32(stopwatch.Elapsed.TotalMilliseconds);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // 超时取消，直接返回 timeout，避免泄漏未观察异常
+            return timeout;
+        }
+        catch (SocketException)
+        {
+            return timeout;
+        }
+        catch (Exception)
+        {
+            return timeout;
         }
 
         return timeout;
