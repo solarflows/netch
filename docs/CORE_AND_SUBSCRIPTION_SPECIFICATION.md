@@ -105,9 +105,9 @@ Netch 采用 **两段式 Socks5 桥接解耦架构**：
 {
   "v": "2",
   "ps": "节点备注",
-  "add": "服务器域名或IP (如 2001:df1:7880:2::e85)",
+  "add": "服务器域名或IP (如 2001:db8::1)",
   "port": 24444,
-  "id": "18adf668-63e2-4c2c-98a2-7bb9993932be",
+  "id": "b831381d-6324-4d53-ad4f-8cda48b30811",
   "aid": 0,
   "scy": "auto",
   "net": "ws",
@@ -203,9 +203,9 @@ sing-box 是 Netch 的**默认首选微内核**。配置必须对齐 sing-box 1.
 {
   "tag": "proxy",
   "type": "vmess",
-  "server": "2001:df1:7880:2::e85",
+  "server": "2001:db8::1",
   "server_port": 24444,
-  "uuid": "18adf668-63e2-4c2c-98a2-7bb9993932be",
+  "uuid": "b831381d-6324-4d53-ad4f-8cda48b30811",
   "alter_id": 0,
   "security": "auto",
   "packet_encoding": "xudp",
@@ -213,7 +213,7 @@ sing-box 是 Netch 的**默认首选微内核**。配置必须对齐 sing-box 1.
     "type": "ws",
     "path": "/",
     "headers": {
-      "Host": "[2001:df1:7880:2::e85]"
+      "Host": "[2001:db8::1]"
     }
   }
 }
@@ -233,7 +233,7 @@ sing-box 是 Netch 的**默认首选微内核**。配置必须对齐 sing-box 1.
   "type": "vless",
   "server": "example.com",
   "server_port": 443,
-  "uuid": "18adf668-63e2-4c2c-98a2-7bb9993932be",
+  "uuid": "b831381d-6324-4d53-ad4f-8cda48b30811",
   "flow": "xtls-rprx-vision",
   "packet_encoding": "xudp",
   "tls": {
@@ -257,7 +257,7 @@ sing-box 是 Netch 的**默认首选微内核**。配置必须对齐 sing-box 1.
 {
   "tag": "proxy",
   "type": "trojan",
-  "server": "tvhinet.lajichang.xyz",
+  "server": "trojan.example.com",
   "server_port": 2096,
   "password": "pwd",
   "tls": {
