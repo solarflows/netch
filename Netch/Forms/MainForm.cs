@@ -265,7 +265,6 @@ public partial class MainForm : Form
 
     private void RecordSize()
     {
-        _profileConfigurationHeight = ProfileNameText.Height + 8;
         _profileGroupBoxPaddingHeight = ProfileGroupBox.Height - ProfileTable.Height;
         _profileTableHeight = Math.Max(26, ProfileTable.Height);
 
@@ -1281,8 +1280,6 @@ public partial class MainForm : Form
 
     #region Profile
 
-    private int _configurationGroupBoxHeight;
-    private int _profileConfigurationHeight;
     private int _profileGroupBoxPaddingHeight;
     private int _profileTableHeight;
 
