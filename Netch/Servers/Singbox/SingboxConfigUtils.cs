@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Netch.Models;
 using Netch.Servers;
 using Netch.Utils;
@@ -44,18 +45,29 @@ public static class SingboxConfigUtils
             var candidateTags = new List<string>();
             var candidateOutbounds = new List<object>();
 
-            int nodeIndex = 0;
-            foreach (var remark in urlTest.Outbounds)
+            IEnumerable<Server> candidates;
+            if (urlTest.UseCustomFilter)
             {
-                var candidate = Global.Settings.Server.FirstOrDefault(s => s.Remark == remark);
-                if (candidate != null && candidate is not UrlTestServer)
-                {
-                    nodeIndex++;
-                    var tag = $"node-{nodeIndex}";
-                    candidateTags.Add(tag);
-                    var nodeOutbound = await GenerateOutboundAsync(candidate, tag);
-                    candidateOutbounds.Add(nodeOutbound);
-                }
+                candidates = FilterCandidatesByRules(urlTest);
+            }
+            else
+            {
+                candidates = urlTest.Outbounds
+                    .Select(r => Global.Settings.Server.FirstOrDefault(s => s.Remark == r))
+                    .Where(s => s != null && s is not UrlTestServer)!;
+            }
+
+            int nodeIndex = 0;
+            foreach (var candidate in candidates)
+            {
+                if (candidate == null || candidate is UrlTestServer)
+                    continue;
+
+                nodeIndex++;
+                var tag = $"node-{nodeIndex}";
+                candidateTags.Add(tag);
+                var nodeOutbound = await GenerateOutboundAsync(candidate, tag);
+                candidateOutbounds.Add(nodeOutbound);
             }
 
             var urltestOutbound = new Dictionary<string, object>
@@ -506,6 +518,41 @@ public static class SingboxConfigUtils
                 break;
             }
         }
+    }
+
+    public static List<Server> FilterCandidatesByRules(UrlTestServer urlTest)
+    {
+        var query = Global.Settings.Server.Where(s => s is not UrlTestServer);
+
+        if (!string.IsNullOrWhiteSpace(urlTest.MatchGroup) && !urlTest.MatchGroup.Equals("全部", StringComparison.OrdinalIgnoreCase) && !urlTest.MatchGroup.Equals("All Groups", StringComparison.OrdinalIgnoreCase))
+        {
+            query = query.Where(s => s.Group.Equals(urlTest.MatchGroup, StringComparison.OrdinalIgnoreCase));
+        }
+
+        Regex? incRegex = null;
+        if (!string.IsNullOrWhiteSpace(urlTest.IncludePattern))
+        {
+            try { incRegex = new Regex(urlTest.IncludePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled); }
+            catch { /* fallback */ }
+        }
+
+        Regex? excRegex = null;
+        if (!string.IsNullOrWhiteSpace(urlTest.ExcludePattern))
+        {
+            try { excRegex = new Regex(urlTest.ExcludePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled); }
+            catch { /* fallback */ }
+        }
+
+        return query.Where(s =>
+        {
+            if (excRegex != null && excRegex.IsMatch(s.Remark))
+                return false;
+
+            if (incRegex != null && !incRegex.IsMatch(s.Remark))
+                return false;
+
+            return true;
+        }).ToList();
     }
 
     public static bool IsSupported(Server server)

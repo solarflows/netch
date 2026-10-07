@@ -281,6 +281,7 @@
   "Server Manager": "节点管理",
   "Search by remark, host, group...": "搜索备注、地址、分组...",
   "All Types": "所有协议",
+  "All Groups": "所有分组",
   "Sort by Delay": "按延迟排序",
   "Sort by Group": "按分组排序",
   "Test Selected": "测试选中",
@@ -297,5 +298,22 @@
   "Selected {0}": "已选择 {0}",
   "Copied share link to clipboard": "已复制分享链接到剪贴板",
   "Switched to {0}": "已切换至 {0}",
-  "Manage Servers": "节点管理"
+  "Manage Servers": "节点管理",
+
+  "URLTest 核心参数 (官方规范)": "URLTest 核心参数 (官方规范)",
+  "自动节点规则匹配 (PassWall 模式)": "自动节点规则匹配 (PassWall 模式)",
+  "启用规则动态匹配 (订阅更新节点自动生效)": "启用规则动态匹配 (订阅更新节点自动生效)",
+  "Rule Match": "规则匹配",
+  "Match Group (匹配分组)": "匹配分组",
+  "Include Pattern (包含正则)": "包含正则/关键字",
+  "Exclude Pattern (排除正则)": "排除正则/关键字",
+  "Match Preview (匹配预览)": "匹配预览",
+  "实时匹配计算中...": "实时匹配计算中...",
+  "候选节点池预览 (根据规则自动勾选)": "候选节点池预览 (根据规则自动勾选)",
+  "全选": "全选",
+  "清空": "清空",
+  "仅选 Socks5": "仅选 Socks5",
+  "手动勾选模式: 已选择 {0} 个节点": "手动勾选模式: 已选择 {0} 个节点",
+  "规则匹配命中: {0} / {1} 个节点": "规则匹配命中: {0} / {1} 个节点",
+  "💡 sing-box URLTest 能自动测速并切换至最低延迟节点。支持 PassWall 风格的分组与正则匹配过滤，订阅更新节点后全自动维护！": "💡 sing-box URLTest 能自动测速并切换至最低延迟节点。支持 PassWall 风格的分组与正则匹配过滤，订阅更新节点后全自动维护！"
 }

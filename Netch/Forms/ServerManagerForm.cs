@@ -15,6 +15,7 @@ public class ServerManagerForm : Form
     private readonly DataGridView _grid;
     private readonly TextBox _searchBox;
     private readonly ComboBox _typeFilterBox;
+    private readonly ComboBox _groupFilterBox;
     private readonly Button _sortDelayBtn;
     private readonly Button _sortGroupBtn;
     private readonly Button _pingSelectedBtn;
@@ -27,8 +28,8 @@ public class ServerManagerForm : Form
     public ServerManagerForm()
     {
         Text = i18N.Translate("Server Manager") + " - Netch";
-        Size = new Size(1020, 620);
-        MinimumSize = new Size(800, 480);
+        Size = new Size(1060, 620);
+        MinimumSize = new Size(850, 480);
         StartPosition = FormStartPosition.CenterScreen;
         Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
 
@@ -43,7 +44,7 @@ public class ServerManagerForm : Form
         _searchBox = new TextBox
         {
             PlaceholderText = i18N.Translate("Search by remark, host, group..."),
-            Width = 220,
+            Width = 190,
             Location = new Point(10, 10)
         };
         _searchBox.TextChanged += (_, _) => ApplyFilter();
@@ -51,18 +52,28 @@ public class ServerManagerForm : Form
         _typeFilterBox = new ComboBox
         {
             DropDownStyle = ComboBoxStyle.DropDownList,
-            Width = 105,
-            Location = new Point(238, 9)
+            Width = 100,
+            Location = new Point(208, 9)
         };
         _typeFilterBox.Items.Add(i18N.Translate("All Types"));
         _typeFilterBox.SelectedIndex = 0;
         _typeFilterBox.SelectedIndexChanged += (_, _) => ApplyFilter();
 
+        _groupFilterBox = new ComboBox
+        {
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Width = 115,
+            Location = new Point(315, 9)
+        };
+        _groupFilterBox.Items.Add(i18N.Translate("All Groups"));
+        _groupFilterBox.SelectedIndex = 0;
+        _groupFilterBox.SelectedIndexChanged += (_, _) => ApplyFilter();
+
         _sortDelayBtn = new Button
         {
             Text = "⚡ " + i18N.Translate("Sort by Delay"),
-            Width = 115,
-            Location = new Point(352, 8),
+            Width = 110,
+            Location = new Point(438, 8),
             UseVisualStyleBackColor = true
         };
         _sortDelayBtn.Click += SortByDelay_Click;
@@ -70,8 +81,8 @@ public class ServerManagerForm : Form
         _sortGroupBtn = new Button
         {
             Text = "📁 " + i18N.Translate("Sort by Group"),
-            Width = 115,
-            Location = new Point(475, 8),
+            Width = 110,
+            Location = new Point(555, 8),
             UseVisualStyleBackColor = true
         };
         _sortGroupBtn.Click += SortByGroup_Click;
@@ -79,8 +90,8 @@ public class ServerManagerForm : Form
         _pingSelectedBtn = new Button
         {
             Text = i18N.Translate("Test Selected"),
-            Width = 105,
-            Location = new Point(598, 8),
+            Width = 100,
+            Location = new Point(672, 8),
             UseVisualStyleBackColor = true
         };
         _pingSelectedBtn.Click += PingSelected_Click;
@@ -88,8 +99,8 @@ public class ServerManagerForm : Form
         _pingAllBtn = new Button
         {
             Text = i18N.Translate("Test All"),
-            Width = 95,
-            Location = new Point(711, 8),
+            Width = 90,
+            Location = new Point(779, 8),
             UseVisualStyleBackColor = true
         };
         _pingAllBtn.Click += PingAll_Click;
@@ -98,6 +109,7 @@ public class ServerManagerForm : Form
         {
             _searchBox,
             _typeFilterBox,
+            _groupFilterBox,
             _sortDelayBtn,
             _sortGroupBtn,
             _pingSelectedBtn,
@@ -260,6 +272,12 @@ public class ServerManagerForm : Form
         {
             _typeFilterBox.Items.Add(t);
         }
+
+        var groups = Global.Settings.Server.Select(s => s.Group).Distinct().OrderBy(g => g);
+        foreach (var g in groups)
+        {
+            _groupFilterBox.Items.Add(g);
+        }
     }
 
     private void RefreshData()
@@ -271,12 +289,18 @@ public class ServerManagerForm : Form
     {
         var keyword = _searchBox.Text.Trim();
         var selectedType = _typeFilterBox.SelectedIndex > 0 ? _typeFilterBox.SelectedItem?.ToString() : null;
+        var selectedGroup = _groupFilterBox.SelectedIndex > 0 ? _groupFilterBox.SelectedItem?.ToString() : null;
 
         var query = Global.Settings.Server.AsEnumerable();
 
         if (!string.IsNullOrEmpty(selectedType))
         {
             query = query.Where(s => s.Type.Equals(selectedType, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrEmpty(selectedGroup))
+        {
+            query = query.Where(s => s.Group.Equals(selectedGroup, StringComparison.OrdinalIgnoreCase));
         }
 
         if (!string.IsNullOrEmpty(keyword))
@@ -287,6 +311,7 @@ public class ServerManagerForm : Form
                 (s.Group?.Contains(keyword, StringComparison.OrdinalIgnoreCase) ?? false));
         }
 
+        // 默认严格保持订阅内原始解析顺序
         _filteredServers = query.ToList();
         PopulateGrid();
     }

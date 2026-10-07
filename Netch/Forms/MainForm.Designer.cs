@@ -62,6 +62,7 @@
             this.ModeComboBox = new System.Windows.Forms.ComboBox();
             this.ServerComboBox = new System.Windows.Forms.ComboBox();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.ManageServerPictureBox = new System.Windows.Forms.Label();
             this.EditServerPictureBox = new System.Windows.Forms.Label();
             this.CopyLinkPictureBox = new System.Windows.Forms.Label();
             this.DeleteServerPictureBox = new System.Windows.Forms.Label();
@@ -327,13 +328,13 @@
             this.ConfigurationGroupBox.Text = "Configuration";
             // 
             // configLayoutPanel
-            // 
+            //
             this.configLayoutPanel.AutoSize = true;
             this.configLayoutPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.configLayoutPanel.ColumnCount = 3;
-            this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
-            this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle());
+            this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.AutoSize));
+            this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.configLayoutPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 145F));
             this.configLayoutPanel.Controls.Add(this.ProfileLabel, 0, 2);
             this.configLayoutPanel.Controls.Add(this.ModeLabel, 0, 1);
             this.configLayoutPanel.Controls.Add(this.ServerLabel, 0, 0);
@@ -421,59 +422,61 @@
             this.ServerComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             this.ServerComboBox.SelectedIndexChanged += new System.EventHandler(this.ServerComboBox_SelectedIndexChanged);
             this.ServerComboBox.SelectionChangeCommitted += new System.EventHandler(this.ServerComboBox_SelectionChangeCommitted);
-            // 
+            //
             // tableLayoutPanel2
-            // 
-            this.tableLayoutPanel2.ColumnCount = 4;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
-            this.tableLayoutPanel2.Controls.Add(this.EditServerPictureBox, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.CopyLinkPictureBox, 3, 0);
-            this.tableLayoutPanel2.Controls.Add(this.DeleteServerPictureBox, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.SpeedPictureBox, 2, 0);
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(606, 3);
+            //
+            this.tableLayoutPanel2.ColumnCount = 5;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel2.Controls.Add(this.ManageServerPictureBox, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.EditServerPictureBox, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.DeleteServerPictureBox, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.SpeedPictureBox, 3, 0);
+            this.tableLayoutPanel2.Controls.Add(this.CopyLinkPictureBox, 4, 0);
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(560, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(94, 24);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(135, 24);
             this.tableLayoutPanel2.TabIndex = 12;
+            //
+            // ManageServerPictureBox
+            //
+            this.ManageServerPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.ManageServerPictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 10.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.ManageServerPictureBox.Location = new System.Drawing.Point(0, 0);
+            this.ManageServerPictureBox.Margin = new System.Windows.Forms.Padding(0);
+            this.ManageServerPictureBox.Name = "ManageServerPictureBox";
+            this.ManageServerPictureBox.Size = new System.Drawing.Size(27, 24);
+            this.ManageServerPictureBox.TabIndex = 6;
+            this.ManageServerPictureBox.Text = "☷";
+            this.ManageServerPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.ManageServerPictureBox.Click += new System.EventHandler(this.ManageServerPictureBox_Click);
             //
             // EditServerPictureBox
             //
             this.EditServerPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.EditServerPictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.EditServerPictureBox.Location = new System.Drawing.Point(0, 0);
+            this.EditServerPictureBox.Location = new System.Drawing.Point(27, 0);
             this.EditServerPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.EditServerPictureBox.Name = "EditServerPictureBox";
-            this.EditServerPictureBox.Size = new System.Drawing.Size(23, 24);
+            this.EditServerPictureBox.Size = new System.Drawing.Size(27, 24);
             this.EditServerPictureBox.TabIndex = 7;
             this.EditServerPictureBox.Text = "✎";
             this.EditServerPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.EditServerPictureBox.Click += new System.EventHandler(this.EditServerPictureBox_Click);
             //
-            // CopyLinkPictureBox
-            //
-            this.CopyLinkPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.CopyLinkPictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.CopyLinkPictureBox.Location = new System.Drawing.Point(69, 0);
-            this.CopyLinkPictureBox.Margin = new System.Windows.Forms.Padding(0);
-            this.CopyLinkPictureBox.Name = "CopyLinkPictureBox";
-            this.CopyLinkPictureBox.Size = new System.Drawing.Size(23, 24);
-            this.CopyLinkPictureBox.TabIndex = 14;
-            this.CopyLinkPictureBox.Text = "⎘";
-            this.CopyLinkPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.CopyLinkPictureBox.Click += new System.EventHandler(this.CopyLinkPictureBox_Click);
-            //
             // DeleteServerPictureBox
             //
             this.DeleteServerPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.DeleteServerPictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 9.5F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.DeleteServerPictureBox.Location = new System.Drawing.Point(23, 0);
+            this.DeleteServerPictureBox.Location = new System.Drawing.Point(54, 0);
             this.DeleteServerPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.DeleteServerPictureBox.Name = "DeleteServerPictureBox";
-            this.DeleteServerPictureBox.Size = new System.Drawing.Size(23, 24);
+            this.DeleteServerPictureBox.Size = new System.Drawing.Size(27, 24);
             this.DeleteServerPictureBox.TabIndex = 8;
             this.DeleteServerPictureBox.Text = "✕";
             this.DeleteServerPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -484,14 +487,27 @@
             this.SpeedPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
             this.SpeedPictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point);
             this.SpeedPictureBox.ForeColor = System.Drawing.Color.FromArgb(245, 195, 35);
-            this.SpeedPictureBox.Location = new System.Drawing.Point(46, 0);
+            this.SpeedPictureBox.Location = new System.Drawing.Point(81, 0);
             this.SpeedPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.SpeedPictureBox.Name = "SpeedPictureBox";
-            this.SpeedPictureBox.Size = new System.Drawing.Size(23, 24);
+            this.SpeedPictureBox.Size = new System.Drawing.Size(27, 24);
             this.SpeedPictureBox.TabIndex = 9;
             this.SpeedPictureBox.Text = "⚡";
             this.SpeedPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.SpeedPictureBox.Click += new System.EventHandler(this.SpeedPictureBox_Click);
+            //
+            // CopyLinkPictureBox
+            //
+            this.CopyLinkPictureBox.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.CopyLinkPictureBox.Font = new System.Drawing.Font("Segoe UI Symbol", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
+            this.CopyLinkPictureBox.Location = new System.Drawing.Point(108, 0);
+            this.CopyLinkPictureBox.Margin = new System.Windows.Forms.Padding(0);
+            this.CopyLinkPictureBox.Name = "CopyLinkPictureBox";
+            this.CopyLinkPictureBox.Size = new System.Drawing.Size(27, 24);
+            this.CopyLinkPictureBox.TabIndex = 14;
+            this.CopyLinkPictureBox.Text = "⎘";
+            this.CopyLinkPictureBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.CopyLinkPictureBox.Click += new System.EventHandler(this.CopyLinkPictureBox_Click);
             //
             // tableLayoutPanel3
             //
@@ -810,6 +826,7 @@
         private System.Windows.Forms.Button SettingsButton;
         private System.Windows.Forms.ToolStripMenuItem ShowMainFormToolStripButton;
         private System.Windows.Forms.Label SpeedPictureBox;
+        private System.Windows.Forms.Label ManageServerPictureBox;
         private System.Windows.Forms.ToolStripStatusLabel StatusLabel;
         private System.Windows.Forms.StatusStrip StatusStrip;
         private System.Windows.Forms.ToolStripMenuItem SubscriptionToolStripMenuItem;

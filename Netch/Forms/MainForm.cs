@@ -141,31 +141,15 @@ public partial class MainForm : Form
             .SetValue(control, true);
     }
 
+    private void ManageServerPictureBox_Click(object? sender, EventArgs e)
+    {
+        ShowServerManager();
+    }
+
     private void InitServerManagerButton()
     {
         ServerLabel.Cursor = Cursors.Hand;
         ServerLabel.Click += (_, _) => ShowServerManager();
-
-        var manageBox = new Label
-        {
-            Cursor = Cursors.Hand,
-            Font = new Font("Segoe UI Symbol", 10F, FontStyle.Regular, GraphicsUnit.Point),
-            Margin = new Padding(0),
-            Name = "ManageServerPictureBox",
-            Size = new Size(22, 24),
-            Text = "☷",
-            TextAlign = ContentAlignment.MiddleCenter
-        };
-        manageBox.Click += (_, _) => ShowServerManager();
-
-        tableLayoutPanel2.ColumnCount = 5;
-        tableLayoutPanel2.ColumnStyles.Clear();
-        for (int i = 0; i < 5; i++)
-        {
-            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
-        }
-        tableLayoutPanel2.Size = new Size(116, 24);
-        tableLayoutPanel2.Controls.Add(manageBox, 4, 0);
     }
 
     private void ShowServerManager()
@@ -975,9 +959,44 @@ public partial class MainForm : Form
     }
 
     private Server? _lastActiveServer;
+    private bool _isInternalSelectionChange = false;
+
+    private void SetSelectedServerSafely(Server server)
+    {
+        _isInternalSelectionChange = true;
+        try
+        {
+            var targetIndex = -1;
+            for (int i = 0; i < ServerComboBox.Items.Count; i++)
+            {
+                if (ServerComboBox.Items[i] is Server s &&
+                    s.Remark == server.Remark &&
+                    s.Hostname == server.Hostname &&
+                    s.Port == server.Port)
+                {
+                    targetIndex = i;
+                    break;
+                }
+            }
+
+            if (targetIndex >= 0 && targetIndex < ServerComboBox.Items.Count)
+            {
+                ServerComboBox.SelectedIndex = targetIndex;
+                Global.Settings.ServerComboBoxSelectedIndex = targetIndex;
+            }
+            _lastActiveServer = server;
+        }
+        finally
+        {
+            _isInternalSelectionChange = false;
+        }
+    }
 
     private void HandleServerSelectionChanged(Server s)
     {
+        if (_isInternalSelectionChange)
+            return;
+
         Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
 
         if (_lastActiveServer != s)
@@ -994,7 +1013,7 @@ public partial class MainForm : Form
 
     private void ServerComboBox_SelectedIndexChanged(object? sender, EventArgs e)
     {
-        if (ServerComboBox.SelectedIndex >= 0 && ServerComboBox.SelectedItem is Server s)
+        if (!_isInternalSelectionChange && ServerComboBox.SelectedIndex >= 0 && ServerComboBox.SelectedItem is Server s)
         {
             HandleServerSelectionChanged(s);
         }
@@ -1002,7 +1021,7 @@ public partial class MainForm : Form
 
     private void ServerComboBox_SelectionChangeCommitted(object? sender, EventArgs o)
     {
-        if (ServerComboBox.SelectedItem is Server s)
+        if (!_isInternalSelectionChange && ServerComboBox.SelectedItem is Server s)
         {
             HandleServerSelectionChanged(s);
         }
@@ -1016,8 +1035,7 @@ public partial class MainForm : Form
             return;
         }
 
-        _lastActiveServer = newServer;
-        ServerComboBox.SelectedItem = newServer;
+        SetSelectedServerSafely(newServer);
         StatusText(i18N.Translate("Started"));
         UpdateControlButtonTheme(true);
         NotifyTip(i18N.TranslateFormat("Switched to {0}", newServer.Remark));
@@ -1389,11 +1407,17 @@ public partial class MainForm : Form
         {
             void StartDisableItems(bool enabled)
             {
-                ServerComboBox.Enabled = ModeComboBox.Enabled = EditModePictureBox.Enabled =
+                // 模式在启动中需保持锁定，但服务器节点支持热替换，ServerComboBox 始终保持启用
+                ModeComboBox.Enabled = EditModePictureBox.Enabled =
                     EditServerPictureBox.Enabled = DeleteModePictureBox.Enabled = DeleteServerPictureBox.Enabled = enabled;
 
-                // 启动需要禁用的控件
-                ServerToolStripMenuItem.Enabled = ModeToolStripMenuItem.Enabled =
+                ServerComboBox.Enabled = true;
+                ManageServerPictureBox.Enabled = true;
+                SpeedPictureBox.Enabled = true;
+                CopyLinkPictureBox.Enabled = true;
+
+                // 启动时仅禁用模式与订阅管理，服务器菜单始终可用
+                ModeToolStripMenuItem.Enabled =
                     SubscriptionToolStripMenuItem.Enabled = UninstallServiceToolStripMenuItem.Enabled = enabled;
             }
 

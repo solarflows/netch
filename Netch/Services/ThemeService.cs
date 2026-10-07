@@ -191,6 +191,21 @@ public static class ThemeService
                     cb.ForeColor = dark ? DarkText : SystemColors.WindowText;
                     break;
 
+                case Label lbl:
+                    if (lbl.Name == "SpeedPictureBox")
+                    {
+                        lbl.ForeColor = Color.FromArgb(245, 195, 35);
+                    }
+                    else if (lbl.Name.EndsWith("PictureBox") || lbl.Name == "ServerLabel")
+                    {
+                        lbl.ForeColor = dark ? DarkText : Color.FromArgb(40, 40, 40);
+                    }
+                    else
+                    {
+                        lbl.ForeColor = dark ? DarkText : SystemColors.ControlText;
+                    }
+                    break;
+
                 case PictureBox pb:
                     pb.BackColor = dark ? DarkCard : Color.Transparent;
                     break;

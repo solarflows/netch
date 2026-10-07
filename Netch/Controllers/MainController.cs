@@ -208,7 +208,11 @@ public static class MainController
                 if (ServerController != null)
                 {
                     await ServerController.StopAsync();
+                    ServerController = null;
                 }
+
+                // 缓冲 50ms 确保旧核心进程套接字与端口彻底释放
+                await Task.Delay(50);
 
                 if (Global.Settings.CoreType.Equals("sing-box", StringComparison.OrdinalIgnoreCase) && SingboxConfigUtils.IsSupported(newServer))
                 {

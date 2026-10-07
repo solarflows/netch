@@ -1,7 +1,9 @@
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 using Netch.Models;
 using Netch.Properties;
 using Netch.Servers;
+using Netch.Servers.Singbox;
 using Netch.Services;
 using Netch.Utils;
 
@@ -20,8 +22,15 @@ public class UrlTestServerForm : Form
     private readonly TextBox _toleranceTextBox = new();
     private readonly ComboBox _idleTimeoutComboBox = new();
     private readonly CheckBox _interruptCheckBox = new();
-    private readonly CheckedListBox _nodesCheckedListBox = new();
 
+    // PassWall 风格正则与分组筛选控件
+    private readonly CheckBox _useCustomFilterCheckBox = new();
+    private readonly ComboBox _matchGroupComboBox = new();
+    private readonly TextBox _includePatternTextBox = new();
+    private readonly TextBox _excludePatternTextBox = new();
+    private readonly Label _matchedCountLabel = new();
+
+    private readonly CheckedListBox _nodesCheckedListBox = new();
     private readonly List<Server> _availableServers = new();
 
     public UrlTestServerForm(UrlTestServer? server = null)
@@ -31,6 +40,7 @@ public class UrlTestServerForm : Form
 
         InitializeLayout();
         LoadServerData();
+        UpdateFilterPreview();
     }
 
     private void InitializeLayout()
@@ -41,7 +51,7 @@ public class UrlTestServerForm : Form
         FormBorderStyle = FormBorderStyle.FixedDialog;
         MaximizeBox = false;
         MinimizeBox = false;
-        ClientSize = new Size(580, 600);
+        ClientSize = new Size(620, 720);
 
         // 1. 底部常驻操作栏 (永远吸底)
         var bottomPanel = new Panel
@@ -93,7 +103,7 @@ public class UrlTestServerForm : Form
             Dock = DockStyle.Top,
             AutoSize = true,
             Padding = new Padding(12, 10, 12, 10),
-            Margin = new Padding(0, 0, 0, 14)
+            Margin = new Padding(0, 0, 0, 12)
         };
         bannerBox.Paint += (_, e) =>
         {
@@ -110,25 +120,24 @@ public class UrlTestServerForm : Form
         {
             Dock = DockStyle.Top,
             AutoSize = true,
-            MaximumSize = new Size(520, 0),
+            MaximumSize = new Size(560, 0),
             ForeColor = Color.FromArgb(0, 120, 215),
-            Text = i18N.Translate("💡 sing-box URLTest 出站能对一组候选节点定期测速并自动切换至最低延迟节点，内置容差防抖机制。\r\n候选节点池中包含的 Socks5 裸节点将自动转为 sing-box 原生出站套壳运行，无需繁琐设置。")
+            Text = i18N.Translate("💡 sing-box URLTest 能自动测速并切换至最低延迟节点。支持 PassWall 风格的分组与正则匹配过滤，订阅更新节点后全自动维护！")
         };
         bannerBox.Controls.Add(bannerLabel);
         mainContentTable.Controls.Add(bannerBox, 0, 0);
 
-        // 基础参数小标题
-        var basicHeader = CreateSectionHeader(i18N.Translate("URLTest 参数配置 (官方默认值)"));
+        // 基础参数配置
+        var basicHeader = CreateSectionHeader(i18N.Translate("URLTest 核心参数 (官方规范)"));
         mainContentTable.Controls.Add(basicHeader, 0, 1);
 
-        // 基础参数表单
         var basicTable = new TableLayoutPanel
         {
             Dock = DockStyle.Top,
             ColumnCount = 2,
             RowCount = 6,
             AutoSize = true,
-            Margin = new Padding(0, 0, 0, 14)
+            Margin = new Padding(0, 0, 0, 12)
         };
         basicTable.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
         basicTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
@@ -159,7 +168,56 @@ public class UrlTestServerForm : Form
 
         mainContentTable.Controls.Add(basicTable, 0, 2);
 
-        // 候选节点池小标题与快捷操作栏
+        // ===== PassWall 风格规则自动筛选板块 =====
+        var filterHeader = CreateSectionHeader(i18N.Translate("自动节点规则匹配 (PassWall 模式)"));
+        mainContentTable.Controls.Add(filterHeader, 0, 3);
+
+        var filterTable = new TableLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            ColumnCount = 2,
+            RowCount = 5,
+            AutoSize = true,
+            Margin = new Padding(0, 0, 0, 12)
+        };
+        filterTable.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 160));
+        filterTable.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
+
+        _useCustomFilterCheckBox.Text = i18N.Translate("启用规则动态匹配 (订阅更新节点自动生效)");
+        _useCustomFilterCheckBox.AutoSize = true;
+        _useCustomFilterCheckBox.Checked = true;
+        _useCustomFilterCheckBox.CheckedChanged += (_, _) => UpdateFilterPreview();
+        AddRow(filterTable, 0, i18N.Translate("Rule Match"), _useCustomFilterCheckBox);
+
+        _matchGroupComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+        _matchGroupComboBox.Items.Add(i18N.Translate("All Groups"));
+        var groups = Global.Settings.Server.Select(s => s.Group).Distinct().OrderBy(g => g);
+        foreach (var g in groups)
+        {
+            _matchGroupComboBox.Items.Add(g);
+        }
+        _matchGroupComboBox.SelectedIndex = 0;
+        _matchGroupComboBox.SelectedIndexChanged += (_, _) => UpdateFilterPreview();
+        AddRow(filterTable, 1, i18N.Translate("Match Group (匹配分组)"), _matchGroupComboBox);
+
+        _includePatternTextBox.PlaceholderText = "如: 香港|HK|日本|JP (留空表示不限)";
+        _includePatternTextBox.TextChanged += (_, _) => UpdateFilterPreview();
+        AddRow(filterTable, 2, i18N.Translate("Include Pattern (包含正则)"), _includePatternTextBox);
+
+        _excludePatternTextBox.Text = "官网|到期|重置|剩余|流量|频道|公告";
+        _excludePatternTextBox.PlaceholderText = "如: 官网|到期|重置|剩余|流量";
+        _excludePatternTextBox.TextChanged += (_, _) => UpdateFilterPreview();
+        AddRow(filterTable, 3, i18N.Translate("Exclude Pattern (排除正则)"), _excludePatternTextBox);
+
+        _matchedCountLabel.AutoSize = true;
+        _matchedCountLabel.Font = new Font(Control.DefaultFont, FontStyle.Bold);
+        _matchedCountLabel.ForeColor = Color.FromArgb(16, 124, 65);
+        _matchedCountLabel.Text = i18N.Translate("实时匹配计算中...");
+        AddRow(filterTable, 4, i18N.Translate("Match Preview (匹配预览)"), _matchedCountLabel);
+
+        mainContentTable.Controls.Add(filterTable, 0, 4);
+
+        // ===== 候选节点列表展示 =====
         var poolHeaderFlow = new FlowLayoutPanel
         {
             Dock = DockStyle.Top,
@@ -167,7 +225,7 @@ public class UrlTestServerForm : Form
             FlowDirection = FlowDirection.LeftToRight,
             Margin = new Padding(0, 0, 0, 6)
         };
-        var poolLabel = CreateSectionHeader(i18N.Translate("候选节点池 (勾选参与测速优选的节点)"));
+        var poolLabel = CreateSectionHeader(i18N.Translate("候选节点池预览 (根据规则自动勾选)"));
         var selectAllBtn = new Button { Text = i18N.Translate("全选"), Size = new Size(58, 26), Margin = new Padding(12, 2, 4, 2) };
         var clearBtn = new Button { Text = i18N.Translate("清空"), Size = new Size(58, 26), Margin = new Padding(4, 2, 4, 2) };
         var onlySocksBtn = new Button { Text = i18N.Translate("仅选 Socks5"), Size = new Size(88, 26), Margin = new Padding(4, 2, 4, 2) };
@@ -180,22 +238,17 @@ public class UrlTestServerForm : Form
         poolHeaderFlow.Controls.Add(selectAllBtn);
         poolHeaderFlow.Controls.Add(clearBtn);
         poolHeaderFlow.Controls.Add(onlySocksBtn);
-        mainContentTable.Controls.Add(poolHeaderFlow, 0, 3);
+        mainContentTable.Controls.Add(poolHeaderFlow, 0, 5);
 
-        // 候选节点多选列表
         _nodesCheckedListBox.Dock = DockStyle.Top;
-        _nodesCheckedListBox.Height = 160;
+        _nodesCheckedListBox.Height = 180;
         _nodesCheckedListBox.CheckOnClick = true;
-        _nodesCheckedListBox.Margin = new Padding(0, 0, 0, 14);
-
-        mainContentTable.Controls.Add(_nodesCheckedListBox, 0, 4);
+        PopulateAvailableNodes();
+        mainContentTable.Controls.Add(_nodesCheckedListBox, 0, 6);
 
         scrollPanel.Controls.Add(mainContentTable);
-
         Controls.Add(scrollPanel);
         Controls.Add(bottomPanel);
-
-        PopulateAvailableNodes();
 
         Load += (_, _) => ThemeService.Apply(this);
     }
@@ -233,15 +286,50 @@ public class UrlTestServerForm : Form
         _nodesCheckedListBox.Items.Clear();
         _availableServers.Clear();
 
-        // 列出所有非 URLTest 类型的有效节点
         foreach (var s in Global.Settings.Server)
         {
             if (s is not UrlTestServer && !string.IsNullOrWhiteSpace(s.Remark))
             {
                 _availableServers.Add(s);
                 bool isChecked = _editingServer != null && _editingServer.Outbounds.Contains(s.Remark);
-                _nodesCheckedListBox.Items.Add($"[{s.Type}] {s.Remark} ({s.Hostname}:{s.Port})", isChecked);
+                _nodesCheckedListBox.Items.Add($"[{s.Type}][{s.Group}] {s.Remark}", isChecked);
             }
+        }
+    }
+
+    private void UpdateFilterPreview()
+    {
+        bool useFilter = _useCustomFilterCheckBox.Checked;
+        _matchGroupComboBox.Enabled = useFilter;
+        _includePatternTextBox.Enabled = useFilter;
+        _excludePatternTextBox.Enabled = useFilter;
+
+        if (!useFilter)
+        {
+            int manualCount = _nodesCheckedListBox.CheckedIndices.Count;
+            _matchedCountLabel.Text = string.Format(i18N.Translate("手动勾选模式: 已选择 {0} 个节点"), manualCount);
+            _matchedCountLabel.ForeColor = Color.FromArgb(0, 120, 215);
+            return;
+        }
+
+        var tempObj = new UrlTestServer
+        {
+            UseCustomFilter = true,
+            MatchGroup = _matchGroupComboBox.SelectedIndex > 0 ? _matchGroupComboBox.SelectedItem?.ToString() ?? "" : "",
+            IncludePattern = _includePatternTextBox.Text.Trim(),
+            ExcludePattern = _excludePatternTextBox.Text.Trim()
+        };
+
+        var matched = SingboxConfigUtils.FilterCandidatesByRules(tempObj);
+
+        _matchedCountLabel.Text = string.Format(i18N.Translate("规则匹配命中: {0} / {1} 个节点"), matched.Count, _availableServers.Count);
+        _matchedCountLabel.ForeColor = matched.Count > 0 ? Color.FromArgb(16, 124, 65) : Color.Red;
+
+        // 自动同步勾选预览
+        var matchedRemarks = new HashSet<string>(matched.Select(m => m.Remark));
+        for (int i = 0; i < _availableServers.Count; i++)
+        {
+            _nodesCheckedListBox.SetItemChecked(i, matchedRemarks.Contains(_availableServers[i].Remark));
         }
     }
 
@@ -273,6 +361,17 @@ public class UrlTestServerForm : Form
         _toleranceTextBox.Text = _editingServer.Tolerance.ToString();
         _idleTimeoutComboBox.SelectedItem = _editingServer.IdleTimeout;
         _interruptCheckBox.Checked = _editingServer.InterruptExistConnections;
+
+        _useCustomFilterCheckBox.Checked = _editingServer.UseCustomFilter;
+        if (!string.IsNullOrWhiteSpace(_editingServer.MatchGroup))
+        {
+            var idx = _matchGroupComboBox.Items.IndexOf(_editingServer.MatchGroup);
+            if (idx >= 0)
+                _matchGroupComboBox.SelectedIndex = idx;
+        }
+
+        _includePatternTextBox.Text = _editingServer.IncludePattern;
+        _excludePatternTextBox.Text = _editingServer.ExcludePattern;
     }
 
     private async void SaveButton_Click(object? sender, EventArgs e)
@@ -311,6 +410,10 @@ public class UrlTestServerForm : Form
             Tolerance = tolerance > 0 ? tolerance : 50,
             IdleTimeout = _idleTimeoutComboBox.SelectedItem?.ToString() ?? "30m",
             InterruptExistConnections = _interruptCheckBox.Checked,
+            UseCustomFilter = _useCustomFilterCheckBox.Checked,
+            MatchGroup = _matchGroupComboBox.SelectedIndex > 0 ? _matchGroupComboBox.SelectedItem?.ToString() ?? "" : "",
+            IncludePattern = _includePatternTextBox.Text.Trim(),
+            ExcludePattern = _excludePatternTextBox.Text.Trim(),
             Outbounds = selectedOutbounds
         };
 
@@ -327,7 +430,7 @@ public class UrlTestServerForm : Form
             Global.Settings.Server.Add(resultServer);
         }
 
-        await Utils.Configuration.SaveAsync();
+        await Configuration.SaveAsync();
         DialogResult = DialogResult.OK;
         Close();
     }
