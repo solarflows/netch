@@ -275,5 +275,27 @@
   "Add [sing-box URLTest] Server": "添加 [sing-box URLTest] 节点",
   "Edit [sing-box URLTest] Server": "修改 [sing-box URLTest] 节点",
   "Please select at least one candidate node for URLTest": "请至少勾选一个参与 URLTest 测速优选的候选节点",
-  "Host Public Key": "主机公钥 (HostKey)"
+  "Host Public Key": "主机公钥 (HostKey)",
+
+  "Server Manager Panel...": "节点列表与管理面板...",
+  "Server Manager": "节点管理",
+  "Search by remark, host, group...": "搜索备注、地址、分组...",
+  "All Types": "所有协议",
+  "Sort by Delay": "按延迟排序",
+  "Sort by Group": "按分组排序",
+  "Test Selected": "测试选中",
+  "Test All": "测试全部",
+  "Total: {0} servers (Filtered: {1}). Double click row to switch.": "共 {0} 个节点（筛选出 {1} 个）。双击行可直接切换。",
+  "Tip: Double click any row to switch server instantly.": "提示：双击任意行即可直接切换节点（已启动时支持热切换）",
+  "Switch to this server": "切换到此节点",
+  "Test Latency": "测试延迟",
+  "Resolve Failed": "解析失败",
+  "Timeout": "超时",
+  "Hot-switching to {0}...": "正在热切换至 {0}...",
+  "Successfully hot-switched to {0}": "成功热切换至 {0}",
+  "Switch failed: ": "切换失败：",
+  "Selected {0}": "已选择 {0}",
+  "Copied share link to clipboard": "已复制分享链接到剪贴板",
+  "Switched to {0}": "已切换至 {0}",
+  "Manage Servers": "节点管理"
 }

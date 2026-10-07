@@ -397,26 +397,29 @@
             this.ModeComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ModeComboBox.FormattingEnabled = true;
             this.ModeComboBox.IntegralHeight = false;
+            this.ModeComboBox.ItemHeight = 24;
             this.ModeComboBox.Location = new System.Drawing.Point(54, 33);
             this.ModeComboBox.Name = "ModeComboBox";
             this.ModeComboBox.Size = new System.Drawing.Size(546, 24);
             this.ModeComboBox.TabIndex = 2;
             this.ModeComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
             this.ModeComboBox.SelectionChangeCommitted += new System.EventHandler(this.ModeComboBox_SelectionChangeCommitted);
-            // 
+            //
             // ServerComboBox
-            // 
+            //
             this.ServerComboBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ServerComboBox.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.ServerComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ServerComboBox.FormattingEnabled = true;
             this.ServerComboBox.IntegralHeight = false;
+            this.ServerComboBox.ItemHeight = 24;
             this.ServerComboBox.Location = new System.Drawing.Point(54, 3);
             this.ServerComboBox.MaxDropDownItems = 16;
             this.ServerComboBox.Name = "ServerComboBox";
             this.ServerComboBox.Size = new System.Drawing.Size(546, 24);
             this.ServerComboBox.TabIndex = 1;
             this.ServerComboBox.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.ComboBox_DrawItem);
+            this.ServerComboBox.SelectedIndexChanged += new System.EventHandler(this.ServerComboBox_SelectedIndexChanged);
             this.ServerComboBox.SelectionChangeCommitted += new System.EventHandler(this.ServerComboBox_SelectionChangeCommitted);
             // 
             // tableLayoutPanel2

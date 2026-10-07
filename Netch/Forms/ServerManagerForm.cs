@@ -16,6 +16,7 @@ public class ServerManagerForm : Form
     private readonly TextBox _searchBox;
     private readonly ComboBox _typeFilterBox;
     private readonly Button _sortDelayBtn;
+    private readonly Button _sortGroupBtn;
     private readonly Button _pingSelectedBtn;
     private readonly Button _pingAllBtn;
     private readonly Label _statusLabel;
@@ -26,8 +27,8 @@ public class ServerManagerForm : Form
     public ServerManagerForm()
     {
         Text = i18N.Translate("Server Manager") + " - Netch";
-        Size = new Size(950, 600);
-        MinimumSize = new Size(750, 450);
+        Size = new Size(1020, 620);
+        MinimumSize = new Size(800, 480);
         StartPosition = FormStartPosition.CenterScreen;
         Font = new Font("Segoe UI", 9F, FontStyle.Regular, GraphicsUnit.Point);
 
@@ -35,23 +36,23 @@ public class ServerManagerForm : Form
         var topPanel = new Panel
         {
             Dock = DockStyle.Top,
-            Height = 44,
+            Height = 46,
             Padding = new Padding(10, 8, 10, 8)
         };
 
         _searchBox = new TextBox
         {
             PlaceholderText = i18N.Translate("Search by remark, host, group..."),
-            Width = 240,
-            Location = new Point(10, 9)
+            Width = 220,
+            Location = new Point(10, 10)
         };
         _searchBox.TextChanged += (_, _) => ApplyFilter();
 
         _typeFilterBox = new ComboBox
         {
             DropDownStyle = ComboBoxStyle.DropDownList,
-            Width = 110,
-            Location = new Point(260, 8)
+            Width = 105,
+            Location = new Point(238, 9)
         };
         _typeFilterBox.Items.Add(i18N.Translate("All Types"));
         _typeFilterBox.SelectedIndex = 0;
@@ -60,17 +61,26 @@ public class ServerManagerForm : Form
         _sortDelayBtn = new Button
         {
             Text = "⚡ " + i18N.Translate("Sort by Delay"),
-            Width = 120,
-            Location = new Point(380, 7),
+            Width = 115,
+            Location = new Point(352, 8),
             UseVisualStyleBackColor = true
         };
         _sortDelayBtn.Click += SortByDelay_Click;
 
+        _sortGroupBtn = new Button
+        {
+            Text = "📁 " + i18N.Translate("Sort by Group"),
+            Width = 115,
+            Location = new Point(475, 8),
+            UseVisualStyleBackColor = true
+        };
+        _sortGroupBtn.Click += SortByGroup_Click;
+
         _pingSelectedBtn = new Button
         {
             Text = i18N.Translate("Test Selected"),
-            Width = 110,
-            Location = new Point(510, 7),
+            Width = 105,
+            Location = new Point(598, 8),
             UseVisualStyleBackColor = true
         };
         _pingSelectedBtn.Click += PingSelected_Click;
@@ -78,8 +88,8 @@ public class ServerManagerForm : Form
         _pingAllBtn = new Button
         {
             Text = i18N.Translate("Test All"),
-            Width = 100,
-            Location = new Point(630, 7),
+            Width = 95,
+            Location = new Point(711, 8),
             UseVisualStyleBackColor = true
         };
         _pingAllBtn.Click += PingAll_Click;
@@ -89,6 +99,7 @@ public class ServerManagerForm : Form
             _searchBox,
             _typeFilterBox,
             _sortDelayBtn,
+            _sortGroupBtn,
             _pingSelectedBtn,
             _pingAllBtn
         });
@@ -97,8 +108,8 @@ public class ServerManagerForm : Form
         var bottomPanel = new Panel
         {
             Dock = DockStyle.Bottom,
-            Height = 30,
-            Padding = new Padding(10, 5, 10, 5)
+            Height = 32,
+            Padding = new Padding(10, 6, 10, 6)
         };
 
         _statusLabel = new Label
@@ -120,11 +131,11 @@ public class ServerManagerForm : Form
             MultiSelect = true,
             SelectionMode = DataGridViewSelectionMode.FullRowSelect,
             RowHeadersVisible = false,
-            BackgroundColor = SystemColors.Window,
             BorderStyle = BorderStyle.None,
             CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
-            GridColor = Color.FromArgb(235, 235, 235)
+            EnableHeadersVisualStyles = false
         };
+        _grid.RowTemplate.Height = 28;
 
         // 开启 DataGridView 双缓冲
         typeof(DataGridView).GetProperty("DoubleBuffered", BindingFlags.NonPublic | BindingFlags.Instance)?
@@ -166,6 +177,7 @@ public class ServerManagerForm : Form
         FormClosing += (_, _) => DelayTestHelper.ServerTested -= OnServerTested;
 
         ThemeService.Apply(this);
+        ApplyGridTheme();
     }
 
     private void SetupColumns()
@@ -202,7 +214,7 @@ public class ServerManagerForm : Form
         {
             Name = "Address",
             HeaderText = i18N.Translate("Address"),
-            Width = 200,
+            Width = 220,
             DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleLeft }
         });
 
@@ -210,7 +222,7 @@ public class ServerManagerForm : Form
         {
             Name = "Delay",
             HeaderText = i18N.Translate("Delay"),
-            Width = 85,
+            Width = 90,
             DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleCenter }
         });
 
@@ -218,9 +230,27 @@ public class ServerManagerForm : Form
         {
             Name = "Group",
             HeaderText = i18N.Translate("Group"),
-            Width = 110,
+            Width = 115,
             DefaultCellStyle = { Alignment = DataGridViewContentAlignment.MiddleLeft }
         });
+    }
+
+    private void ApplyGridTheme()
+    {
+        bool dark = ThemeService.IsDarkMode;
+
+        _grid.BackgroundColor = dark ? ThemeService.DarkBg : SystemColors.Window;
+        _grid.GridColor = dark ? ThemeService.DarkBorder : Color.FromArgb(235, 235, 235);
+
+        _grid.DefaultCellStyle.BackColor = dark ? ThemeService.DarkCard : SystemColors.Window;
+        _grid.DefaultCellStyle.ForeColor = dark ? ThemeService.DarkText : Color.FromArgb(30, 30, 30);
+        _grid.DefaultCellStyle.SelectionBackColor = dark ? Color.FromArgb(0, 95, 185) : Color.FromArgb(0, 120, 215);
+        _grid.DefaultCellStyle.SelectionForeColor = Color.White;
+
+        _grid.ColumnHeadersDefaultCellStyle.BackColor = dark ? ThemeService.DarkInput : Color.FromArgb(242, 242, 242);
+        _grid.ColumnHeadersDefaultCellStyle.ForeColor = dark ? ThemeService.DarkText : Color.FromArgb(30, 30, 30);
+        _grid.ColumnHeadersDefaultCellStyle.SelectionBackColor = _grid.ColumnHeadersDefaultCellStyle.BackColor;
+        _grid.ColumnHeadersDefaultCellStyle.SelectionForeColor = _grid.ColumnHeadersDefaultCellStyle.ForeColor;
     }
 
     private void LoadTypes()
@@ -283,7 +313,7 @@ public class ServerManagerForm : Form
             _grid.Rows[rowIndex].Tag = s;
         }
 
-        _statusLabel.Text = string.Format(i18N.Translate("Total: {0} servers (Filtered: {1}). Double click row to switch."),
+        _statusLabel.Text = i18N.TranslateFormat("Total: {0} servers (Filtered: {1}). Double click row to switch.",
             Global.Settings.Server.Count, _filteredServers.Count);
     }
 
@@ -293,8 +323,18 @@ public class ServerManagerForm : Form
             return;
 
         var server = _grid.Rows[e.RowIndex].Tag as Server;
-        if (server == null)
+        if (server is null)
             return;
+
+        bool dark = ThemeService.IsDarkMode;
+        bool isSelected = _grid.Rows[e.RowIndex].Selected;
+
+        // 确保非选中行在深色模式下前景色始终清晰可见，杜绝白底白字
+        if (!isSelected && e.CellStyle != null)
+        {
+            e.CellStyle.BackColor = dark ? ThemeService.DarkCard : SystemColors.Window;
+            e.CellStyle.ForeColor = dark ? ThemeService.DarkText : Color.FromArgb(30, 30, 30);
+        }
 
         // 延迟列着色
         if (_grid.Columns[e.ColumnIndex].Name == "Delay" && e.CellStyle != null)
@@ -304,14 +344,14 @@ public class ServerManagerForm : Form
                 e.CellStyle.ForeColor = server.Delay switch
                 {
                     > 200 => Color.Red,
-                    > 80 => Color.FromArgb(200, 150, 0),
-                    _ => Color.FromArgb(16, 124, 65)
+                    > 80 => dark ? Color.FromArgb(245, 195, 35) : Color.FromArgb(190, 130, 0),
+                    _ => dark ? Color.FromArgb(50, 215, 60) : Color.FromArgb(16, 124, 65)
                 };
                 e.CellStyle.Font = new Font(_grid.Font, FontStyle.Bold);
             }
             else
             {
-                e.CellStyle.ForeColor = Color.Gray;
+                e.CellStyle.ForeColor = dark ? ThemeService.DarkTextDim : Color.Gray;
             }
         }
     }
@@ -377,6 +417,12 @@ public class ServerManagerForm : Form
     private void SortByDelay_Click(object? sender, EventArgs e)
     {
         _filteredServers = _filteredServers.OrderBy(s => s.Delay < 0 ? int.MaxValue : s.Delay).ToList();
+        PopulateGrid();
+    }
+
+    private void SortByGroup_Click(object? sender, EventArgs e)
+    {
+        _filteredServers = _filteredServers.OrderBy(s => s.Group).ThenBy(s => s.Remark).ToList();
         PopulateGrid();
     }
 

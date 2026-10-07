@@ -171,6 +171,21 @@ public static class ThemeService
                     lv.BorderStyle = dark ? BorderStyle.FixedSingle : BorderStyle.Fixed3D;
                     break;
 
+                case DataGridView dgv:
+                    dgv.BackgroundColor = dark ? DarkBg : SystemColors.Window;
+                    dgv.GridColor = dark ? DarkBorder : Color.FromArgb(235, 235, 235);
+                    dgv.DefaultCellStyle.BackColor = dark ? DarkCard : SystemColors.Window;
+                    dgv.DefaultCellStyle.ForeColor = dark ? DarkText : SystemColors.ControlText;
+                    dgv.DefaultCellStyle.SelectionBackColor = Color.FromArgb(0, 120, 215);
+                    dgv.DefaultCellStyle.SelectionForeColor = Color.White;
+
+                    dgv.ColumnHeadersDefaultCellStyle.BackColor = dark ? DarkInput : Color.FromArgb(245, 245, 245);
+                    dgv.ColumnHeadersDefaultCellStyle.ForeColor = dark ? DarkText : SystemColors.ControlText;
+                    dgv.ColumnHeadersDefaultCellStyle.SelectionBackColor = dgv.ColumnHeadersDefaultCellStyle.BackColor;
+                    dgv.ColumnHeadersDefaultCellStyle.SelectionForeColor = dgv.ColumnHeadersDefaultCellStyle.ForeColor;
+                    dgv.EnableHeadersVisualStyles = false;
+                    break;
+
                 case ComboBox cb:
                     cb.BackColor = dark ? DarkInput : SystemColors.Window;
                     cb.ForeColor = dark ? DarkText : SystemColors.WindowText;

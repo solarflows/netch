@@ -141,11 +141,55 @@ public partial class MainForm : Form
             .SetValue(control, true);
     }
 
+    private void InitServerManagerButton()
+    {
+        ServerLabel.Cursor = Cursors.Hand;
+        ServerLabel.Click += (_, _) => ShowServerManager();
+
+        var manageBox = new Label
+        {
+            Cursor = Cursors.Hand,
+            Font = new Font("Segoe UI Symbol", 10F, FontStyle.Regular, GraphicsUnit.Point),
+            Margin = new Padding(0),
+            Name = "ManageServerPictureBox",
+            Size = new Size(22, 24),
+            Text = "☷",
+            TextAlign = ContentAlignment.MiddleCenter
+        };
+        manageBox.Click += (_, _) => ShowServerManager();
+
+        tableLayoutPanel2.ColumnCount = 5;
+        tableLayoutPanel2.ColumnStyles.Clear();
+        for (int i = 0; i < 5; i++)
+        {
+            tableLayoutPanel2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20F));
+        }
+        tableLayoutPanel2.Size = new Size(116, 24);
+        tableLayoutPanel2.Controls.Add(manageBox, 4, 0);
+    }
+
+    private void ShowServerManager()
+    {
+        if (Application.OpenForms.OfType<ServerManagerForm>().FirstOrDefault() is { } existing)
+        {
+            existing.BringToFront();
+            existing.Activate();
+        }
+        else
+        {
+            new ServerManagerForm().Show();
+        }
+    }
+
     private void MainForm_Load(object sender, EventArgs e)
     {
-        // 开启 ComboBox 双缓冲，消除重绘闪烁与掉帧
+        // 开启 ComboBox 双缓冲，固定行高，消除重绘闪烁与迟滞
         EnableDoubleBuffering(ServerComboBox);
         EnableDoubleBuffering(ModeComboBox);
+        ServerComboBox.ItemHeight = 24;
+        ModeComboBox.ItemHeight = 24;
+
+        InitServerManagerButton();
 
         // 计算 ComboBox绘制 目标宽度
         RecordSize();
@@ -160,14 +204,26 @@ public partial class MainForm : Form
             {
                 BeginInvoke(() =>
                 {
-                    if (!ServerComboBox.DroppedDown && ServerComboBox.SelectedItem == server)
-                        ServerComboBox.Refresh();
+                    if (ServerComboBox.SelectedItem == server)
+                        ServerComboBox.Invalidate();
                 });
                 return;
             }
 
-            if (!ServerComboBox.DroppedDown && ServerComboBox.SelectedItem == server)
-                ServerComboBox.Refresh();
+            if (ServerComboBox.SelectedItem == server)
+                ServerComboBox.Invalidate();
+        };
+
+        DelayTestHelper.TestingStateChanged += isTesting =>
+        {
+            if (IsDisposed) return;
+            if (InvokeRequired)
+            {
+                BeginInvoke(() => StatusText(isTesting ? i18N.Translate("Testing") : null));
+                return;
+            }
+
+            StatusText(isTesting ? i18N.Translate("Testing") : null);
         };
 
         DelayTestHelper.UpdateTick(true);
@@ -918,16 +974,37 @@ public partial class MainForm : Form
         // 如果当前 ServerComboBox 中没元素，不做处理
     }
 
-    private void ServerComboBox_SelectionChangeCommitted(object sender, EventArgs o)
+    private Server? _lastActiveServer;
+
+    private void HandleServerSelectionChanged(Server s)
     {
         Global.Settings.ServerComboBoxSelectedIndex = ServerComboBox.SelectedIndex;
-        if (ServerComboBox.SelectedItem is Server s)
+
+        if (_lastActiveServer != s)
         {
+            _lastActiveServer = s;
             Log.Information("Selected server changed: [{Type}] {Remark} ({Hostname}:{Port})", s.Type, s.Remark, s.Hostname, s.Port);
+
             if (State == State.Started)
             {
                 MainController.HotSwitchServerAsync(s).Forget();
             }
+        }
+    }
+
+    private void ServerComboBox_SelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (ServerComboBox.SelectedIndex >= 0 && ServerComboBox.SelectedItem is Server s)
+        {
+            HandleServerSelectionChanged(s);
+        }
+    }
+
+    private void ServerComboBox_SelectionChangeCommitted(object? sender, EventArgs o)
+    {
+        if (ServerComboBox.SelectedItem is Server s)
+        {
+            HandleServerSelectionChanged(s);
         }
     }
 
@@ -939,6 +1016,7 @@ public partial class MainForm : Form
             return;
         }
 
+        _lastActiveServer = newServer;
         ServerComboBox.SelectedItem = newServer;
         StatusText(i18N.Translate("Started"));
         UpdateControlButtonTheme(true);
@@ -977,30 +1055,38 @@ public partial class MainForm : Form
         Show();
     }
 
-    private async void SpeedPictureBox_Click(object sender, EventArgs e)
+    private void SpeedPictureBox_Click(object sender, EventArgs e)
     {
-        void Enable()
-        {
-            ServerComboBox.Refresh();
-            Enabled = true;
-            StatusText();
-        }
+        if (ServerComboBox.SelectedItem is not Server selectedServer)
+            return;
 
-        Enabled = false;
-        StatusText(i18N.Translate("Testing"));
-
-        if (!IsWaiting() || ModifierKeys == Keys.Control)
+        if (ModifierKeys == Keys.Control)
         {
-            if (ServerComboBox.SelectedItem is Server selectedServer)
-            {
-                await DelayTestHelper.TestServerAsync(selectedServer);
-            }
-            Enable();
+            // Ctrl + 点击：后台流式全测全部节点，主窗体保持完全可用不假死
+            StatusText(i18N.Translate("Testing"));
+            DelayTestHelper.PerformTestAsync().Forget();
         }
         else
         {
-            await DelayTestHelper.PerformTestAsync(true);
-            Enable();
+            // 单击：瞬间单测当前选中的节点，数十毫秒完成并即时刷新
+            StatusText(i18N.Translate("Testing"));
+            Task.Run(async () =>
+            {
+                await DelayTestHelper.TestServerAsync(selectedServer);
+                if (InvokeRequired)
+                {
+                    BeginInvoke(() =>
+                    {
+                        ServerComboBox.Invalidate();
+                        StatusText();
+                    });
+                }
+                else
+                {
+                    ServerComboBox.Invalidate();
+                    StatusText();
+                }
+            }).Forget();
         }
     }
 
@@ -1860,7 +1946,8 @@ public partial class MainForm : Form
 
         var itemObj = cbx.Items[e.Index];
         var isServer = itemObj is Server;
-        int boxWidth = isServer ? Math.Max(48, (int)(cbx.Font.Height * 2.2)) : 0;
+        const int serverBoxWidth = 56;
+        int boxWidth = isServer ? serverBoxWidth : 0;
         int textWidth = isServer ? Math.Max(0, e.Bounds.Width - boxWidth - 8) : e.Bounds.Width;
         var textRect = new Rectangle(e.Bounds.X + 2, e.Bounds.Y, textWidth, e.Bounds.Height);
 
