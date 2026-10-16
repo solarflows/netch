@@ -40,14 +40,15 @@ jobs:
       - name: Dotnet Restore
         shell: pwsh
         run: |
-          dotnet restore Netch.sln
+          dotnet restore .\Netch\Netch.csproj
+          dotnet restore .\Tests\Tests.csproj
 
-      - name: Dotnet Build
+      - name: Dotnet Build (Netch)
         shell: pwsh
         run: |
-          dotnet build Netch.sln -c Release --no-restore -p:Platform=x64
+          dotnet build .\Netch\Netch.csproj -c Release -p:Platform=x64
 
       - name: Run Smoke Tests (.NET MSTest)
         shell: pwsh
         run: |
-          dotnet test .\Tests\Tests.csproj -c Release -p:Platform=x64 --no-build --logger "console;verbosity=normal"
+          dotnet test .\Tests\Tests.csproj -c Release -p:Platform=x64 --logger "console;verbosity=normal"
