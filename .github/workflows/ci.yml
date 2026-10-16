@@ -1,0 +1,53 @@
+name: Netch Fast CI
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Netch/**'
+      - 'Tests/**'
+      - '*.sln'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'Netch/**'
+      - 'Tests/**'
+      - '*.sln'
+      - '.github/workflows/ci.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Build & Smoke Tests
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Dotnet Restore
+        shell: pwsh
+        run: |
+          dotnet restore Netch.sln
+
+      - name: Dotnet Build
+        shell: pwsh
+        run: |
+          dotnet build Netch.sln -c Release --no-restore -p:Platform=x64
+
+      - name: Run Smoke Tests (.NET MSTest)
+        shell: pwsh
+        run: |
+          dotnet test .\Tests\Tests.csproj -c Release -p:Platform=x64 --no-build --logger "console;verbosity=normal"
