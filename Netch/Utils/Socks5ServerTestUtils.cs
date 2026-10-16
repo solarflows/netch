@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using Netch.Models;
@@ -15,8 +15,8 @@ public static class Socks5ServerTestUtils
 {
     public static async Task<NatTypeTestResult> DiscoveryNatTypeAsync(Socks5Server socks5, CancellationToken ctx = default)
     {
-        var stunServer = Global.Settings.STUN_Server;
-        var port = (ushort)Global.Settings.STUN_Server_Port;
+        var stunServer = Global.Settings.StunServer;
+        var port = (ushort)Global.Settings.StunServerPort;
         var local = new IPEndPoint(IPAddress.Any, 0);
 
         var serverIp = await DnsUtils.LookupAsync(socks5.Hostname);

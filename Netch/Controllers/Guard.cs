@@ -11,9 +11,10 @@ public abstract class Guard
 {
     private FileStream? _logFileStream;
     private StreamWriter? _logStreamWriter;
+    private TaskCompletionSource<bool>? _startTcs;
 
     /// <param name="mainFile">application path relative of Netch\bin</param>
-    /// <param name="redirectOutput"></param>
+    /// <param name="redirectOutput">Whether to redirect process standard output for log capture and keyword detection</param>
     /// <param name="encoding">application output encode</param>
     protected Guard(string mainFile, bool redirectOutput = true, Encoding? encoding = null)
     {
@@ -58,6 +59,7 @@ public abstract class Guard
     protected async Task StartGuardAsync(string argument, ProcessPriorityClass priority = ProcessPriorityClass.Normal)
     {
         State = State.Starting;
+        _startTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         _logFileStream = new FileStream(LogPath, FileMode.Create, FileAccess.Write, FileShare.Read, 4096, true);
         _logStreamWriter = new StreamWriter(_logFileStream) { AutoFlush = true };
@@ -81,24 +83,24 @@ public abstract class Guard
                 return;
             }
 
-            // wait ReadOutput change State
-            for (var i = 0; i < 1000; i++)
+            try
             {
-                await Task.Delay(50);
-                switch (State)
+                var started = await _startTcs.Task.WaitAsync(TimeSpan.FromSeconds(Constants.GuardStartTimeoutSeconds));
+                if (started)
                 {
-                    case State.Started:
-                        OnStarted();
-                        return;
-                    case State.Stopped:
-                        await StopGuardAsync();
-                        OnStartFailed();
-                        throw new MessageException($"{Name} 控制器启动失败");
+                    OnStarted();
+                    return;
                 }
-            }
 
-            await StopGuardAsync();
-            throw new MessageException($"{Name} 控制器启动超时");
+                await StopGuardAsync();
+                OnStartFailed();
+                throw new MessageException($"{Name} 控制器启动失败");
+            }
+            catch (TimeoutException)
+            {
+                await StopGuardAsync();
+                throw new MessageException($"{Name} 控制器启动超时");
+            }
         }
     }
 
@@ -113,11 +115,15 @@ public abstract class Guard
             if (State == State.Starting)
             {
                 if (StartedKeywords.Any(s => line.Contains(s)))
+                {
                     State = State.Started;
+                    _startTcs?.TrySetResult(true);
+                }
                 else if (FailedKeywords.Any(s => line.Contains(s)))
                 {
                     OnStartFailed();
                     State = State.Stopped;
+                    _startTcs?.TrySetResult(false);
                 }
             }
         }
@@ -130,6 +136,7 @@ public abstract class Guard
 
     protected async Task StopGuardAsync()
     {
+        _startTcs?.TrySetCanceled();
         try
         {
             if (Instance is { HasExited: false })

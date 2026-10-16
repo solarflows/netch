@@ -1,18 +1,13 @@
 using System.Net;
 using System.Text;
 using Microsoft.VisualStudio.Threading;
+using Netch.Controllers;
 
 namespace Netch.Utils;
 
 public static class WebUtil
 {
-    public const string DefaultUserAgent =
-        @"clash.meta; Netch/1.9.10";
-
-    static WebUtil()
-    {
-        ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
-    }
+    public static string DefaultUserAgent => $"clash.meta; Netch/{UpdateChecker.Version}";
 
     private static int DefaultGetTimeout => Global.Settings.RequestTimeout;
 

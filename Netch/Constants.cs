@@ -1,4 +1,4 @@
-﻿namespace Netch;
+namespace Netch;
 
 public static class Constants
 {
@@ -28,4 +28,16 @@ public static class Constants
 
     public const string DefaultPrimaryDNS = "1.1.1.1";
     public const string DefaultCNPrimaryDNS = "223.5.5.5";
+
+    /// <summary>Log files older than this many days will be deleted on startup.</summary>
+    public const int LogRetentionDays = 7;
+
+    /// <summary>Maximum log file size in bytes before rolling to a new file.</summary>
+    public const long LogFileSizeBytes = 10 * 1024 * 1024;
+
+    /// <summary>Timeout in seconds for a Guard controller to report started state.</summary>
+    public const int GuardStartTimeoutSeconds = 50;
+
+    /// <summary>Port release cooldown in milliseconds after stopping a server controller.</summary>
+    public const int PortReleaseCooldownMs = 50;
 }

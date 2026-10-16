@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -20,11 +20,11 @@ public static class UpdateChecker
 
     public static readonly string Version = $"{AssemblyVersion}{(string.IsNullOrEmpty(Suffix) ? "" : $"-{Suffix}")}";
 
-    internal static Release LatestRelease = null!;
+    internal static Release? LatestRelease;
 
-    public static string LatestVersionNumber => LatestRelease.tag_name;
+    public static string? LatestVersionNumber => LatestRelease?.tag_name;
 
-    public static string LatestVersionUrl => LatestRelease.html_url;
+    public static string? LatestVersionUrl => LatestRelease?.html_url;
 
     public static event EventHandler? NewVersionFound;
 
@@ -43,8 +43,8 @@ public static class UpdateChecker
 
             var releases = JsonSerializer.Deserialize<List<Release>>(json)!;
             LatestRelease = GetLatestRelease(releases, isPreRelease);
-            Log.Information("Github latest release: {Version}", LatestRelease.tag_name);
-            if (VersionUtil.CompareVersion(LatestRelease.tag_name, Version) > 0)
+            Log.Information("Github latest release: {Version}", LatestRelease?.tag_name ?? "unknown");
+            if (LatestRelease != null && VersionUtil.CompareVersion(LatestRelease.tag_name, Version) > 0)
             {
                 Log.Information("Found newer version");
                 NewVersionFound?.Invoke(null, EventArgs.Empty);
@@ -68,6 +68,9 @@ public static class UpdateChecker
 
     public static (string fileName, string sha256) GetLatestUpdateFileNameAndHash(string? keyword = null)
     {
+        if (LatestRelease == null)
+            throw new InvalidOperationException("UpdateChecker.CheckAsync has not been called yet.");
+
         var matches = Regex.Matches(LatestRelease.body, @"^\| (?<filename>.*) \| (?<sha256>.*) \|\r?$", RegexOptions.Multiline).Skip(2);
         /*
           Skip(2)
@@ -83,6 +86,9 @@ public static class UpdateChecker
 
     public static string GetLatestReleaseContent()
     {
+        if (LatestRelease == null)
+            throw new InvalidOperationException("UpdateChecker.CheckAsync has not been called yet.");
+
         var sb = new StringBuilder();
         foreach (string l in LatestRelease.body.GetLines(false).SkipWhile(l => l.FirstOrDefault() != '#'))
         {

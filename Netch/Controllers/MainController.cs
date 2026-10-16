@@ -43,7 +43,7 @@ public static class MainController
 
         // TODO Disable NAT Type Test setting
         // cache STUN Server ip to prevent "Wrong STUN Server"
-        DnsUtils.LookupAsync(Global.Settings.STUN_Server).Forget();
+        DnsUtils.LookupAsync(Global.Settings.StunServer).Forget();
 
         Server = server;
         Mode = mode;
@@ -70,14 +70,7 @@ public static class MainController
                 // Start Server Controller to get a local socks5 server
                 Log.Debug("Server Information: {Data}", $"{server.Type} {server.MaskedData()}");
 
-                if (Global.Settings.CoreType.Equals("sing-box", StringComparison.OrdinalIgnoreCase) && SingboxConfigUtils.IsSupported(server))
-                {
-                    ServerController = new SingboxController();
-                }
-                else
-                {
-                    ServerController = new V2rayController();
-                }
+                ServerController = CreateServerController(server);
 
                 Global.MainForm.StatusText(i18N.TranslateFormat("Starting {0}", ServerController.Name));
 
@@ -212,16 +205,9 @@ public static class MainController
                 }
 
                 // 缓冲 50ms 确保旧核心进程套接字与端口彻底释放
-                await Task.Delay(50);
+                await Task.Delay(Constants.PortReleaseCooldownMs);
 
-                if (Global.Settings.CoreType.Equals("sing-box", StringComparison.OrdinalIgnoreCase) && SingboxConfigUtils.IsSupported(newServer))
-                {
-                    ServerController = new SingboxController();
-                }
-                else
-                {
-                    ServerController = new V2rayController();
-                }
+                ServerController = CreateServerController(newServer);
 
                 TryReleaseTcpPort(ServerController.Socks5LocalPort(), "Socks5");
                 Socks5Server = await ServerController.StartAsync(newServer);
@@ -289,7 +275,7 @@ public static class MainController
             return new NatTypeTestResult { Result = "Error: Socks5Server is null" };
 
         Log.Information("Starting NAT type discovery via STUN server {StunServer}:{Port} through {SocksServer}...",
-            Global.Settings.STUN_Server, Global.Settings.STUN_Server_Port, Socks5Server.Hostname);
+            Global.Settings.StunServer, Global.Settings.StunServerPort, Socks5Server.Hostname);
         var result = await Socks5ServerTestUtils.DiscoveryNatTypeAsync(Socks5Server, ctx);
         Log.Information("NAT type discovery result: {Result}, LocalEnd: {Local}, PublicEnd: {Public}",
             result.Result, result.LocalEnd, result.PublicEnd);
@@ -318,5 +304,13 @@ public static class MainController
         }
 
         return null;
+    }
+
+    /// <summary>Creates the appropriate server controller based on the configured core type and server support.</summary>
+    private static IServerController CreateServerController(Server server)
+    {
+        if (Global.Settings.CoreType.Equals("sing-box", StringComparison.OrdinalIgnoreCase) && SingboxConfigUtils.IsSupported(server))
+            return new SingboxController();
+        return new V2rayController();
     }
 }

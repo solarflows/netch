@@ -12,6 +12,9 @@ namespace Netch.Utils;
 
 public static class Utils
 {
+    private static readonly Lazy<DatabaseReader> GeoIpReader = new(
+        () => new DatabaseReader(Path.Combine(Global.NetchDir, "bin", "GeoLite2-Country.mmdb")));
+
     public static void Open(string path)
     {
         try
@@ -82,7 +85,7 @@ public static class Utils
         string? country = null;
         try
         {
-            var databaseReader = new DatabaseReader("bin\\GeoLite2-Country.mmdb");
+            var databaseReader = GeoIpReader.Value;
 
             if (IPAddress.TryParse(address, out _))
             {
@@ -96,9 +99,9 @@ public static class Utils
                     country = databaseReader.Country(dnsResult).Country.IsoCode;
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // ignored
+            Log.Verbose(ex, "GeoIP lookup failed for address {Address}", address);
         }
 
         country ??= "Unknown";
@@ -285,18 +288,3 @@ public static class Utils
         }
     }
 }
-
-public class BiluServer
-{
-    // 将字段设置为只读
-    public static readonly Dictionary<string, string> NamesAndUrls = new()
-    {
-        { "Clang.CN", "https://ispip.clang.cn/all_cn.txt" },
-        { "Clang.CN.CIDR", "https://ispip.clang.cn/all_cn_cidr.txt" },
-        { "china-operator-ip", "https://fastly.jsdelivr.net/gh/gaoyifan/china-operator-ip@ip-lists/china.txt" },
-        // 如果需要，可以添加更多的显示名称和URL
-    };
-}
-
-
-

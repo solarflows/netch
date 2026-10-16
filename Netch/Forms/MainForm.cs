@@ -503,7 +503,7 @@ public partial class MainForm : Form
         try
         {
             // 获取远程绕过 IP 内容
-            string displayName = Global.Settings.BILU_Server;
+            string displayName = Global.Settings.BiluServerName;
             if (!BiluServer.NamesAndUrls.TryGetValue(displayName, out string? url))
             {
                 MessageBoxX.Show(i18N.Translate("Invalid update link"));
@@ -1634,7 +1634,7 @@ public partial class MainForm : Form
                 sb.AppendLine($"Local: {res.LocalEnd}");
             if (!string.IsNullOrEmpty(res.PublicEnd))
                 sb.AppendLine($"Public: {res.PublicEnd}{(country != null ? $" [{country}]" : "")}");
-            sb.AppendLine($"STUN Server: {Global.Settings.STUN_Server}:{Global.Settings.STUN_Server_Port}");
+            sb.AppendLine($"STUN Server: {Global.Settings.StunServer}:{Global.Settings.StunServerPort}");
             sb.AppendLine("─────────────────────────────");
             sb.Append(i18N.Translate("Click to test again"));
 

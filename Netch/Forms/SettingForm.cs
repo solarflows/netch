@@ -1,5 +1,6 @@
 using System.Net;
 using Netch.Enums;
+using Netch.Models;
 using Netch.Properties;
 using Netch.Services;
 using Netch.Utils;
@@ -78,23 +79,23 @@ public partial class SettingForm : BindingForm
             o =>
             {
                 var split = o.ToString()!.SplitRemoveEmptyEntriesAndTrimEntries(':');
-                Global.Settings.STUN_Server = split[0];
+                Global.Settings.StunServer = split[0];
 
                 var port = split.ElementAtOrDefault(1);
-                Global.Settings.STUN_Server_Port = port != null ? ushort.Parse(port) : 3478;
+                Global.Settings.StunServerPort = port != null ? ushort.Parse(port) : 3478;
             },
-            Global.Settings.STUN_Server + ":" + Global.Settings.STUN_Server_Port,
+            Global.Settings.StunServer + ":" + Global.Settings.StunServerPort,
             stuns);
 
         // 获取上次选择的 BILU Server
-        var lastSelected = Global.Settings.BILU_Server;
+        var lastSelected = Global.Settings.BiluServerName;
         BindComboBox(BILU_ServerComboBox,
             s => string.IsNullOrEmpty(s) || BiluServer.NamesAndUrls.ContainsKey(s),
             o =>
             {
                 if (o is string displayName)
                 {
-                    Global.Settings.BILU_Server = displayName;
+                    Global.Settings.BiluServerName = displayName;
                 }
             },
             lastSelected ?? string.Empty,

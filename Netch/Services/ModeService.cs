@@ -1,4 +1,4 @@
-﻿using Netch.Controllers;
+using Netch.Controllers;
 using Netch.Interfaces;
 using Netch.Models;
 using Netch.Models.Modes;
@@ -9,6 +9,9 @@ namespace Netch.Services;
 public class ModeService
 {
     public static readonly ModeService Instance = new();
+
+    /// <summary>Raised when a mode is deleted, allowing UI components to update without direct coupling.</summary>
+    public static event EventHandler<Mode>? ModeDeleted;
 
     public static string ModeDirectoryFullName => Path.Combine(Global.NetchDir, "mode");
 
@@ -61,13 +64,6 @@ public class ModeService
         }
     }
 
-    private static void SortCollection()
-    {
-        // TODO better sort need to discuss
-        // TODO replace Mode Collection type
-        Global.Modes.Sort((a, b) => string.Compare(a.i18NRemark, b.i18NRemark, StringComparison.Ordinal));
-    }
-
     public static void Add(Mode mode)
     {
         if (mode.FullName == null)
@@ -81,7 +77,8 @@ public class ModeService
 
     public static void Sort()
     {
-        SortCollection();
+        // TODO: discuss better sort criteria and replace Mode Collection type
+        Global.Modes.Sort((a, b) => string.Compare(a.i18NRemark, b.i18NRemark, StringComparison.Ordinal));
         Global.MainForm.LoadModes();
     }
 
@@ -90,8 +87,9 @@ public class ModeService
         if (mode.FullName == null)
             throw new ArgumentException(nameof(mode.FullName));
 
-        Global.MainForm.ModeComboBox.Items.Remove(mode);
         Global.Modes.Remove(mode);
+        Global.MainForm.ModeComboBox.Items.Remove(mode);
+        ModeDeleted?.Invoke(null, mode);
 
         if (File.Exists(mode.FullName))
             File.Delete(mode.FullName);

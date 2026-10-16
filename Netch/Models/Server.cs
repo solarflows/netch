@@ -1,4 +1,4 @@
-﻿using System.Net.Sockets;
+using System.Net.Sockets;
 using System.Text.Json.Serialization;
 using Netch.Utils;
 
@@ -171,8 +171,11 @@ public static class ServerExtension
 {
     public static async Task<string> AutoResolveHostnameAsync(this Server server, AddressFamily inet = AddressFamily.Unspecified)
     {
-        // ! MainController cached
-        return (await DnsUtils.LookupAsync(server.Hostname, inet))!.ToString();
+        // MainController cached
+        var address = await DnsUtils.LookupAsync(server.Hostname, inet);
+        if (address == null)
+            throw new MessageException(i18N.Translate("Lookup Server hostname failed"));
+        return address.ToString();
     }
 
     public static bool IsInGroup(this Server server)

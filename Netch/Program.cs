@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -92,13 +92,13 @@ public static class Program
                 var directory = new DirectoryInfo("logging");
                 foreach (var file in directory.GetFiles("*.log*"))
                 {
-                    if (file.Name != "application.log" && file.Name != "application.previous.log" && DateTime.Now - file.LastWriteTime > TimeSpan.FromDays(7))
+                    if (file.Name != "application.log" && file.Name != "application.previous.log" && DateTime.Now - file.LastWriteTime > TimeSpan.FromDays(Constants.LogRetentionDays))
                         file.Delete();
                 }
             }
             catch
             {
-                // ignored
+                // Logger not yet initialized at this point; silently ignore log rotation failures
             }
         }
 
@@ -222,6 +222,7 @@ public static class Program
 
     private const uint SC_CLOSE = 0xF060;
     private const uint MF_BYCOMMAND = 0x00000000;
+    private const int CtrlCloseEvent = 2;
 
     private static void InitConsole()
     {
@@ -239,7 +240,7 @@ public static class Program
         // 2. 注册控制台关闭事件处理程序：若收到 CTRL_CLOSE_EVENT，转为隐藏控制台，阻止进程被 Windows 强制终止
         _consoleCtrlHandler = ctrlType =>
         {
-            if (ctrlType == 2) // CTRL_CLOSE_EVENT
+            if (ctrlType == CtrlCloseEvent)
             {
                 PInvoke.ShowWindow(ConsoleHwnd, Windows.Win32.UI.WindowsAndMessaging.SHOW_WINDOW_CMD.SW_HIDE);
                 return true; // 返回 true 表示已拦截处理，严禁退出进程
@@ -266,7 +267,7 @@ public static class Program
                 outputTemplate: Constants.OutputTemplate,
                 flushToDiskInterval: TimeSpan.FromSeconds(1),
                 rollOnFileSizeLimit: true,
-                fileSizeLimitBytes: 10 * 1024 * 1024))
+                fileSizeLimitBytes: Constants.LogFileSizeBytes))
             .WriteTo.Console(outputTemplate: Constants.OutputTemplate)
             .MinimumLevel.Override(@"Microsoft", LogEventLevel.Information)
             .Enrich.FromLogContext()

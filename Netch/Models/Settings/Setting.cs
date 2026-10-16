@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Netch.Models;
 
@@ -139,20 +140,22 @@ public class Setting
     public bool StopWhenExited { get; set; } = false;
 
     /// <summary>
-    ///     STUN测试服务器
+    ///     STUN 测试服务器地址
     /// </summary>
-    public string STUN_Server { get; set; } = "stun.syncthing.net";
+    [JsonPropertyName("STUN_Server")]
+    public string StunServer { get; set; } = "stun.syncthing.net";
 
     /// <summary>
-    ///     STUN测试服务器
+    ///     STUN 测试服务器端口
     /// </summary>
-    public int STUN_Server_Port { get; set; } = 3478;
+    [JsonPropertyName("STUN_Server_Port")]
+    public int StunServerPort { get; set; } = 3478;
 
     /// <summary>
-    ///     BILU服务器
+    ///     BILU 服务器选择
     /// </summary>
-    /// 
-    public string BILU_Server { get; set; } = string.Empty;
+    [JsonPropertyName("BILU_Server")]
+    public string BiluServerName { get; set; } = string.Empty;
 
     /// <summary>
     ///     订阅链接列表
@@ -175,15 +178,14 @@ public class Setting
 
     #region Migration
 
-    [Obsolete("The SubscribeLink property is deprecated. Use the Subscribe property.")]
+    [Obsolete("The SubscribeLink property is deprecated. Use the Subscription property.")]
     public JsonElement SubscribeLink
     {
         set
         {
-            // ! TODO:
-            if (Subscription == null! || !Subscription.Any())
-                // ! TODO:
-                Subscription = value.Deserialize<List<Subscription>>()!;
+            // Migrate legacy SubscribeLink to new Subscription list (only if not already populated)
+            if (!Subscription.Any())
+                Subscription = value.Deserialize<List<Subscription>>() ?? new List<Subscription>();
         }
     }
 
